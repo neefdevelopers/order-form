@@ -1,0 +1,25 @@
+{
+  "name": "product-ordering-system",
+  "version": "1.0.0",
+  "description": "Clean, simple, responsive Product Ordering System with Customer Order Form and Admin Panel",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "build": "npm --prefix client run build",
+    "client": "npm --prefix client run dev",
+    "server": "node server/index.js",
+    "test": "node test/api-test.js"
+  },
+  "keywords": ["order", "product-ordering", "excel-export", "admin-panel"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0"
+  }
+}

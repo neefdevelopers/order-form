@@ -1,0 +1,11 @@
+node_modules/
+client/node_modules/
+data/*.db
+data/*.db-wal
+data/*.db-shm
+!data/.gitkeep
+uploads/products/prod_*
+.env
+*.log
+.DS_Store
+Thumbs.db
