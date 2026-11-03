@@ -313,13 +313,13 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto px-4 py-8">
+    <div className="w-full max-w-xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
       {/* Top Header Card */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-3 shadow-sm border border-blue-100">
-          <ShoppingBag className="w-6 h-6" />
+      <div className="text-center mb-6 sm:mb-8">
+        <div className="inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 mb-2.5 sm:mb-3 shadow-sm border border-blue-100">
+          <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
           Product Order Form
         </h1>
       </div>
@@ -378,7 +378,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
         {/* STEP 1: PRODUCT DETAILS                                 */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="p-6 sm:p-8 space-y-6">
+          <form onSubmit={handleNext} className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg font-semibold text-slate-800">
                 Step 1 – Product Details
@@ -624,7 +624,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
         {/* STEP 2: CUSTOMER ADDRESS DETAILS                         */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="p-6 sm:p-8 space-y-5">
+          <form onSubmit={handleSubmitOrder} className="p-4 sm:p-6 md:p-8 space-y-5">
             <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-slate-800">
@@ -913,12 +913,12 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
             </div>
 
             {/* Buttons: Back and Make Order */}
-            <div className="pt-4 flex items-center gap-3">
+            <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={submitting}
-                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 transition disabled:opacity-50"
+                className="w-full sm:flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 transition disabled:opacity-50"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back</span>
@@ -927,7 +927,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-[2] flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full sm:flex-[2] flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <>
@@ -949,7 +949,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
         {/* STEP 3: ORDER SUCCESS                                    */}
         {/* ======================================================== */}
         {step === 3 && orderResult && (
-          <div className="p-8 text-center space-y-6">
+          <div className="p-5 sm:p-8 text-center space-y-5 sm:space-y-6">
             <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border-2 border-emerald-200 shadow-sm animate-bounce-short">
               <CheckCircle2 className="w-9 h-9" />
             </div>

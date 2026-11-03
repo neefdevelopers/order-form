@@ -64,45 +64,47 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
-      {/* Top minimal switcher header */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <button
-            onClick={() => setView('customer')}
-            className="flex items-center gap-2 text-sm font-semibold text-slate-900 hover:text-blue-600 transition"
-          >
-            <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center">
-              <ShoppingBag className="w-4 h-4" />
-            </div>
-            <span>Product Ordering</span>
-          </button>
-
-          <div className="flex items-center gap-2">
+      {/* Top minimal switcher header (hidden when logged in as admin to avoid duplicate stacked headers) */}
+      {!(view === 'admin' && token) && (
+        <header className="bg-white border-b border-slate-200">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 h-12 sm:h-14 flex items-center justify-between">
             <button
               onClick={() => setView('customer')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                view === 'customer'
-                  ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-100'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+              className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 hover:text-blue-600 transition"
             >
-              Order Form
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+              <span className="truncate">Product Ordering</span>
             </button>
 
-            <button
-              onClick={() => setView('admin')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                view === 'admin'
-                  ? 'bg-slate-900 text-white font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin Panel</span>
-            </button>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                onClick={() => setView('customer')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                  view === 'customer'
+                    ? 'bg-blue-50 text-blue-700 font-semibold border border-blue-100'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                Order Form
+              </button>
+
+              <button
+                onClick={() => setView('admin')}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                  view === 'admin'
+                    ? 'bg-slate-900 text-white font-semibold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>Admin</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Body */}
       <div className="flex-1 flex flex-col">

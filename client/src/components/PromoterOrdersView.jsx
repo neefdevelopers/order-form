@@ -169,12 +169,12 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
         </div>
 
         {/* Action Controls: Refresh & Export */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <button
             onClick={fetchPromoterOrders}
             disabled={loading}
             title="Refresh Orders"
-            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-xs disabled:opacity-50"
+            className="p-2 sm:p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-xs disabled:opacity-50 flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -182,22 +182,23 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
           <button
             onClick={handleExportExcel}
             disabled={exporting || orders.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-semibold transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-semibold transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {exporting ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0" />
                 <span>Exporting...</span>
               </>
             ) : exportSuccess ? (
               <>
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                 <span>Downloaded!</span>
               </>
             ) : (
               <>
-                <FileSpreadsheet className="w-4 h-4" />
-                <span>Export {promoter.promoter_code} Orders (.xlsx)</span>
+                <FileSpreadsheet className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Export {promoter.promoter_code} Orders (.xlsx)</span>
+                <span className="inline sm:hidden">Export .xlsx</span>
               </>
             )}
           </button>
@@ -472,3 +473,4 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
     </div>
   );
 }
+

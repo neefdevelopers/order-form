@@ -41,8 +41,8 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-12">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+    <div className="w-full max-w-md mx-auto px-3 sm:px-4 py-8 sm:py-12">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-8">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-800 mb-3 shadow-inner">
             <Lock className="w-6 h-6" />

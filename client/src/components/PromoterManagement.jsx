@@ -615,9 +615,9 @@ export default function PromoterManagement({ token }) {
       {/* ADD / EDIT PROMOTER MODAL                                */}
       {/* ======================================================== */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
               <h3 className="text-base font-bold text-slate-900">
                 {editingPromoter ? 'Edit Promoter ID' : 'Add Authorized Promoter ID'}
               </h3>
@@ -629,7 +629,7 @@ export default function PromoterManagement({ token }) {
               </button>
             </div>
 
-            <form onSubmit={handleSavePromoter} className="p-6 space-y-4">
+            <form onSubmit={handleSavePromoter} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
               {formError && (
                 <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -726,8 +726,8 @@ export default function PromoterManagement({ token }) {
       {/* DELETE CONFIRMATION MODAL                                */}
       {/* ======================================================== */}
       {deletingPromoter && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-6 text-center animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm max-h-[90vh] overflow-y-auto p-5 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-3">
               <Trash2 className="w-6 h-6" />
             </div>

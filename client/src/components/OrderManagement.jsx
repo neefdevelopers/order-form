@@ -237,11 +237,14 @@ export default function OrderManagement({
               </>
             ) : (
               <>
-                <FileSpreadsheet className="w-4 h-4" />
-                <span>
+                <FileSpreadsheet className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">
                   {isFiltered 
                     ? `Export Filtered Orders (${filteredOrders.length}) (.xlsx)` 
                     : 'Export Excel (.xlsx)'}
+                </span>
+                <span className="inline sm:hidden">
+                  {isFiltered ? `Export (${filteredOrders.length})` : 'Export .xlsx'}
                 </span>
               </>
             )}
@@ -265,15 +268,16 @@ export default function OrderManagement({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleExportExcel}
               disabled={exporting || filteredOrders.length === 0}
               title={`Download Excel (.xlsx) file containing only ${promoterIdFilter} orders`}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition shadow-xs disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition shadow-xs disabled:opacity-50 text-xs"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Export {promoterIdFilter} Orders (.xlsx)</span>
+              <span className="hidden sm:inline">Export {promoterIdFilter} Orders (.xlsx)</span>
+              <span className="inline sm:hidden">Export .xlsx</span>
             </button>
             <button
               onClick={() => {
@@ -281,7 +285,7 @@ export default function OrderManagement({
                 if (onClearInitialPromoter) onClearInitialPromoter();
               }}
               title="Show all orders from all promoters"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium hover:bg-slate-100 transition shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium hover:bg-slate-100 transition shadow-xs text-xs"
             >
               <X className="w-3.5 h-3.5 text-slate-500" />
               <span>Show All</span>

@@ -32,10 +32,10 @@ export default function OrderDetailsModal({ order, onClose }) {
   const total = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : unitPrice * order.quantity;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
           <div>
             <h3 className="text-base font-bold text-slate-900">
               Order Details
@@ -53,7 +53,7 @@ export default function OrderDetailsModal({ order, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto">
           {/* Order ID Banner */}
           <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl flex items-center justify-between">
             <div>
@@ -143,10 +143,10 @@ export default function OrderDetailsModal({ order, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <div className="px-5 sm:px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-800 text-white text-xs font-medium hover:bg-slate-700 transition"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg bg-slate-800 text-white text-xs font-medium hover:bg-slate-700 transition"
           >
             Close
           </button>
