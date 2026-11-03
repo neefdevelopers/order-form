@@ -15,7 +15,12 @@ function getInitialView() {
 
 export default function App() {
   const [view, setView] = useState(getInitialView);
-  const [token, setToken] = useState(() => localStorage.getItem('admin_token') || null);
+  const [token, setToken] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('admin_token') || null;
+    }
+    return null;
+  });
   const [admin, setAdmin] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -41,9 +46,18 @@ export default function App() {
 
   // Check existing token validity on startup
   useEffect(() => {
+    // Purge any legacy persistent localStorage token to enforce session isolation
+    try {
+      localStorage.removeItem('admin_token');
+    } catch (e) {
+      // Ignore storage restrictions
+    }
+
     const verifyExistingToken = async () => {
-      const storedToken = localStorage.getItem('admin_token');
+      const storedToken = sessionStorage.getItem('admin_token');
       if (!storedToken) {
+        setToken(null);
+        setAdmin(null);
         setCheckingAuth(false);
         return;
       }
@@ -59,12 +73,15 @@ export default function App() {
           setAdmin(data.admin);
         } else {
           // Token is invalid/expired
-          localStorage.removeItem('admin_token');
+          sessionStorage.removeItem('admin_token');
           setToken(null);
           setAdmin(null);
         }
       } catch (err) {
         console.error('Error verifying admin token:', err);
+        sessionStorage.removeItem('admin_token');
+        setToken(null);
+        setAdmin(null);
       } finally {
         setCheckingAuth(false);
       }
@@ -74,6 +91,7 @@ export default function App() {
   }, []);
 
   const handleLoginSuccess = (newToken, adminUser) => {
+    sessionStorage.setItem('admin_token', newToken);
     setToken(newToken);
     setAdmin(adminUser);
     setView('admin');
@@ -86,6 +104,7 @@ export default function App() {
     } catch (e) {
       // Ignore network errors on logout
     }
+    sessionStorage.removeItem('admin_token');
     localStorage.removeItem('admin_token');
     setToken(null);
     setAdmin(null);

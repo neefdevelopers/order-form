@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
 const { ADMIN_USERNAME, ADMIN_PASSWORD, generateToken, requireAdminAuth } = require('./auth');
 
@@ -16,20 +17,71 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security headers middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
 // Serve static uploaded product images
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // -------------------------------------------------------------
-// Admin Authentication Routes
+// Admin Authentication Routes with Security & Brute-Force Rate Limiting
 // -------------------------------------------------------------
+const loginAttempts = new Map();
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const ATTEMPT_WINDOW_MS = 10 * 60 * 1000;   // 10 minutes
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+}
+
 app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const ip = getClientIp(req);
+  const now = Date.now();
+  const attemptRecord = loginAttempts.get(ip) || { count: 0, resetAt: now + ATTEMPT_WINDOW_MS };
+
+  // Check if IP is currently locked out
+  if (attemptRecord.lockedUntil && now < attemptRecord.lockedUntil) {
+    const minutesLeft = Math.ceil((attemptRecord.lockedUntil - now) / (60 * 1000));
+    return res.status(429).json({
+      error: `Too many failed login attempts. Access is locked for security. Please try again in ${minutesLeft} minute(s).`
+    });
+  }
+
+  // Reset window if expired
+  if (now > attemptRecord.resetAt) {
+    attemptRecord.count = 0;
+    attemptRecord.resetAt = now + ATTEMPT_WINDOW_MS;
+    delete attemptRecord.lockedUntil;
+  }
+
+  const { username, password } = req.body || {};
+  if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const token = generateToken({ username, role: 'admin' });
+  const cleanUser = username.trim();
+  const cleanPass = password;
+
+  // Constant-time comparison
+  const userBuf = Buffer.from(cleanUser.padEnd(64, ' '));
+  const expectedUserBuf = Buffer.from(ADMIN_USERNAME.padEnd(64, ' '));
+  const usernameMatch = crypto.timingSafeEqual(userBuf, expectedUserBuf) && cleanUser.length === ADMIN_USERNAME.length;
+
+  const passBuf = Buffer.from(cleanPass.padEnd(64, ' '));
+  const expectedPassBuf = Buffer.from(ADMIN_PASSWORD.padEnd(64, ' '));
+  const passwordMatch = crypto.timingSafeEqual(passBuf, expectedPassBuf) && cleanPass.length === ADMIN_PASSWORD.length;
+
+  if (usernameMatch && passwordMatch) {
+    // Reset attempts on successful authentication
+    loginAttempts.delete(ip);
+
+    const token = generateToken({ username: cleanUser, role: 'admin' });
     
     // Also set an HTTP-only cookie for convenience
     res.cookie('admin_token', token, {
@@ -41,11 +93,25 @@ app.post('/api/admin/login', (req, res) => {
     return res.json({
       success: true,
       token,
-      admin: { username }
+      admin: { username: cleanUser }
     });
   }
 
-  return res.status(401).json({ error: 'Invalid username or password' });
+  // Increment failed attempts
+  attemptRecord.count += 1;
+  if (attemptRecord.count >= MAX_FAILED_ATTEMPTS) {
+    attemptRecord.lockedUntil = now + LOCKOUT_DURATION_MS;
+    loginAttempts.set(ip, attemptRecord);
+    return res.status(429).json({
+      error: 'Too many failed login attempts. Access locked for 15 minutes.'
+    });
+  }
+
+  loginAttempts.set(ip, attemptRecord);
+  const remaining = MAX_FAILED_ATTEMPTS - attemptRecord.count;
+  return res.status(401).json({
+    error: `Invalid username or password. (${remaining} attempt${remaining === 1 ? '' : 's'} remaining)`
+  });
 });
 
 app.get('/api/admin/me', requireAdminAuth, (req, res) => {
