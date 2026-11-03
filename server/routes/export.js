@@ -34,8 +34,8 @@ async function handleOrdersExport(req, res) {
       }
 
       if (req.query.promoter_id && req.query.promoter_id.trim()) {
-        conditions.push('LOWER(promoter_id) LIKE ?');
-        params.push(`%${req.query.promoter_id.trim().toLowerCase()}%`);
+        conditions.push('LOWER(promoter_id) = LOWER(?)');
+        params.push(req.query.promoter_id.trim());
         isFiltered = true;
       }
 
@@ -146,7 +146,16 @@ async function handleOrdersExport(req, res) {
     });
 
     const nowStr = new Date().toISOString().slice(0, 10);
-    const filename = isFiltered ? `Orders_Filtered_${nowStr}.xlsx` : `Orders_Export_${nowStr}.xlsx`;
+    const promoterFilter = (req.body && req.body.promoter_id) || (req.query && req.query.promoter_id);
+    let filename;
+    if (promoterFilter && promoterFilter.trim()) {
+      const pCode = promoterFilter.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      filename = `Orders_${pCode}_${nowStr}.xlsx`;
+    } else if (isFiltered) {
+      filename = `Orders_Filtered_${nowStr}.xlsx`;
+    } else {
+      filename = `Orders_Export_${nowStr}.xlsx`;
+    }
 
     res.setHeader(
       'Content-Type',

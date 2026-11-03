@@ -14,18 +14,23 @@ import {
   IndianRupee,
   Filter,
   Hash,
-  X
+  X,
+  UserCheck
 } from 'lucide-react';
 import OrderDetailsModal from './OrderDetailsModal';
 
-export default function OrderManagement({ token }) {
+export default function OrderManagement({ 
+  token, 
+  initialPromoterFilter = '', 
+  onClearInitialPromoter 
+}) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Filtration state
   const [orderIdFilter, setOrderIdFilter] = useState('');
-  const [promoterIdFilter, setPromoterIdFilter] = useState('');
+  const [promoterIdFilter, setPromoterIdFilter] = useState(initialPromoterFilter || '');
   const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -35,6 +40,12 @@ export default function OrderManagement({ token }) {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (initialPromoterFilter !== undefined && initialPromoterFilter !== null) {
+      setPromoterIdFilter(initialPromoterFilter);
+    }
+  }, [initialPromoterFilter]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -58,9 +69,9 @@ export default function OrderManagement({ token }) {
     return '₹' + Number(val || 0).toLocaleString('en-IN');
   };
 
-  // Distinct promoter IDs from order records
+  // Distinct promoter IDs from order records plus any active filter
   const distinctPromoters = Array.from(
-    new Set(orders.map((o) => o.promoter_id).filter(Boolean))
+    new Set([...orders.map((o) => o.promoter_id), promoterIdFilter].filter(Boolean))
   ).sort();
 
   // Multi-criteria filtration (Order ID, Promoter ID, general search)
@@ -103,6 +114,7 @@ export default function OrderManagement({ token }) {
     setOrderIdFilter('');
     setPromoterIdFilter('');
     setSearchQuery('');
+    if (onClearInitialPromoter) onClearInitialPromoter();
   };
 
   // Direct Excel (.xlsx) Export — Exports ONLY filtered orders if filter is applied!
@@ -121,7 +133,10 @@ export default function OrderManagement({ token }) {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}` 
           },
-          body: JSON.stringify({ ids: filteredIds })
+          body: JSON.stringify({ 
+            ids: filteredIds,
+            promoter_id: promoterIdFilter.trim() || undefined
+          })
         });
       } else {
         // Export all orders
@@ -233,6 +248,47 @@ export default function OrderManagement({ token }) {
           </button>
         </div>
       </div>
+
+      {/* Promoter Orders Focus Banner */}
+      {promoterIdFilter && (
+        <div className="p-4 rounded-2xl bg-blue-50/90 border border-blue-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-3 text-blue-950">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-slate-900 leading-snug">
+                Orders for Promoter: <span className="font-mono text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md">{promoterIdFilter}</span>
+              </p>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Displaying {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'} placed with this promoter code.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportExcel}
+              disabled={exporting || filteredOrders.length === 0}
+              title={`Download Excel (.xlsx) file containing only ${promoterIdFilter} orders`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition shadow-xs disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export {promoterIdFilter} Orders (.xlsx)</span>
+            </button>
+            <button
+              onClick={() => {
+                setPromoterIdFilter('');
+                if (onClearInitialPromoter) onClearInitialPromoter();
+              }}
+              title="Show all orders from all promoters"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium hover:bg-slate-100 transition shadow-xs"
+            >
+              <X className="w-3.5 h-3.5 text-slate-500" />
+              <span>Show All</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ======================================================== */}
       {/* ID-BASED & SEARCH FILTRATION CONTROLS                    */}
@@ -412,7 +468,14 @@ export default function OrderManagement({ token }) {
                           {formatDate(order.created_at)}
                         </td>
                         <td className="py-3 px-3 font-mono text-slate-700 font-medium whitespace-nowrap">
-                          {order.promoter_id}
+                          <button
+                            type="button"
+                            onClick={() => setPromoterIdFilter(order.promoter_id)}
+                            title={`Filter orders by promoter ${order.promoter_id}`}
+                            className="hover:text-blue-600 hover:underline inline-flex items-center gap-1 group/p"
+                          >
+                            <span>{order.promoter_id}</span>
+                          </button>
                         </td>
                         <td className="py-3 px-3 font-medium text-slate-900 max-w-[140px] truncate" title={order.product_name}>
                           {order.product_name}
@@ -532,7 +595,14 @@ export default function OrderManagement({ token }) {
                   {/* Promoter ID */}
                   <div className="text-xs">
                     <span className="text-[11px] text-slate-400 block">Promoter ID</span>
-                    <span className="font-mono font-medium text-slate-700">{order.promoter_id}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPromoterIdFilter(order.promoter_id)}
+                      title={`Filter by promoter ${order.promoter_id}`}
+                      className="font-mono font-bold text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {order.promoter_id}
+                    </button>
                   </div>
 
                   {/* Complete Address */}

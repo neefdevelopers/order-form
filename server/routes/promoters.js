@@ -48,10 +48,18 @@ router.get('/promoters/validate/:code', (req, res) => {
 // ADMIN PROMOTER MANAGEMENT ENDPOINTS
 // ==========================================
 
-// 1. List all promoters
+// 1. List all promoters with order count
 router.get('/admin/promoters', requireAdminAuth, (req, res) => {
   try {
-    const stmt = db.prepare('SELECT * FROM promoters ORDER BY id DESC');
+    const stmt = db.prepare(`
+      SELECT 
+        p.*, 
+        COUNT(o.id) AS order_count
+      FROM promoters p
+      LEFT JOIN orders o ON LOWER(o.promoter_id) = LOWER(p.promoter_code)
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `);
     const promoters = stmt.all();
     res.json(promoters);
   } catch (err) {

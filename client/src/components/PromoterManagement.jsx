@@ -12,14 +12,20 @@ import {
   EyeOff, 
   Search,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  ShoppingCart,
+  Download,
+  ExternalLink,
+  ListOrdered,
+  FileSpreadsheet
 } from 'lucide-react';
 
-export default function PromoterManagement({ token }) {
+export default function PromoterManagement({ token, onSelectPromoter }) {
   const [promoters, setPromoters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [exportingCode, setExportingCode] = useState(null);
 
   // Add / Edit Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +45,40 @@ export default function PromoterManagement({ token }) {
   useEffect(() => {
     fetchPromoters();
   }, []);
+
+  // Export orders specifically for this promoter
+  const handleExportPromoter = async (code) => {
+    if (!code) return;
+    setExportingCode(code);
+    try {
+      const res = await fetch(`/api/admin/orders/export?promoter_id=${encodeURIComponent(code)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to export orders');
+
+      let filename = `Orders_${code}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const disposition = res.headers.get('content-disposition');
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const matches = /filename="?([^"]+)"?/.exec(disposition);
+        if (matches && matches[1]) filename = matches[1];
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert(`Could not export orders for promoter ${code}`);
+    } finally {
+      setExportingCode(null);
+    }
+  };
 
   const fetchPromoters = async () => {
     setLoading(true);
@@ -292,85 +332,267 @@ export default function PromoterManagement({ token }) {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider text-[11px]">
-                  <th className="py-3.5 px-4">Promoter ID Code</th>
-                  <th className="py-3.5 px-4">Name / Label</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4">Date Added</th>
-                  <th className="py-3.5 px-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredPromoters.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/60 transition group">
-                    <td className="py-3.5 px-4 font-mono font-bold text-blue-700 whitespace-nowrap">
-                      {p.promoter_code}
-                    </td>
-                    <td className="py-3.5 px-4 font-medium text-slate-800 whitespace-nowrap">
-                      {p.name || <span className="text-slate-400 italic">No name provided</span>}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                          p.is_active === 1
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
+        <>
+          {/* ======================================================== */}
+          {/* DESKTOP TABLE VIEW                                       */}
+          {/* ======================================================== */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider text-[11px]">
+                    <th className="py-3.5 px-4">Promoter ID Code</th>
+                    <th className="py-3.5 px-4">Name / Label</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Orders Placed</th>
+                    <th className="py-3.5 px-4">Date Added</th>
+                    <th className="py-3.5 px-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredPromoters.map((p) => {
+                    const orderCount = Number(p.order_count || 0);
+
+                    return (
+                      <tr key={p.id} className="hover:bg-slate-50/60 transition group">
+                        {/* Clickable Promoter Code */}
+                        <td className="py-3.5 px-4 font-mono font-bold whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                            title={`Click to view order details for ${p.promoter_code}`}
+                            className="text-blue-700 hover:text-blue-900 hover:underline inline-flex items-center gap-1.5 transition text-left group-hover:text-blue-800"
+                          >
+                            <span>{p.promoter_code}</span>
+                            <ExternalLink className="w-3 h-3 text-blue-400 group-hover:text-blue-600 opacity-60" />
+                          </button>
+                        </td>
+
+                        <td className="py-3.5 px-4 font-medium text-slate-800 whitespace-nowrap">
+                          {p.name || <span className="text-slate-400 italic">No name provided</span>}
+                        </td>
+
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                              p.is_active === 1
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                            {p.is_active === 1 ? 'Active (Can Order)' : 'Inactive (Blocked)'}
+                          </span>
+                        </td>
+
+                        {/* Order Count Badge - Clickable to View Orders */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                            title={`Click to view ${orderCount} orders for ${p.promoter_code}`}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition ${
+                              orderCount > 0
+                                ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-2xs'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}
+                          >
+                            <ShoppingCart className="w-3 h-3" />
+                            <span>{orderCount} {orderCount === 1 ? 'order' : 'orders'}</span>
+                          </button>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
+                          {formatDate(p.created_at)}
+                        </td>
+
+                        {/* Actions: View Orders, Export, Toggle, Edit, Delete */}
+                        <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5">
+                            {/* 1. Go to Promoter Orders */}
+                            <button
+                              type="button"
+                              onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                              title={`View all order details for ${p.promoter_code}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition text-[11px] font-medium"
+                            >
+                              <ListOrdered className="w-3.5 h-3.5 text-blue-600" />
+                              <span>View Orders</span>
+                            </button>
+
+                            {/* 2. Direct Export Excel for this Promoter */}
+                            <button
+                              type="button"
+                              onClick={() => handleExportPromoter(p.promoter_code)}
+                              disabled={exportingCode === p.promoter_code || orderCount === 0}
+                              title={orderCount === 0 ? 'No orders to export' : `Export ${p.promoter_code} orders to Excel (.xlsx)`}
+                              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition text-[11px] font-medium ${
+                                orderCount > 0
+                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100 shadow-2xs'
+                                  : 'text-slate-400 bg-slate-50 border-slate-200 cursor-not-allowed opacity-50'
+                              }`}
+                            >
+                              <Download className={`w-3.5 h-3.5 ${exportingCode === p.promoter_code ? 'animate-bounce' : ''}`} />
+                              <span>Export</span>
+                            </button>
+
+                            {/* 3. Quick Toggle Active */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(p)}
+                              title={p.is_active === 1 ? 'Deactivate (block orders)' : 'Activate (allow orders)'}
+                              className={`p-1.5 rounded-lg border transition ${
+                                p.is_active === 1
+                                  ? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                              }`}
+                            >
+                              {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-slate-400" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+                            </button>
+
+                            {/* 4. Edit */}
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(p)}
+                              title="Edit Promoter Details"
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* 5. Delete */}
+                            <button
+                              type="button"
+                              onClick={() => setDeletingPromoter(p)}
+                              title="Delete Promoter ID"
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 transition"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* MOBILE ADAPTIVE CARDS VIEW                               */}
+          {/* ======================================================== */}
+          <div className="block md:hidden space-y-3.5">
+            {filteredPromoters.map((p) => {
+              const orderCount = Number(p.order_count || 0);
+
+              return (
+                <div 
+                  key={p.id}
+                  className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                        className="font-mono text-sm font-bold text-blue-700 hover:underline flex items-center gap-1"
+                      >
+                        <span>{p.promoter_code}</span>
+                        <ExternalLink className="w-3 h-3 text-blue-400" />
+                      </button>
+                      <p className="text-xs font-medium text-slate-800 mt-0.5">
+                        {p.name || <span className="text-slate-400 italic">No name</span>}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                        p.is_active === 1
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-100 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                      {p.is_active === 1 ? 'Active' : 'Blocked'}
+                    </span>
+                  </div>
+
+                  {/* Order Count & Date Added */}
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                        orderCount > 0
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-slate-100 text-slate-500 border border-slate-200'
+                      }`}
+                    >
+                      <ShoppingCart className="w-3 h-3" />
+                      <span>{orderCount} {orderCount === 1 ? 'order' : 'orders'}</span>
+                    </button>
+                    <span className="text-[11px] text-slate-400">
+                      Added: {formatDate(p.created_at)}
+                    </span>
+                  </div>
+
+                  {/* Mobile Action Buttons */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition"
+                      >
+                        <ListOrdered className="w-3.5 h-3.5" />
+                        <span>Orders</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleExportPromoter(p.promoter_code)}
+                        disabled={exportingCode === p.promoter_code || orderCount === 0}
+                        className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-xs font-semibold transition ${
+                          orderCount > 0
+                            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                            : 'text-slate-400 bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed'
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                        {p.is_active === 1 ? 'Active (Can Order)' : 'Inactive (Blocked)'}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
-                      {formatDate(p.created_at)}
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <div className="inline-flex items-center gap-1.5">
-                        {/* Quick Toggle Active */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleActive(p)}
-                          title={p.is_active === 1 ? 'Deactivate (block orders)' : 'Activate (allow orders)'}
-                          className={`p-1.5 rounded-lg border transition ${
-                            p.is_active === 1
-                              ? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                          }`}
-                        >
-                          {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-slate-400" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
-                        </button>
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Export</span>
+                      </button>
+                    </div>
 
-                        {/* Edit */}
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(p)}
-                          title="Edit Promoter Details"
-                          className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Delete */}
-                        <button
-                          type="button"
-                          onClick={() => setDeletingPromoter(p)}
-                          title="Delete Promoter ID"
-                          className="p-1.5 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(p)}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      >
+                        {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-slate-400" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(p)}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeletingPromoter(p)}
+                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
+        </>
       )}
 
       {/* ======================================================== */}
