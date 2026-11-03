@@ -37,6 +37,8 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [completeAddress, setCompleteAddress] = useState('');
   const [pincode, setPincode] = useState('');
+  const [loadingPincode, setLoadingPincode] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState(null);
   const [city, setCity] = useState('');
   const [stateName, setStateName] = useState('');
 
@@ -130,6 +132,64 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
 
     setErrors({});
     setStep(2);
+  };
+
+  // Lookup India Post API to auto-fill City and State from 6-digit Pincode
+  const handlePincodeLookup = async (pinValue) => {
+    const cleanPin = (pinValue || '').replace(/\D/g, '');
+    if (cleanPin.length !== 6) {
+      setPincodeStatus(null);
+      return;
+    }
+
+    setLoadingPincode(true);
+    setPincodeStatus(null);
+
+    try {
+      // 1. Try our fast backend route /api/pincode/:pincode
+      let res = await fetch(`/api/pincode/${cleanPin}`);
+      let data = await res.json();
+
+      // 2. Direct fallback to postalpincode.in if backend was unreachable
+      if (!res.ok || !data.success) {
+        try {
+          const directRes = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
+          const directData = await directRes.json();
+          if (Array.isArray(directData) && directData[0]?.Status === 'Success' && directData[0]?.PostOffice?.length > 0) {
+            const po = directData[0].PostOffice[0];
+            data = {
+              success: true,
+              city: po.District || po.Block || po.Name,
+              state: po.State
+            };
+          }
+        } catch (e) {
+          // ignore fallback error
+        }
+      }
+
+      if (data && data.success) {
+        if (data.city) setCity(data.city);
+        if (data.state) setStateName(data.state);
+
+        setErrors((prev) => ({ ...prev, city: null, stateName: null, pincode: null }));
+        setPincodeStatus({
+          success: true,
+          message: `Auto-filled via India Post: ${data.city}, ${data.state}`
+        });
+      } else {
+        setPincodeStatus({
+          error: data?.error || 'Pincode not found in India Post. You can enter City and State manually.'
+        });
+      }
+    } catch (err) {
+      console.error('Error in pincode lookup:', err);
+      setPincodeStatus({
+        error: 'Postal service unavailable. You can enter City and State manually.'
+      });
+    } finally {
+      setLoadingPincode(false);
+    }
   };
 
   // Step 2 Return to Step 1 without losing any entered data
@@ -235,6 +295,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
     setPhoneNumber('');
     setCompleteAddress('');
     setPincode('');
+    setPincodeStatus(null);
     setCity('');
     setStateName('');
     setErrors({});
@@ -711,96 +772,144 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
             </div>
 
             {/* Pincode, City, State Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Pincode */}
-              <div>
-                <label 
-                  htmlFor="pincode"
-                  className="block text-xs font-medium text-slate-700 mb-1"
-                >
-                  Pincode <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="pincode"
-                  type="text"
-                  value={pincode}
-                  onChange={(e) => {
-                    setPincode(e.target.value);
-                    if (errors.pincode) setErrors({ ...errors, pincode: null });
-                  }}
-                  placeholder="e.g. 560001"
-                  className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    errors.pincode 
-                      ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
-                      : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                  }`}
-                />
-                {errors.pincode && (
-                  <p className="text-[11px] text-red-600 mt-1">
-                    {errors.pincode}
-                  </p>
-                )}
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Pincode */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label 
+                      htmlFor="pincode"
+                      className="block text-xs font-medium text-slate-700"
+                    >
+                      Pincode <span className="text-red-500">*</span>
+                    </label>
+                    {loadingPincode && (
+                      <span className="text-[10px] text-blue-600 flex items-center gap-1 font-medium">
+                        <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                        <span>Searching...</span>
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    id="pincode"
+                    type="text"
+                    maxLength={6}
+                    value={pincode}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPincode(val);
+                      if (errors.pincode) setErrors({ ...errors, pincode: null });
+                      const clean = val.replace(/\D/g, '');
+                      if (clean.length === 6) {
+                        handlePincodeLookup(clean);
+                      } else if (clean.length < 6) {
+                        setPincodeStatus(null);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const clean = e.target.value.replace(/\D/g, '');
+                      if (clean.length === 6 && (!city || !stateName)) {
+                        handlePincodeLookup(clean);
+                      }
+                    }}
+                    placeholder="6 digits (e.g. 560001)"
+                    className={`w-full px-3 py-2.5 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                      errors.pincode 
+                        ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
+                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                    }`}
+                  />
+                  {errors.pincode && (
+                    <p className="text-[11px] text-red-600 mt-1">
+                      {errors.pincode}
+                    </p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label 
+                      htmlFor="city"
+                      className="block text-xs font-medium text-slate-700"
+                    >
+                      City / District <span className="text-red-500">*</span>
+                    </label>
+                    {pincodeStatus?.success && (
+                      <span className="text-[10px] text-emerald-600 font-medium">Auto-filled</span>
+                    )}
+                  </div>
+                  <input
+                    id="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => {
+                      setCity(e.target.value);
+                      if (errors.city) setErrors({ ...errors, city: null });
+                    }}
+                    placeholder="e.g. Bengaluru"
+                    className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                      errors.city 
+                        ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
+                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                    }`}
+                  />
+                  {errors.city && (
+                    <p className="text-[11px] text-red-600 mt-1">
+                      {errors.city}
+                    </p>
+                  )}
+                </div>
+
+                {/* State */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label 
+                      htmlFor="state-name"
+                      className="block text-xs font-medium text-slate-700"
+                    >
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    {pincodeStatus?.success && (
+                      <span className="text-[10px] text-emerald-600 font-medium">Auto-filled</span>
+                    )}
+                  </div>
+                  <input
+                    id="state-name"
+                    type="text"
+                    value={stateName}
+                    onChange={(e) => {
+                      setStateName(e.target.value);
+                      if (errors.stateName) setErrors({ ...errors, stateName: null });
+                    }}
+                    placeholder="e.g. Karnataka"
+                    className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                      errors.stateName 
+                        ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
+                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                    }`}
+                  />
+                  {errors.stateName && (
+                    <p className="text-[11px] text-red-600 mt-1">
+                      {errors.stateName}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* City */}
-              <div>
-                <label 
-                  htmlFor="city"
-                  className="block text-xs font-medium text-slate-700 mb-1"
-                >
-                  City <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="city"
-                  type="text"
-                  value={city}
-                  onChange={(e) => {
-                    setCity(e.target.value);
-                    if (errors.city) setErrors({ ...errors, city: null });
-                  }}
-                  placeholder="e.g. Bengaluru"
-                  className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    errors.city 
-                      ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
-                      : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                  }`}
-                />
-                {errors.city && (
-                  <p className="text-[11px] text-red-600 mt-1">
-                    {errors.city}
-                  </p>
-                )}
-              </div>
-
-              {/* State */}
-              <div>
-                <label 
-                  htmlFor="state-name"
-                  className="block text-xs font-medium text-slate-700 mb-1"
-                >
-                  State <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="state-name"
-                  type="text"
-                  value={stateName}
-                  onChange={(e) => {
-                    setStateName(e.target.value);
-                    if (errors.stateName) setErrors({ ...errors, stateName: null });
-                  }}
-                  placeholder="e.g. Karnataka"
-                  className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
-                    errors.stateName 
-                      ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
-                      : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                  }`}
-                />
-                {errors.stateName && (
-                  <p className="text-[11px] text-red-600 mt-1">
-                    {errors.stateName}
-                  </p>
-                )}
-              </div>
+              {/* India Post auto-fill status banner */}
+              {pincodeStatus?.success && (
+                <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center gap-2 text-xs text-emerald-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
+                  <span>{pincodeStatus.message}</span>
+                </div>
+              )}
+              {pincodeStatus?.error && (
+                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2 text-xs text-amber-700">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
+                  <span>{pincodeStatus.error}</span>
+                </div>
+              )}
             </div>
 
             {/* Buttons: Back and Make Order */}
