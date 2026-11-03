@@ -53,6 +53,15 @@ router.post('/orders', (req, res) => {
       return res.status(400).json({ error: errors.join(', ') });
     }
 
+    // Verify promoter ID is authorized and active
+    const promoter = db.prepare('SELECT id, promoter_code, is_active FROM promoters WHERE LOWER(promoter_code) = LOWER(?)').get(promoter_id.trim());
+    if (!promoter) {
+      return res.status(400).json({ error: 'Invalid Promoter ID. Only authorized promoters can place orders.' });
+    }
+    if (promoter.is_active !== 1) {
+      return res.status(403).json({ error: 'This Promoter ID is currently inactive. Please contact the administrator.' });
+    }
+
     // Verify product exists and is active, and fetch its saved price from the database
     const product = db.prepare('SELECT id, name, price, is_active FROM products WHERE id = ?').get(product_id);
     if (!product) {

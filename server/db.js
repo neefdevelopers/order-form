@@ -41,6 +41,14 @@ db.exec(`
     state TEXT NOT NULL,
     created_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS promoters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    promoter_code TEXT UNIQUE NOT NULL COLLATE NOCASE,
+    name TEXT,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
+  );
 `);
 
 // Migration helper: Ensure columns exist in case the table already existed
@@ -78,6 +86,32 @@ if (!countRow || countRow.count === 0) {
   insertProduct.run('Smart Fitness Watch', 1899, '/uploads/products/smartwatch.svg', now, now);
   insertProduct.run('Ergonomic Wireless Mouse', 799, '/uploads/products/mouse.svg', now, now);
   console.log('Database seeded with initial active products with prices.');
+}
+
+// Seed default promoters if empty
+const promoterCountStmt = db.prepare('SELECT COUNT(*) as count FROM promoters');
+const promoterCountRow = promoterCountStmt.get();
+if (!promoterCountRow || promoterCountRow.count === 0) {
+  const insertPromoter = db.prepare(`
+    INSERT OR IGNORE INTO promoters (promoter_code, name, is_active, created_at)
+    VALUES (?, ?, 1, ?)
+  `);
+  const now = new Date().toISOString();
+  insertPromoter.run('PR-1001', 'North Zone Promoter', now);
+  insertPromoter.run('PR-1002', 'South Zone Promoter', now);
+  insertPromoter.run('PROM-9981', 'Field Sales Representative', now);
+
+  // Also import any distinct promoter_ids from existing orders
+  try {
+    const existingOrderPromoters = db.prepare('SELECT DISTINCT promoter_id FROM orders WHERE promoter_id IS NOT NULL AND promoter_id != ""').all();
+    for (const row of existingOrderPromoters) {
+      insertPromoter.run(row.promoter_id.trim(), 'Existing Promoter', now);
+    }
+  } catch (e) {
+    // Ignore if orders table is empty
+  }
+
+  console.log('Database seeded with initial authorized promoter IDs.');
 }
 
 module.exports = db;

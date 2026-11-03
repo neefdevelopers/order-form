@@ -37,7 +37,7 @@ async function runE2ETests() {
 
   // Submit Complete Valid Customer Order
   const customerOrder = {
-    promoter_id: 'PR-PRICE-99',
+    promoter_id: 'PR-1001',
     product_id: chosenProduct.id,
     quantity: testQty,
     customer_name: 'Ananya Sharma',

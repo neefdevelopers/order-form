@@ -5,13 +5,15 @@ import {
   LogOut, 
   ArrowLeft, 
   ShieldCheck, 
-  Layers
+  Layers,
+  UserCheck
 } from 'lucide-react';
 import OrderManagement from './OrderManagement';
 import ProductManagement from './ProductManagement';
+import PromoterManagement from './PromoterManagement';
 
 export default function AdminPanel({ token, admin, onLogout, onNavigateToCustomer }) {
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'promoters'
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -56,6 +58,18 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
                 <Package className="w-3.5 h-3.5" />
                 <span>Products</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('promoters')}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  activeTab === 'promoters'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Promoters</span>
+              </button>
             </nav>
 
             {/* Right: Switch to Customer View + Logout */}
@@ -85,8 +99,8 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'orders' && <OrderManagement token={token} />}
         {activeTab === 'products' && <ProductManagement token={token} />}
+        {activeTab === 'promoters' && <PromoterManagement token={token} />}
       </main>
     </div>
   );
 }
-

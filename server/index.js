@@ -61,13 +61,15 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 // -------------------------------------------------------------
-// Mount Product, Order, and Export Routes
+// Mount Product, Order, Promoter, and Export Routes
 // -------------------------------------------------------------
 const productsRouter = require('./routes/products');
 const exportRouter = require('./routes/export');
 const ordersRouter = require('./routes/orders');
+const promotersRouter = require('./routes/promoters');
 
 app.use('/api', productsRouter);
+app.use('/api', promotersRouter);
 app.use('/api', exportRouter); // Export mounted before orders so /export is handled before /:id
 app.use('/api', ordersRouter);
 

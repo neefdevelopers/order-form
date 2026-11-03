@@ -27,6 +27,8 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
 
   // Step 1 fields
   const [promoterId, setPromoterId] = useState('');
+  const [validatingPromoter, setValidatingPromoter] = useState(false);
+  const [promoterVerified, setPromoterVerified] = useState(null);
   const [productId, setProductId] = useState('');
   const [quantity, setQuantity] = useState(1);
 
@@ -84,7 +86,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
   };
 
   // Step 1 Validation -> Proceed to Step 2
-  const handleNext = (e) => {
+  const handleNext = async (e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -102,6 +104,28 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
+    }
+
+    // Validate Promoter ID against database
+    setValidatingPromoter(true);
+    try {
+      const res = await fetch(`/api/promoters/validate/${encodeURIComponent(promoterId.trim())}`);
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setErrors({
+          promoterId: data.error || 'Invalid Promoter ID. Only authorized promoters can place orders.'
+        });
+        setValidatingPromoter(false);
+        return;
+      }
+      setPromoterVerified(data.promoter);
+    } catch (err) {
+      console.error(err);
+      setErrors({ promoterId: 'Unable to verify Promoter ID. Please check your connection.' });
+      setValidatingPromoter(false);
+      return;
+    } finally {
+      setValidatingPromoter(false);
     }
 
     setErrors({});
@@ -202,6 +226,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
   const handleReset = () => {
     setStep(1);
     setPromoterId('');
+    setPromoterVerified(null);
     if (products.length > 0) {
       setProductId(products[0].id.toString());
     }
@@ -334,6 +359,7 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
                   onChange={(e) => {
                     setPromoterId(e.target.value);
                     if (errors.promoterId) setErrors({ ...errors, promoterId: null });
+                    if (promoterVerified) setPromoterVerified(null);
                   }}
                   placeholder="Enter Promoter ID (e.g. PR-1001)"
                   className={`w-full pl-9 pr-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
@@ -343,6 +369,12 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
                   }`}
                 />
               </div>
+              {promoterVerified && promoterVerified.code.toLowerCase() === promoterId.trim().toLowerCase() && (
+                <p className="text-xs text-emerald-600 mt-1.5 flex items-center gap-1 font-medium">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  Authorized Promoter {promoterVerified.name ? `(${promoterVerified.name})` : ''}
+                </p>
+              )}
               {errors.promoterId && (
                 <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1">
                   <AlertCircle className="w-3.5 h-3.5" />
@@ -508,11 +540,20 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={loadingProducts || products.length === 0}
+                disabled={loadingProducts || products.length === 0 || validatingPromoter}
                 className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <span>Next: Customer Address</span>
-                <ArrowRight className="w-4 h-4" />
+                {validatingPromoter ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Promoter ID...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Next: Customer Address</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </form>
