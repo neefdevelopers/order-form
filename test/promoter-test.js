@@ -164,3 +164,4 @@ runPromoterTests().catch(err => {
   console.error('\n❌ Promoter test failed:', err);
   process.exit(1);
 });
+

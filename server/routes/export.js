@@ -4,10 +4,57 @@ const ExcelJS = require('exceljs');
 const db = require('../db');
 const { requireAdminAuth } = require('../auth');
 
-router.get('/admin/orders/export', requireAdminAuth, async (req, res) => {
+async function handleOrdersExport(req, res) {
   try {
-    const ordersStmt = db.prepare('SELECT * FROM orders ORDER BY created_at DESC');
-    const orders = ordersStmt.all();
+    let orders = [];
+    let isFiltered = false;
+
+    // Check if specific order IDs are requested (via POST body or GET query)
+    let requestedIds = [];
+    if (req.body && Array.isArray(req.body.ids) && req.body.ids.length > 0) {
+      requestedIds = req.body.ids;
+    } else if (req.query && req.query.ids) {
+      requestedIds = req.query.ids.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+
+    if (requestedIds.length > 0) {
+      isFiltered = true;
+      const placeholders = requestedIds.map(() => '?').join(',');
+      const stmt = db.prepare(`SELECT * FROM orders WHERE id IN (${placeholders}) ORDER BY created_at DESC`);
+      orders = stmt.all(...requestedIds);
+    } else {
+      // Check query filters
+      const conditions = [];
+      const params = [];
+
+      if (req.query.order_id && req.query.order_id.trim()) {
+        conditions.push('LOWER(id) LIKE ?');
+        params.push(`%${req.query.order_id.trim().toLowerCase()}%`);
+        isFiltered = true;
+      }
+
+      if (req.query.promoter_id && req.query.promoter_id.trim()) {
+        conditions.push('LOWER(promoter_id) LIKE ?');
+        params.push(`%${req.query.promoter_id.trim().toLowerCase()}%`);
+        isFiltered = true;
+      }
+
+      if (req.query.search && req.query.search.trim()) {
+        const s = `%${req.query.search.trim().toLowerCase()}%`;
+        conditions.push('(LOWER(customer_name) LIKE ? OR LOWER(phone_number) LIKE ? OR LOWER(city) LIKE ? OR LOWER(state) LIKE ?)');
+        params.push(s, s, s, s);
+        isFiltered = true;
+      }
+
+      let sql = 'SELECT * FROM orders';
+      if (conditions.length > 0) {
+        sql += ' WHERE ' + conditions.join(' AND ');
+      }
+      sql += ' ORDER BY created_at DESC';
+
+      const stmt = db.prepare(sql);
+      orders = stmt.all(...params);
+    }
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Product Ordering System';
@@ -45,7 +92,6 @@ router.get('/admin/orders/export', requireAdminAuth, async (req, res) => {
 
     // Add order rows
     orders.forEach((order) => {
-      // Format date for readability in Excel
       let formattedDate = order.created_at;
       try {
         const d = new Date(order.created_at);
@@ -100,7 +146,7 @@ router.get('/admin/orders/export', requireAdminAuth, async (req, res) => {
     });
 
     const nowStr = new Date().toISOString().slice(0, 10);
-    const filename = `Orders_Export_${nowStr}.xlsx`;
+    const filename = isFiltered ? `Orders_Filtered_${nowStr}.xlsx` : `Orders_Export_${nowStr}.xlsx`;
 
     res.setHeader(
       'Content-Type',
@@ -110,6 +156,7 @@ router.get('/admin/orders/export', requireAdminAuth, async (req, res) => {
       'Content-Disposition',
       `attachment; filename="${filename}"`
     );
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
 
     await workbook.xlsx.write(res);
     res.end();
@@ -117,6 +164,10 @@ router.get('/admin/orders/export', requireAdminAuth, async (req, res) => {
     console.error('Error generating Excel export:', err);
     res.status(500).json({ error: 'Failed to generate Excel export' });
   }
-});
+}
+
+// Support both GET and POST for Excel export
+router.get('/admin/orders/export', requireAdminAuth, handleOrdersExport);
+router.post('/admin/orders/export', requireAdminAuth, handleOrdersExport);
 
 module.exports = router;

@@ -174,3 +174,4 @@ router.delete('/admin/promoters/:id', requireAdminAuth, (req, res) => {
 });
 
 module.exports = router;
+

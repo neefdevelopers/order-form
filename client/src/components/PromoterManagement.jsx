@@ -524,3 +524,4 @@ export default function PromoterManagement({ token }) {
     </div>
   );
 }
+

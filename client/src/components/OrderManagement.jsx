@@ -9,9 +9,12 @@ import {
   MapPin, 
   Package, 
   Eye, 
-  FileSpreadsheet,
-  CheckCircle2,
-  IndianRupee
+  FileSpreadsheet, 
+  CheckCircle2, 
+  IndianRupee,
+  Filter,
+  Hash,
+  X
 } from 'lucide-react';
 import OrderDetailsModal from './OrderDetailsModal';
 
@@ -19,7 +22,12 @@ export default function OrderManagement({ token }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Filtration state
+  const [orderIdFilter, setOrderIdFilter] = useState('');
+  const [promoterIdFilter, setPromoterIdFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [exporting, setExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -50,20 +58,86 @@ export default function OrderManagement({ token }) {
     return '₹' + Number(val || 0).toLocaleString('en-IN');
   };
 
-  // Direct Excel (.xlsx) Export
+  // Distinct promoter IDs from order records
+  const distinctPromoters = Array.from(
+    new Set(orders.map((o) => o.promoter_id).filter(Boolean))
+  ).sort();
+
+  // Multi-criteria filtration (Order ID, Promoter ID, general search)
+  const filteredOrders = orders.filter((o) => {
+    // 1. Order ID specific filter
+    if (orderIdFilter.trim()) {
+      if (!o.id || !o.id.toLowerCase().includes(orderIdFilter.trim().toLowerCase())) {
+        return false;
+      }
+    }
+
+    // 2. Promoter ID specific filter
+    if (promoterIdFilter.trim()) {
+      if (!o.promoter_id || o.promoter_id.toLowerCase() !== promoterIdFilter.trim().toLowerCase()) {
+        return false;
+      }
+    }
+
+    // 3. General search (customer, phone, product, city, state)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matches = (
+        (o.id && o.id.toLowerCase().includes(q)) ||
+        (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
+        (o.promoter_id && o.promoter_id.toLowerCase().includes(q)) ||
+        (o.product_name && o.product_name.toLowerCase().includes(q)) ||
+        (o.phone_number && o.phone_number.toLowerCase().includes(q)) ||
+        (o.city && o.city.toLowerCase().includes(q)) ||
+        (o.state && o.state.toLowerCase().includes(q))
+      );
+      if (!matches) return false;
+    }
+
+    return true;
+  });
+
+  const isFiltered = Boolean(orderIdFilter.trim() || promoterIdFilter.trim() || searchQuery.trim());
+
+  const clearAllFilters = () => {
+    setOrderIdFilter('');
+    setPromoterIdFilter('');
+    setSearchQuery('');
+  };
+
+  // Direct Excel (.xlsx) Export — Exports ONLY filtered orders if filter is applied!
   const handleExportExcel = async () => {
+    if (filteredOrders.length === 0) return;
     setExporting(true);
+
     try {
-      const res = await fetch('/api/admin/orders/export', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      let res;
+      if (isFiltered) {
+        // Export ONLY the filtered data
+        const filteredIds = filteredOrders.map((o) => o.id);
+        res = await fetch('/api/admin/orders/export', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ ids: filteredIds })
+        });
+      } else {
+        // Export all orders
+        res = await fetch('/api/admin/orders/export', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
 
       if (!res.ok) {
         throw new Error('Failed to download Excel file');
       }
 
-      // Extract filename from header or fallback
-      let filename = `Orders_Export_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      let filename = isFiltered
+        ? `Orders_Filtered_${new Date().toISOString().slice(0, 10)}.xlsx`
+        : `Orders_Export_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
       const disposition = res.headers.get('content-disposition');
       if (disposition && disposition.indexOf('filename=') !== -1) {
         const matches = /filename="?([^"]+)"?/.exec(disposition);
@@ -90,21 +164,6 @@ export default function OrderManagement({ token }) {
     }
   };
 
-  // Filter orders by search query
-  const filteredOrders = orders.filter((o) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      (o.id && o.id.toLowerCase().includes(q)) ||
-      (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
-      (o.promoter_id && o.promoter_id.toLowerCase().includes(q)) ||
-      (o.product_name && o.product_name.toLowerCase().includes(q)) ||
-      (o.phone_number && o.phone_number.toLowerCase().includes(q)) ||
-      (o.city && o.city.toLowerCase().includes(q)) ||
-      (o.state && o.state.toLowerCase().includes(q))
-    );
-  });
-
   const formatDate = (isoString) => {
     try {
       const d = new Date(isoString);
@@ -121,7 +180,7 @@ export default function OrderManagement({ token }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Top action toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div>
@@ -141,11 +200,15 @@ export default function OrderManagement({ token }) {
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
-          {/* Export Excel (.xlsx) button */}
+          {/* Export Excel (.xlsx) button - Exports filtered data when filtered */}
           <button
             onClick={handleExportExcel}
-            disabled={exporting || orders.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={exporting || filteredOrders.length === 0}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-semibold transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed ${
+              isFiltered
+                ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
+            }`}
           >
             {exporting ? (
               <>
@@ -160,32 +223,114 @@ export default function OrderManagement({ token }) {
             ) : (
               <>
                 <FileSpreadsheet className="w-4 h-4" />
-                <span>Export Excel (.xlsx)</span>
+                <span>
+                  {isFiltered 
+                    ? `Export Filtered Orders (${filteredOrders.length}) (.xlsx)` 
+                    : 'Export Excel (.xlsx)'}
+                </span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Search Input Bar */}
-      <div className="relative max-w-md">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-          <Search className="w-4 h-4" />
+      {/* ======================================================== */}
+      {/* ID-BASED & SEARCH FILTRATION CONTROLS                    */}
+      {/* ======================================================== */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 1. Filter by Order ID */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Filter by Order ID
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Hash className="w-3.5 h-3.5" />
+              </div>
+              <input
+                type="text"
+                value={orderIdFilter}
+                onChange={(e) => setOrderIdFilter(e.target.value)}
+                placeholder="e.g. ORD-202611..."
+                className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+              />
+            </div>
+          </div>
+
+          {/* 2. Filter by Promoter ID */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Filter by Promoter ID
+            </label>
+            <select
+              value={promoterIdFilter}
+              onChange={(e) => setPromoterIdFilter(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+            >
+              <option value="">All Promoter IDs</option>
+              {distinctPromoters.map((pid) => (
+                <option key={pid} value={pid}>
+                  {pid}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 3. General Search (Customer, Phone, City) */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Search Details
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Search className="w-3.5 h-3.5" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Customer name, phone, city..."
+                className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+              />
+            </div>
+          </div>
         </div>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by Order ID, Customer, Promoter, Product, City..."
-          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition shadow-xs"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery('')}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 hover:text-slate-600"
-          >
-            Clear
-          </button>
+
+        {/* Active Filters Summary & Reset */}
+        {isFiltered && (
+          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-slate-600">
+              <Filter className="w-3.5 h-3.5 text-blue-600" />
+              <span>
+                Showing <strong>{filteredOrders.length}</strong> of {orders.length} orders
+              </span>
+              {orderIdFilter && (
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px]">
+                  Order: {orderIdFilter}
+                </span>
+              )}
+              {promoterIdFilter && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-mono text-[11px]">
+                  Promoter: {promoterIdFilter}
+                </span>
+              )}
+              {searchQuery && (
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px]">
+                  Search: "{searchQuery}"
+                </span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Reset Filters</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -207,13 +352,22 @@ export default function OrderManagement({ token }) {
             <Package className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-semibold text-slate-800">
-            {searchQuery ? 'No matching orders found' : 'No orders submitted yet'}
+            {isFiltered ? 'No orders match the applied filters' : 'No orders submitted yet'}
           </h3>
           <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            {searchQuery
-              ? 'Try modifying your search query or clear the filter.'
+            {isFiltered
+              ? 'Try modifying your Order ID, Promoter ID, or search terms.'
               : 'Customer submissions will automatically appear here.'}
           </p>
+          {isFiltered && (
+            <button
+              onClick={clearAllFilters}
+              className="mt-3.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-medium text-slate-700 transition"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Clear All Filters</span>
+            </button>
+          )}
         </div>
       ) : (
         <>
