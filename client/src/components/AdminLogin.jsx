@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Lock, User, AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 
 export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -104,10 +104,6 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                 className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
               />
             </div>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-[11px] text-slate-500">
-            Default credentials: <span className="font-mono text-slate-700 font-semibold">admin</span> / <span className="font-mono text-slate-700 font-semibold">admin123</span>
           </div>
 
           <button

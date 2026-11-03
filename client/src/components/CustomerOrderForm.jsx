@@ -16,7 +16,7 @@ import {
   IndianRupee
 } from 'lucide-react';
 
-export default function CustomerOrderForm({ onNavigateToAdmin }) {
+export default function CustomerOrderForm() {
   // Step state: 1 = Product Details, 2 = Customer Address Details, 3 = Order Success
   const [step, setStep] = useState(1);
 
@@ -1032,16 +1032,8 @@ export default function CustomerOrderForm({ onNavigateToAdmin }) {
       </div>
 
       {/* Footer minimal info */}
-      <div className="mt-8 text-center text-xs text-slate-400 flex items-center justify-center gap-4">
-        <span>Simple Product Ordering System</span>
-        <span>•</span>
-        <button
-          type="button"
-          onClick={onNavigateToAdmin}
-          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-        >
-          Admin Panel
-        </button>
+      <div className="mt-8 text-center text-xs text-slate-400">
+        <p>Simple Product Ordering System</p>
       </div>
     </div>
   );
