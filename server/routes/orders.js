@@ -150,11 +150,18 @@ router.post('/orders', (req, res) => {
 // ADMIN ORDER MANAGEMENT ENDPOINTS
 // ==========================================
 
-// List all submitted orders
+// List all submitted orders (optionally filtered by promoter_id)
 router.get('/admin/orders', requireAdminAuth, (req, res) => {
   try {
-    const stmt = db.prepare('SELECT * FROM orders ORDER BY created_at DESC');
-    const orders = stmt.all();
+    let sql = 'SELECT * FROM orders';
+    const params = [];
+    if (req.query.promoter_id && req.query.promoter_id.trim()) {
+      sql += ' WHERE LOWER(promoter_id) = LOWER(?)';
+      params.push(req.query.promoter_id.trim());
+    }
+    sql += ' ORDER BY created_at DESC';
+    const stmt = db.prepare(sql);
+    const orders = stmt.all(...params);
     res.json(orders);
   } catch (err) {
     console.error('Error fetching admin orders:', err);

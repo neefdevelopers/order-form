@@ -19,8 +19,10 @@ import {
   ListOrdered,
   FileSpreadsheet
 } from 'lucide-react';
+import PromoterOrdersView from './PromoterOrdersView';
 
-export default function PromoterManagement({ token, onSelectPromoter }) {
+export default function PromoterManagement({ token }) {
+  const [selectedPromoterForOrders, setSelectedPromoterForOrders] = useState(null);
   const [promoters, setPromoters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -240,6 +242,20 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
     }
   };
 
+  // If a promoter is selected to view orders, show the separate PromoterOrdersView
+  if (selectedPromoterForOrders) {
+    return (
+      <PromoterOrdersView
+        promoter={selectedPromoterForOrders}
+        token={token}
+        onBack={() => {
+          setSelectedPromoterForOrders(null);
+          fetchPromoters();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Top toolbar */}
@@ -359,7 +375,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                         <td className="py-3.5 px-4 font-mono font-bold whitespace-nowrap">
                           <button
                             type="button"
-                            onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                            onClick={() => setSelectedPromoterForOrders(p)}
                             title={`Click to view order details for ${p.promoter_code}`}
                             className="text-blue-700 hover:text-blue-900 hover:underline inline-flex items-center gap-1.5 transition text-left group-hover:text-blue-800"
                           >
@@ -389,7 +405,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <button
                             type="button"
-                            onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                            onClick={() => setSelectedPromoterForOrders(p)}
                             title={`Click to view ${orderCount} orders for ${p.promoter_code}`}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition ${
                               orderCount > 0
@@ -412,7 +428,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                             {/* 1. Go to Promoter Orders */}
                             <button
                               type="button"
-                              onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                              onClick={() => setSelectedPromoterForOrders(p)}
                               title={`View all order details for ${p.promoter_code}`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition text-[11px] font-medium"
                             >
@@ -495,7 +511,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                     <div>
                       <button
                         type="button"
-                        onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                        onClick={() => setSelectedPromoterForOrders(p)}
                         className="font-mono text-sm font-bold text-blue-700 hover:underline flex items-center gap-1"
                       >
                         <span>{p.promoter_code}</span>
@@ -522,7 +538,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                   <div className="flex items-center justify-between text-xs text-slate-600">
                     <button
                       type="button"
-                      onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                      onClick={() => setSelectedPromoterForOrders(p)}
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
                         orderCount > 0
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
@@ -542,7 +558,7 @@ export default function PromoterManagement({ token, onSelectPromoter }) {
                     <div className="flex items-center gap-1.5 flex-1">
                       <button
                         type="button"
-                        onClick={() => onSelectPromoter && onSelectPromoter(p.promoter_code)}
+                        onClick={() => setSelectedPromoterForOrders(p)}
                         className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition"
                       >
                         <ListOrdered className="w-3.5 h-3.5" />
