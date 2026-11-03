@@ -79,13 +79,24 @@ app.use('/api', ordersRouter);
 // Serve Static Frontend (Vite production build)
 // -------------------------------------------------------------
 const clientDist = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDist));
+app.use(express.static(clientDist, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // Catch-all handler for client-side routing
 app.use((req, res) => {
   // If request is not an API or uploads path, serve index.html for client-side routing
   if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
     const indexPath = path.join(clientDist, 'index.html');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     return res.sendFile(indexPath, (err) => {
       if (err) {
         res.status(200).send('Product Ordering System API is running.');
