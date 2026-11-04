@@ -376,9 +376,6 @@ export default function CustomerOrderForm() {
               <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight block leading-tight">
                 Product Ordering System
               </span>
-              <span className="text-[11px] text-slate-500 font-medium hidden sm:block">
-                Direct Customer Checkout Portal
-              </span>
             </div>
           </div>
 
@@ -516,19 +513,11 @@ export default function CustomerOrderForm() {
 
               {/* Product Catalog Grid */}
               <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                      <Package className="w-5 h-5 text-blue-600" />
-                      <span>Select Products <span className="text-red-500">*</span></span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Choose one or more products for this order. You can set individual quantities.
-                    </p>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full self-start sm:self-auto">
-                    {products.length} Products Available
-                  </span>
+                <div className="border-b border-slate-100 pb-3">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-blue-600" />
+                    <span>Select Products <span className="text-red-500">*</span></span>
+                  </h2>
                 </div>
 
                 {loadingProducts ? (
@@ -634,9 +623,6 @@ export default function CustomerOrderForm() {
 
                     {/* Quick Dropdown Selector for Fast Add */}
                     <div className="pt-4 border-t border-slate-100">
-                      <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">
-                        Or select from dropdown:
-                      </label>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <select
                           value={productToAdd}
@@ -683,14 +669,9 @@ export default function CustomerOrderForm() {
               {/* Selected Products Breakdown Table */}
               <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      Selected Items Breakdown
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Individual quantities and calculated subtotals
-                    </p>
-                  </div>
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Selected Products
+                  </h3>
                   <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
                     {itemsWithDetails.length} {itemsWithDetails.length === 1 ? 'Product' : 'Products'} ({totalQuantity} items)
                   </span>
@@ -699,8 +680,8 @@ export default function CustomerOrderForm() {
                 {itemsWithDetails.length === 0 ? (
                   <div className="p-8 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
                     <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-xs text-slate-500 font-medium">
-                      No products added yet. Click &quot;Add to Order&quot; on any product above.
+                    <p className="text-xs text-slate-400 font-medium">
+                      No products added yet.
                     </p>
                   </div>
                 ) : (
@@ -812,10 +793,7 @@ export default function CustomerOrderForm() {
 
                 {/* Total Highlight */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 block">Total Amount</span>
-                    <span className="text-[11px] text-slate-500">Inclusive of all taxes</span>
-                  </div>
+                  <span className="text-xs font-bold text-slate-900">Total Amount</span>
                   <span className="text-2xl font-black font-mono text-blue-700 tracking-tight">
                     {formatINR(totalAmount)}
                   </span>
@@ -858,9 +836,6 @@ export default function CustomerOrderForm() {
                     <MapPin className="w-5 h-5 text-blue-600" />
                     <span>Customer Address Details</span>
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Please provide accurate contact and address information.
-                  </p>
                 </div>
                 <button
                   type="button"
@@ -1194,9 +1169,6 @@ export default function CustomerOrderForm() {
                 <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   Order Placed Successfully!
                 </h2>
-                <p className="text-slate-500 text-sm mt-1">
-                  Thank you for your order. We have registered your order in the system.
-                </p>
               </div>
 
               {/* Order ID Banner */}
