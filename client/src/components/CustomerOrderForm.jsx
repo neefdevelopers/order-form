@@ -665,100 +665,6 @@ export default function CustomerOrderForm() {
                   </p>
                 )}
               </div>
-
-              {/* Selected Products Breakdown Table */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-sm font-bold text-slate-900">
-                    Selected Products
-                  </h3>
-                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
-                    {itemsWithDetails.length} {itemsWithDetails.length === 1 ? 'Product' : 'Products'} ({totalQuantity} items)
-                  </span>
-                </div>
-
-                {itemsWithDetails.length === 0 ? (
-                  <div className="p-8 text-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
-                    <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-xs text-slate-400 font-medium">
-                      No products added yet.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                    {itemsWithDetails.map((item) => (
-                      <div key={item.product_id} className="p-3 sm:p-4 bg-white hover:bg-slate-50/60 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0 flex items-center justify-center">
-                            <img
-                              src={getImageUrl(item.image_url)}
-                              alt={item.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                              }}
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <span className="font-bold text-slate-900 text-sm block">
-                              {item.name}
-                            </span>
-                            <span className="text-xs text-slate-500 font-mono">
-                              {formatINR(item.price)} each
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-4 self-stretch sm:self-auto">
-                          {/* Stepper */}
-                          <div className="inline-flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white shadow-2xs">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity - 1)}
-                              className="w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-bold transition text-xs"
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.quantity}
-                              onChange={(e) => handleUpdateQuantity(item.product_id, e.target.value)}
-                              className="w-12 text-center text-xs font-bold text-slate-900 border-x border-slate-200 py-1.5 focus:outline-none"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity + 1)}
-                              className="w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-bold transition text-xs"
-                            >
-                              +
-                            </button>
-                          </div>
-
-                          {/* Subtotal */}
-                          <div className="text-right min-w-[80px]">
-                            <span className="text-[11px] text-slate-400 block uppercase">Subtotal</span>
-                            <span className="font-bold font-mono text-slate-900 text-sm">
-                              {formatINR(item.subtotal)}
-                            </span>
-                          </div>
-
-                          {/* Trash button */}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(item.product_id)}
-                            title="Remove product"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Right Column (Sticky Order Summary) */}
@@ -783,9 +689,19 @@ export default function CustomerOrderForm() {
                         <span className="text-slate-700 truncate max-w-[170px]" title={it.name}>
                           {it.name} <span className="text-slate-400 font-mono">× {it.quantity}</span>
                         </span>
-                        <span className="font-mono font-semibold text-slate-900">
-                          {formatINR(it.subtotal)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-semibold text-slate-900">
+                            {formatINR(it.subtotal)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(it.product_id)}
+                            title="Remove product"
+                            className="text-slate-400 hover:text-red-500 transition p-0.5"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
