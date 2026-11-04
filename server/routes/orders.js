@@ -18,7 +18,7 @@ function generateOrderId() {
 const recentSubmissions = new Map();
 
 // ==========================================
-// CUSTOMER ORDER SUBMISSION ENDPOINT
+// CUSTOMER ORDER SUBMISSION ENDPOINT (Multiple Products Support)
 // ==========================================
 router.post('/orders', (req, res) => {
   try {
@@ -26,21 +26,28 @@ router.post('/orders', (req, res) => {
       promoter_id,
       product_id,
       quantity,
+      items,
       customer_name,
       phone_number,
       complete_address,
       pincode,
       city,
       state
-    } = req.body;
+    } = req.body || {};
 
     // Field validations
     const errors = [];
     if (!promoter_id || !promoter_id.trim()) errors.push('Promoter ID is required');
-    if (!product_id) errors.push('Product selection is required');
-    
-    const parsedQty = parseInt(quantity, 10);
-    if (isNaN(parsedQty) || parsedQty < 1) errors.push('Quantity must be at least 1');
+
+    // Support both new `items` array and legacy `product_id` + `quantity`
+    let orderItemsInput = [];
+    if (Array.isArray(items) && items.length > 0) {
+      orderItemsInput = items;
+    } else if (product_id !== undefined && product_id !== null && product_id !== '') {
+      orderItemsInput = [{ product_id, quantity: quantity || 1 }];
+    } else {
+      errors.push('At least one product must be selected');
+    }
 
     if (!customer_name || !customer_name.trim()) errors.push('Full Name is required');
     if (!phone_number || !phone_number.trim()) errors.push('Phone Number is required');
@@ -62,21 +69,55 @@ router.post('/orders', (req, res) => {
       return res.status(403).json({ error: 'This Promoter ID is currently inactive. Please contact the administrator.' });
     }
 
-    // Verify product exists and is active, and fetch its saved price from the database
-    const product = db.prepare('SELECT id, name, price, is_active FROM products WHERE id = ?').get(product_id);
-    if (!product) {
-      return res.status(404).json({ error: 'Selected product not found' });
-    }
-    if (!product.is_active) {
-      return res.status(400).json({ error: 'Selected product is no longer active' });
+    // Consolidate duplicate products if any in input
+    const itemMap = new Map();
+    for (const it of orderItemsInput) {
+      const pid = parseInt(it.product_id, 10);
+      const qty = parseInt(it.quantity, 10);
+      if (isNaN(pid)) {
+        return res.status(400).json({ error: 'Invalid product selected' });
+      }
+      if (isNaN(qty) || qty < 1) {
+        return res.status(400).json({ error: 'Quantity must be at least 1 for all selected products' });
+      }
+      itemMap.set(pid, (itemMap.get(pid) || 0) + qty);
     }
 
-    // Server-calculated prices (never trust client-supplied prices)
-    const productPrice = Number(product.price) || 0;
-    const totalAmount = productPrice * parsedQty;
+    if (itemMap.size === 0) {
+      return res.status(400).json({ error: 'At least one product must be selected' });
+    }
+
+    // Verify each product exists, is active, and fetch its verified DB price
+    const validatedItems = [];
+    let overallTotal = 0;
+    let overallQuantity = 0;
+
+    for (const [pid, qty] of itemMap.entries()) {
+      const product = db.prepare('SELECT id, name, price, is_active FROM products WHERE id = ?').get(pid);
+      if (!product) {
+        return res.status(404).json({ error: `Selected product ID ${pid} not found` });
+      }
+      if (!product.is_active) {
+        return res.status(400).json({ error: `Selected product "${product.name}" is no longer active` });
+      }
+
+      const unitPrice = Number(product.price) || 0;
+      const subtotal = unitPrice * qty;
+      overallTotal += subtotal;
+      overallQuantity += qty;
+
+      validatedItems.push({
+        product_id: product.id,
+        product_name: product.name,
+        product_price: unitPrice,
+        quantity: qty,
+        subtotal
+      });
+    }
 
     // Duplicate submission prevention check
-    const submissionKey = `${promoter_id.trim()}-${product_id}-${parsedQty}-${customer_name.trim().toLowerCase()}-${phone_number.trim()}`;
+    const itemsKey = validatedItems.map(it => `${it.product_id}:${it.quantity}`).sort().join('|');
+    const submissionKey = `${promoter_id.trim()}-${itemsKey}-${customer_name.trim().toLowerCase()}-${phone_number.trim()}`;
     const nowTimestamp = Date.now();
     if (recentSubmissions.has(submissionKey)) {
       const prevTimestamp = recentSubmissions.get(submissionKey);
@@ -97,30 +138,34 @@ router.post('/orders', (req, res) => {
 
     // Generate unique order ID
     let orderId = generateOrderId();
-    // Verify it doesn't collide
     while (db.prepare('SELECT id FROM orders WHERE id = ?').get(orderId)) {
       orderId = generateOrderId();
     }
 
     const createdAt = new Date().toISOString();
+    const primaryItem = validatedItems[0];
+    const productSummary = validatedItems.length === 1
+      ? primaryItem.product_name
+      : validatedItems.map(it => `${it.product_name} (x${it.quantity})`).join(', ');
 
-    const insertStmt = db.prepare(`
+    const insertOrderStmt = db.prepare(`
       INSERT INTO orders (
         id, promoter_id, product_id, product_name, product_price,
-        quantity, total_amount, customer_name, phone_number,
+        quantity, total_amount, items_json, customer_name, phone_number,
         complete_address, pincode, city, state, created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    insertStmt.run(
+    insertOrderStmt.run(
       orderId,
       promoter_id.trim(),
-      product.id,
-      product.name,
-      productPrice,
-      parsedQty,
-      totalAmount,
+      primaryItem.product_id,
+      productSummary,
+      primaryItem.product_price,
+      overallQuantity,
+      overallTotal,
+      JSON.stringify(validatedItems),
       customer_name.trim(),
       phone_number.trim(),
       complete_address.trim(),
@@ -130,14 +175,35 @@ router.post('/orders', (req, res) => {
       createdAt
     );
 
-    const createdOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+    // Insert normalized individual records into order_items
+    const insertOrderItemStmt = db.prepare(`
+      INSERT INTO order_items (
+        order_id, product_id, product_name, product_price,
+        quantity, subtotal, created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const it of validatedItems) {
+      insertOrderItemStmt.run(
+        orderId,
+        it.product_id,
+        it.product_name,
+        it.product_price,
+        it.quantity,
+        it.subtotal,
+        createdAt
+      );
+    }
 
     return res.status(201).json({
       success: true,
-      orderId: createdOrder.id,
-      orderDate: createdOrder.created_at,
-      productPrice: createdOrder.product_price,
-      totalAmount: createdOrder.total_amount,
+      orderId,
+      orderDate: createdAt,
+      productPrice: primaryItem.product_price,
+      totalAmount: overallTotal,
+      quantity: overallQuantity,
+      items: validatedItems,
       message: 'Order placed successfully'
     });
   } catch (err) {
@@ -145,6 +211,31 @@ router.post('/orders', (req, res) => {
     return res.status(500).json({ error: 'Failed to place order. Please try again.' });
   }
 });
+
+// Helper to attach parsed `items` array to an order record
+function attachItemsToOrder(order) {
+  if (!order) return order;
+  let items = [];
+  if (order.items_json) {
+    try {
+      items = JSON.parse(order.items_json);
+    } catch (e) {
+      items = [];
+    }
+  }
+  if (!items || items.length === 0) {
+    const priceVal = order.product_price !== undefined && order.product_price !== null ? order.product_price : 0;
+    const totalVal = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : priceVal * (order.quantity || 1);
+    items = [{
+      product_id: order.product_id,
+      product_name: order.product_name,
+      product_price: priceVal,
+      quantity: order.quantity || 1,
+      subtotal: totalVal
+    }];
+  }
+  return { ...order, items };
+}
 
 // ==========================================
 // ADMIN ORDER MANAGEMENT ENDPOINTS
@@ -161,7 +252,7 @@ router.get('/admin/orders', requireAdminAuth, (req, res) => {
     }
     sql += ' ORDER BY created_at DESC';
     const stmt = db.prepare(sql);
-    const orders = stmt.all(...params);
+    const orders = stmt.all(...params).map(attachItemsToOrder);
     res.json(orders);
   } catch (err) {
     console.error('Error fetching admin orders:', err);
@@ -176,7 +267,7 @@ router.get('/admin/orders/:id', requireAdminAuth, (req, res) => {
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    res.json(order);
+    res.json(attachItemsToOrder(order));
   } catch (err) {
     console.error('Error fetching order details:', err);
     res.status(500).json({ error: 'Failed to fetch order details' });

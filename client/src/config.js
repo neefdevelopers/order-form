@@ -14,3 +14,4 @@ export function getImageUrl(imageUrl) {
   const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
   return `${API_BASE_URL}${cleanPath}`;
 }
+

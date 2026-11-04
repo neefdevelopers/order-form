@@ -14,7 +14,9 @@ import {
   Phone, 
   MapPin, 
   Hash,
-  IndianRupee
+  IndianRupee,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export default function CustomerOrderForm() {
@@ -30,8 +32,10 @@ export default function CustomerOrderForm() {
   const [promoterId, setPromoterId] = useState('');
   const [validatingPromoter, setValidatingPromoter] = useState(false);
   const [promoterVerified, setPromoterVerified] = useState(null);
-  const [productId, setProductId] = useState('');
-  const [quantity, setQuantity] = useState(1);
+
+  // Selected products for the order: array of { product_id, quantity }
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [productToAdd, setProductToAdd] = useState('');
 
   // Step 2 fields
   const [fullName, setFullName] = useState('');
@@ -65,8 +69,8 @@ export default function CustomerOrderForm() {
       const data = await res.json();
       setProducts(data);
       // Auto-select first product if none selected
-      if (data.length > 0 && !productId) {
-        setProductId(data[0].id.toString());
+      if (data.length > 0 && selectedItems.length === 0) {
+        setSelectedItems([{ product_id: data[0].id, quantity: 1 }]);
       }
     } catch (err) {
       console.error(err);
@@ -76,11 +80,60 @@ export default function CustomerOrderForm() {
     }
   };
 
-  // Selected product object from database
-  const selectedProduct = products.find((p) => p.id.toString() === productId.toString());
-  const productPrice = selectedProduct ? Number(selectedProduct.price || 0) : 0;
-  const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
-  const totalAmount = productPrice * currentQty;
+  // Add a product to the selected list
+  const handleAddItem = (pid) => {
+    const idNum = parseInt(pid, 10);
+    if (!idNum) return;
+    setSelectedItems((prev) => {
+      const existingIndex = prev.findIndex((i) => i.product_id === idNum);
+      if (existingIndex >= 0) {
+        return prev.map((item, idx) =>
+          idx === existingIndex ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { product_id: idNum, quantity: 1 }];
+    });
+    setErrors((prev) => ({ ...prev, items: null }));
+  };
+
+  // Update quantity of a selected product
+  const handleUpdateQuantity = (pid, newQty) => {
+    const qtyVal = parseInt(newQty, 10);
+    setSelectedItems((prev) =>
+      prev.map((item) =>
+        item.product_id === pid
+          ? { ...item, quantity: isNaN(qtyVal) ? 1 : Math.max(1, qtyVal) }
+          : item
+      )
+    );
+  };
+
+  // Remove a product from the selected list
+  const handleRemoveItem = (pid) => {
+    setSelectedItems((prev) => prev.filter((item) => item.product_id !== pid));
+  };
+
+  // Calculate items with full details, subtotals, and overall order total
+  const itemsWithDetails = selectedItems
+    .map((item) => {
+      const prod = products.find((p) => p.id === item.product_id);
+      if (!prod) return null;
+      const unitPrice = Number(prod.price || 0);
+      const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+      const subtotal = unitPrice * qty;
+      return {
+        ...item,
+        name: prod.name,
+        price: unitPrice,
+        image_url: prod.image_url,
+        quantity: qty,
+        subtotal
+      };
+    })
+    .filter(Boolean);
+
+  const totalAmount = itemsWithDetails.reduce((sum, item) => sum + item.subtotal, 0);
+  const totalQuantity = itemsWithDetails.reduce((sum, item) => sum + item.quantity, 0);
 
   // Format currency in Indian Rupees (₹)
   const formatINR = (val) => {
@@ -95,12 +148,8 @@ export default function CustomerOrderForm() {
     if (!promoterId.trim()) {
       newErrors.promoterId = 'Promoter ID is required';
     }
-    if (!productId) {
-      newErrors.productId = 'Please select a product';
-    }
-    const qtyNum = parseInt(quantity, 10);
-    if (isNaN(qtyNum) || qtyNum < 1) {
-      newErrors.quantity = 'Quantity must be at least 1';
+    if (itemsWithDetails.length === 0) {
+      newErrors.items = 'Please select at least one product to order';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -225,8 +274,10 @@ export default function CustomerOrderForm() {
     try {
       const payload = {
         promoter_id: promoterId.trim(),
-        product_id: parseInt(productId, 10),
-        quantity: parseInt(quantity, 10),
+        items: itemsWithDetails.map((it) => ({
+          product_id: it.product_id,
+          quantity: it.quantity
+        })),
         customer_name: fullName.trim(),
         phone_number: phoneNumber.trim(),
         complete_address: completeAddress.trim(),
@@ -250,10 +301,9 @@ export default function CustomerOrderForm() {
       setOrderResult({
         orderId: data.orderId,
         orderDate: data.orderDate,
-        productName: selectedProduct?.name,
-        productPrice: data.productPrice !== undefined ? data.productPrice : productPrice,
-        quantity: payload.quantity,
+        items: itemsWithDetails,
         totalAmount: data.totalAmount !== undefined ? data.totalAmount : totalAmount,
+        totalQuantity: data.quantity !== undefined ? data.quantity : totalQuantity,
         customerName: payload.customer_name,
         city: payload.city,
         state: payload.state
@@ -274,9 +324,11 @@ export default function CustomerOrderForm() {
     setPromoterId('');
     setPromoterVerified(null);
     if (products.length > 0) {
-      setProductId(products[0].id.toString());
+      setSelectedItems([{ product_id: products[0].id, quantity: 1 }]);
+    } else {
+      setSelectedItems([]);
     }
-    setQuantity(1);
+    setProductToAdd('');
     setFullName('');
     setPhoneNumber('');
     setCompleteAddress('');
@@ -429,152 +481,199 @@ export default function CustomerOrderForm() {
               )}
             </div>
 
-            {/* Product Selection */}
-            <div>
-              <label 
-                htmlFor="product-select"
-                className="block text-sm font-medium text-slate-700 mb-1.5"
-              >
-                Product <span className="text-red-500">*</span>
+            {/* Multiple Product Selection Section */}
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-slate-700">
+                Products <span className="text-red-500">*</span>
               </label>
 
               {loadingProducts ? (
-                <div className="h-10 w-full rounded-lg bg-slate-100 animate-pulse flex items-center px-3 text-xs text-slate-400">
-                  Loading active products...
+                <div className="h-12 w-full rounded-xl bg-slate-100 animate-pulse flex items-center px-4 text-xs text-slate-400">
+                  Loading available products...
                 </div>
               ) : products.length === 0 ? (
-                <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
                   No active products are currently available. Please contact the administrator.
                 </div>
               ) : (
-                <select
-                  id="product-select"
-                  value={productId}
-                  onChange={(e) => {
-                    setProductId(e.target.value);
-                    if (errors.productId) setErrors({ ...errors, productId: null });
-                  }}
-                  className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 transition ${
-                    errors.productId 
-                      ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
-                      : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                  }`}
-                >
-                  <option value="" disabled>Select a product</option>
-                  {products.map((prod) => (
-                    <option key={prod.id} value={prod.id}>
-                      {prod.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              {errors.productId && (
-                <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  {errors.productId}
-                </p>
-              )}
-
-              {/* Immediately Display Product Price below Product Selection */}
-              {selectedProduct && (
-                <div className="mt-2.5 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-xs font-semibold text-slate-600">
-                    Product Price:
-                  </span>
-                  <span className="text-base font-bold text-slate-900 font-mono tracking-tight">
-                    {formatINR(productPrice)}
-                  </span>
-                </div>
-              )}
-
-              {/* Product Preview Card */}
-              {selectedProduct && (
-                <div className="mt-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200 flex items-center gap-3.5">
-                  <div className="w-16 h-16 rounded-lg bg-white border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
-                    <img
-                      src={getImageUrl(selectedProduct.image_url)}
-                      alt={selectedProduct.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                <div className="space-y-3.5">
+                  {/* Dropdown Selector to Add Products */}
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <select
+                      value={productToAdd}
+                      onChange={(e) => setProductToAdd(e.target.value)}
+                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                    >
+                      <option value="">Select a product to add...</option>
+                      {products.map((prod) => {
+                        const isAdded = selectedItems.some((it) => it.product_id === prod.id);
+                        return (
+                          <option key={prod.id} value={prod.id}>
+                            {prod.name} — {formatINR(prod.price)} {isAdded ? '(Already selected)' : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (productToAdd) {
+                          handleAddItem(productToAdd);
+                          setProductToAdd('');
+                        }
                       }}
-                    />
+                      disabled={!productToAdd}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 active:bg-slate-950 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Product</span>
+                    </button>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-slate-800 truncate">
-                      {selectedProduct.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">
-                      Price: {formatINR(productPrice)}
+
+                  {/* Available Products Quick-Add Chips */}
+                  {products.length > 0 && (
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                        Available Catalog:
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {products.map((prod) => {
+                          const isAdded = selectedItems.some((it) => it.product_id === prod.id);
+                          return (
+                            <button
+                              key={prod.id}
+                              type="button"
+                              onClick={() => handleAddItem(prod.id)}
+                              className={`px-3 py-1.5 rounded-xl border text-xs font-medium flex items-center gap-2 transition ${
+                                isAdded
+                                  ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+                                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                              }`}
+                            >
+                              <Plus className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                              <span className="font-semibold">{prod.name}</span>
+                              <span className="text-slate-500 font-mono">({formatINR(prod.price)})</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {errors.items && (
+                    <p className="text-xs text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {errors.items}
                     </p>
-                  </div>
-                </div>
-              )}
-            </div>
+                  )}
 
-            {/* Quantity */}
-            <div>
-              <label 
-                htmlFor="quantity-input"
-                className="block text-sm font-medium text-slate-700 mb-1.5"
-              >
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <div className="flex items-center max-w-[160px]">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((prev) => Math.max(1, (parseInt(prev, 10) || 1) - 1))}
-                  className="w-10 h-10 flex items-center justify-center rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 font-bold active:bg-slate-200 transition"
-                >
-                  -
-                </button>
-                <input
-                  id="quantity-input"
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setQuantity(val);
-                    if (errors.quantity) setErrors({ ...errors, quantity: null });
-                  }}
-                  className={`w-full text-center py-2 border-y text-sm font-medium text-slate-900 focus:outline-none transition ${
-                    errors.quantity 
-                      ? 'border-red-300 text-red-600' 
-                      : 'border-slate-300'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setQuantity((prev) => (parseInt(prev, 10) || 0) + 1)}
-                  className="w-10 h-10 flex items-center justify-center rounded-r-lg border border-l-0 border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 font-bold active:bg-slate-200 transition"
-                >
-                  +
-                </button>
-              </div>
-              {errors.quantity && (
-                <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  {errors.quantity}
-                </p>
-              )}
+                  {/* Selected Products Table */}
+                  {itemsWithDetails.length === 0 ? (
+                    <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center bg-slate-50/50">
+                      <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <p className="text-xs text-slate-500 font-medium">
+                        No products selected yet. Select a product above to add to your order.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs sm:text-sm">
+                          <thead className="bg-slate-100/90 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+                            <tr>
+                              <th className="py-2.5 px-3 sm:px-4">Product</th>
+                              <th className="py-2.5 px-2 sm:px-3 text-right">Price</th>
+                              <th className="py-2.5 px-2 sm:px-3 text-center">Quantity</th>
+                              <th className="py-2.5 px-3 sm:px-4 text-right">Subtotal</th>
+                              <th className="py-2.5 px-2 text-center w-8"></th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 bg-white">
+                            {itemsWithDetails.map((item) => (
+                              <tr key={item.product_id} className="hover:bg-slate-50/60 transition">
+                                <td className="py-2.5 px-3 sm:px-4">
+                                  <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-10 h-10 rounded-lg border border-slate-200 bg-white p-1 flex-shrink-0 flex items-center justify-center">
+                                      <img
+                                        src={getImageUrl(item.image_url)}
+                                        alt={item.name}
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="font-semibold text-slate-900 text-xs sm:text-sm line-clamp-2">
+                                      {item.name}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-2.5 px-2 sm:px-3 text-right font-mono text-slate-700 whitespace-nowrap text-xs sm:text-sm">
+                                  {formatINR(item.price)}
+                                </td>
+                                <td className="py-2.5 px-2 sm:px-3 text-center whitespace-nowrap">
+                                  <div className="inline-flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white shadow-xs">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateQuantity(item.product_id, item.quantity - 1)}
+                                      className="w-6 h-7 sm:w-7 sm:h-8 flex items-center justify-center bg-slate-50 text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-bold text-xs"
+                                    >
+                                      -
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={item.quantity}
+                                      onChange={(e) => handleUpdateQuantity(item.product_id, e.target.value)}
+                                      className="w-9 sm:w-11 text-center text-xs font-semibold text-slate-900 border-x border-slate-200 py-1 focus:outline-none"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateQuantity(item.product_id, item.quantity + 1)}
+                                      className="w-6 h-7 sm:w-7 sm:h-8 flex items-center justify-center bg-slate-50 text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-bold text-xs"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </td>
+                                <td className="py-2.5 px-3 sm:px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap text-xs sm:text-sm">
+                                  {formatINR(item.subtotal)}
+                                </td>
+                                <td className="py-2.5 px-2 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveItem(item.product_id)}
+                                    title="Remove product"
+                                    className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Automatically calculate and update Total Amount */}
-              {selectedProduct && (
-                <div className="mt-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-blue-50/70 border border-blue-200">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-blue-900">
-                      Total Amount:
-                    </span>
-                    <span className="text-[11px] text-blue-600">
-                      ({formatINR(productPrice)} × {currentQty})
-                    </span>
-                  </div>
-                  <span className="text-lg font-bold text-blue-700 font-mono tracking-tight">
-                    {formatINR(totalAmount)}
-                  </span>
+                  {/* Overall Order Total Bar */}
+                  {itemsWithDetails.length > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3.5 rounded-xl bg-blue-50/80 border border-blue-200">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-900">
+                          Total Amount
+                        </span>
+                        <span className="text-[11px] text-blue-600 font-medium">
+                          {itemsWithDetails.length} {itemsWithDetails.length === 1 ? 'product' : 'products'} ({totalQuantity} total items)
+                        </span>
+                      </div>
+                      <span className="text-xl font-bold font-mono text-blue-700 tracking-tight">
+                        {formatINR(totalAmount)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -616,18 +715,26 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Order Price & Product Summary Box */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
-              <div className="truncate max-w-[240px]">
-                <span className="font-semibold text-slate-800 block truncate">
-                  {selectedProduct?.name}
-                </span>
-                <span className="text-slate-500">
-                  Qty: {currentQty} × {formatINR(productPrice)}
-                </span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+              <div className="font-semibold text-slate-800 border-b border-slate-200/60 pb-1.5 flex justify-between items-center">
+                <span>Selected Products ({itemsWithDetails.length})</span>
+                <span className="text-slate-500 font-normal">{totalQuantity} total items</span>
               </div>
-              <div className="text-right pl-3">
-                <span className="text-[11px] text-slate-400 block font-medium">Total</span>
-                <span className="text-sm font-bold text-blue-700 font-mono">
+              <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                {itemsWithDetails.map((it) => (
+                  <div key={it.product_id} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-700 truncate max-w-[220px]">
+                      {it.name} <span className="text-slate-400 font-mono">× {it.quantity}</span>
+                    </span>
+                    <span className="font-mono font-medium text-slate-900 pl-2">
+                      {formatINR(it.subtotal)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between">
+                <span className="font-bold text-slate-900">Total Amount:</span>
+                <span className="text-base font-bold text-blue-700 font-mono">
                   {formatINR(totalAmount)}
                 </span>
               </div>
@@ -935,30 +1042,35 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Order Summary details */}
-            <div className="text-left bg-slate-50/60 rounded-xl p-4 border border-slate-100 text-xs text-slate-600 space-y-2 max-w-sm mx-auto">
+            <div className="text-left bg-slate-50/60 rounded-xl p-4 border border-slate-100 text-xs text-slate-600 space-y-2.5 max-w-sm mx-auto">
               <div className="flex justify-between">
                 <span className="text-slate-400">Customer:</span>
                 <span className="font-semibold text-slate-800">{orderResult.customerName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Product:</span>
-                <span className="font-semibold text-slate-800">{orderResult.productName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Product Price:</span>
-                <span className="font-semibold text-slate-800 font-mono">{formatINR(orderResult.productPrice)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Quantity:</span>
-                <span className="font-semibold text-slate-800">{orderResult.quantity}</span>
-              </div>
-              <div className="flex justify-between pt-1 border-t border-slate-200/80">
-                <span className="text-slate-600 font-semibold">Total Amount:</span>
-                <span className="font-bold text-blue-700 text-sm font-mono">{formatINR(orderResult.totalAmount)}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-slate-400">Destination:</span>
                 <span className="font-semibold text-slate-800">{orderResult.city}, {orderResult.state}</span>
+              </div>
+
+              <div className="border-t border-slate-200/70 pt-2">
+                <span className="text-slate-500 font-semibold block mb-1">Ordered Products:</span>
+                <div className="space-y-1.5">
+                  {(orderResult.items || []).map((it, idx) => (
+                    <div key={idx} className="flex justify-between text-xs">
+                      <span className="text-slate-700 truncate max-w-[200px]">
+                        {it.name || it.product_name} <span className="text-slate-400 font-mono">× {it.quantity}</span>
+                      </span>
+                      <span className="font-mono font-semibold text-slate-800">
+                        {formatINR(it.subtotal !== undefined ? it.subtotal : (it.price || it.product_price) * it.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-between pt-2 border-t border-slate-200/80">
+                <span className="text-slate-700 font-bold">Total Amount:</span>
+                <span className="font-bold text-blue-700 text-sm font-mono">{formatINR(orderResult.totalAmount)}</span>
               </div>
             </div>
 

@@ -479,11 +479,28 @@ export default function OrderManagement({
                             <span>{order.promoter_id}</span>
                           </button>
                         </td>
-                        <td className="py-3 px-3 font-medium text-slate-900 max-w-[140px] truncate" title={order.product_name}>
-                          {order.product_name}
+                        <td className="py-3 px-3 font-medium text-slate-900 max-w-[180px]">
+                          {order.items && order.items.length > 1 ? (
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-xs text-blue-900">
+                                {order.items.length} Products ({order.quantity} items)
+                              </span>
+                              <span className="text-[11px] text-slate-500 truncate" title={order.product_name}>
+                                {order.product_name}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="truncate block" title={order.product_name}>
+                              {order.product_name}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">
-                          {formatINR(priceVal)}
+                          {order.items && order.items.length > 1 ? (
+                            <span className="text-xs text-slate-500">Multiple</span>
+                          ) : (
+                            formatINR(priceVal)
+                          )}
                         </td>
                         <td className="py-3 px-2 text-center font-bold text-slate-800">
                           {order.quantity}
@@ -563,17 +580,21 @@ export default function OrderManagement({
                   {/* Product, Price, Qty & Total Amount */}
                   <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-100 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Product:</span>
-                      <span className="font-semibold text-slate-800 text-right truncate max-w-[180px]">
-                        {order.product_name}
+                      <span className="text-slate-400">Products:</span>
+                      <span className="font-semibold text-slate-800 text-right truncate max-w-[190px]">
+                        {order.items && order.items.length > 1
+                          ? `${order.items.length} Products (${order.quantity} items)`
+                          : order.product_name}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Price × Qty:</span>
-                      <span className="text-slate-700 font-mono">
-                        {formatINR(priceVal)} × {order.quantity}
-                      </span>
-                    </div>
+                    {order.items && order.items.length === 1 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Price × Qty:</span>
+                        <span className="text-slate-700 font-mono">
+                          {formatINR(priceVal)} × {order.quantity}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 font-semibold">
                       <span className="text-slate-700">Total Amount:</span>
                       <span className="text-blue-700 font-bold font-mono text-sm">

@@ -110,15 +110,44 @@ async function handleOrdersExport(req, res) {
         formattedDate = order.created_at;
       }
 
-      const priceVal = order.product_price !== undefined && order.product_price !== null ? order.product_price : 0;
-      const totalVal = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : priceVal * order.quantity;
+      let items = [];
+      if (order.items_json) {
+        try {
+          items = JSON.parse(order.items_json);
+        } catch (e) {
+          items = [];
+        }
+      }
+      if (!items || items.length === 0) {
+        const pPrice = order.product_price !== undefined && order.product_price !== null ? order.product_price : 0;
+        const pTotal = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : pPrice * order.quantity;
+        items = [{
+          product_name: order.product_name,
+          product_price: pPrice,
+          quantity: order.quantity,
+          subtotal: pTotal
+        }];
+      }
+
+      let productDisplay;
+      let priceDisplay;
+      if (items.length === 1) {
+        productDisplay = items[0].product_name;
+        priceDisplay = Number(items[0].product_price);
+      } else {
+        // Multi-product detailed breakdown
+        productDisplay = items.map((it, idx) => `${idx + 1}. ${it.product_name} (₹${it.product_price} × ${it.quantity} = ₹${it.subtotal})`).join('\n');
+        priceDisplay = items.map(it => `₹${it.product_price}`).join(', ');
+      }
+
+      const totalVal = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : order.quantity * (order.product_price || 0);
 
       const row = worksheet.addRow({
         id: order.id,
         created_at: formattedDate,
         promoter_id: order.promoter_id,
-        product_name: order.product_name,
-        product_price: priceVal,
+        product_name: productDisplay,
+        product_price: priceDisplay,
         quantity: order.quantity,
         total_amount: totalVal,
         customer_name: order.customer_name,
@@ -129,7 +158,7 @@ async function handleOrdersExport(req, res) {
         state: order.state
       });
 
-      row.height = 24;
+      row.height = items.length > 1 ? Math.max(30, items.length * 20) : 24;
       row.alignment = { vertical: 'middle', wrapText: true };
     });
 

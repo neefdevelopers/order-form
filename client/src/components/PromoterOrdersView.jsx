@@ -338,11 +338,28 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
                         <td className="py-3 px-3 text-slate-600 whitespace-nowrap">
                           {formatDate(order.created_at)}
                         </td>
-                        <td className="py-3 px-3 font-medium text-slate-900 max-w-[140px] truncate" title={order.product_name}>
-                          {order.product_name}
+                        <td className="py-3 px-3 font-medium text-slate-900 max-w-[180px]">
+                          {order.items && order.items.length > 1 ? (
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-xs text-blue-900">
+                                {order.items.length} Products ({order.quantity} items)
+                              </span>
+                              <span className="text-[11px] text-slate-500 truncate" title={order.product_name}>
+                                {order.product_name}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="truncate block" title={order.product_name}>
+                              {order.product_name}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-3 text-right font-mono text-slate-700 whitespace-nowrap">
-                          {formatINR(priceVal)}
+                          {order.items && order.items.length > 1 ? (
+                            <span className="text-xs text-slate-500">Multiple</span>
+                          ) : (
+                            formatINR(priceVal)
+                          )}
                         </td>
                         <td className="py-3 px-2 text-center font-bold text-slate-800">
                           {order.quantity}
@@ -422,11 +439,15 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
 
                   <div className="bg-slate-50/70 p-3 rounded-xl border border-slate-100 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-800">{order.product_name}</span>
+                      <span className="font-semibold text-slate-800">
+                        {order.items && order.items.length > 1
+                          ? `${order.items.length} Products (${order.quantity} items)`
+                          : order.product_name}
+                      </span>
                       <span className="font-bold text-slate-700">Qty: {order.quantity}</span>
                     </div>
                     <div className="flex items-center justify-between text-slate-500 pt-1 border-t border-slate-200/50">
-                      <span>Unit Price: {formatINR(priceVal)}</span>
+                      <span>{order.items && order.items.length > 1 ? 'Multiple Products' : `Unit Price: ${formatINR(priceVal)}`}</span>
                       <span className="font-bold text-emerald-700 text-sm font-mono">
                         Total: {formatINR(totalVal)}
                       </span>

@@ -31,6 +31,25 @@ export default function OrderDetailsModal({ order, onClose }) {
   const unitPrice = order.product_price !== undefined && order.product_price !== null ? order.product_price : 0;
   const total = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : unitPrice * order.quantity;
 
+  let items = [];
+  if (Array.isArray(order.items) && order.items.length > 0) {
+    items = order.items;
+  } else if (order.items_json) {
+    try {
+      items = JSON.parse(order.items_json);
+    } catch (e) {
+      items = [];
+    }
+  }
+  if (!items || items.length === 0) {
+    items = [{
+      product_name: order.product_name,
+      product_price: unitPrice,
+      quantity: order.quantity,
+      subtotal: total
+    }];
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -73,26 +92,57 @@ export default function OrderDetailsModal({ order, onClose }) {
             </button>
           </div>
 
-          {/* Product, Price, Quantity & Total Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Product</span>
-              <span className="text-sm font-semibold text-slate-800 block mt-0.5 truncate" title={order.product_name}>
-                {order.product_name}
+          {/* Ordered Products Table */}
+          <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-xs">
+            <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700 uppercase tracking-wider text-[11px]">
+                Ordered Products ({items.length})
               </span>
-              <div className="mt-1 flex items-center justify-between text-xs text-slate-600">
-                <span>Price: <strong className="font-mono">{formatINR(unitPrice)}</strong></span>
-                <span>Qty: <strong className="text-slate-800">{order.quantity}</strong></span>
-              </div>
+              <span className="text-slate-500 font-medium">
+                Promoter: <strong className="font-mono text-slate-800">{order.promoter_id}</strong>
+              </span>
             </div>
-
-            <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-100">
-              <span className="text-[11px] text-blue-600 font-medium block">Total Amount</span>
-              <span className="text-base font-bold text-blue-700 block mt-0.5 font-mono">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/50 text-slate-500 uppercase font-semibold text-[10px] border-b border-slate-100">
+                  <tr>
+                    <th className="py-2 px-3">Product</th>
+                    <th className="py-2 px-2 text-right">Price</th>
+                    <th className="py-2 px-2 text-center">Qty</th>
+                    <th className="py-2 px-3 text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {items.map((it, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition">
+                      <td className="py-2.5 px-3 font-medium text-slate-800">
+                        {it.product_name || it.name}
+                      </td>
+                      <td className="py-2.5 px-2 text-right font-mono text-slate-600">
+                        {formatINR(it.product_price !== undefined ? it.product_price : it.price)}
+                      </td>
+                      <td className="py-2.5 px-2 text-center font-semibold text-slate-800">
+                        {it.quantity}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
+                        {formatINR(it.subtotal !== undefined ? it.subtotal : (it.product_price * it.quantity))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="p-3 bg-blue-50/70 border-t border-blue-100 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-semibold text-blue-900 uppercase tracking-wider">
+                  Total Order Amount
+                </span>
+                <span className="text-[11px] text-blue-600">
+                  ({order.quantity} total items)
+                </span>
+              </div>
+              <span className="text-base font-bold font-mono text-blue-700">
                 {formatINR(total)}
-              </span>
-              <span className="text-[11px] text-slate-400 block mt-1">
-                Promoter ID: <strong className="font-mono text-slate-700">{order.promoter_id}</strong>
               </span>
             </div>
           </div>

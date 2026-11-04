@@ -49,6 +49,18 @@ db.exec(`
     is_active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    product_id INTEGER NOT NULL,
+    product_name TEXT NOT NULL,
+    product_price REAL NOT NULL DEFAULT 0,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    subtotal REAL NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+  );
 `);
 
 // Migration helper: Ensure columns exist in case the table already existed
@@ -63,6 +75,9 @@ if (!orderCols.some(c => c.name === 'product_price')) {
 }
 if (!orderCols.some(c => c.name === 'total_amount')) {
   db.exec('ALTER TABLE orders ADD COLUMN total_amount REAL NOT NULL DEFAULT 0;');
+}
+if (!orderCols.some(c => c.name === 'items_json')) {
+  db.exec('ALTER TABLE orders ADD COLUMN items_json TEXT;');
 }
 
 // Ensure default products have real prices
