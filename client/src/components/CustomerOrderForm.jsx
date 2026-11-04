@@ -19,10 +19,7 @@ import {
   Minus,
   Trash2,
   ShieldCheck,
-  Truck,
-  CreditCard,
-  Printer,
-  Sparkles
+  Printer
 } from 'lucide-react';
 
 export default function CustomerOrderForm() {
@@ -813,20 +810,6 @@ export default function CustomerOrderForm() {
                   )}
                 </div>
 
-                {/* Pricing Calculation Breakdown */}
-                <div className="border-t border-slate-100 pt-3 space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Items Subtotal</span>
-                    <span className="font-mono font-medium">{formatINR(totalAmount)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600">
-                    <span>Shipping & Handling</span>
-                    <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
-                      FREE
-                    </span>
-                  </div>
-                </div>
-
                 {/* Total Highlight */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
                   <div>
@@ -857,22 +840,6 @@ export default function CustomerOrderForm() {
                   )}
                 </button>
               </div>
-
-              {/* Trust & Guarantee Box */}
-              <div className="rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 p-4 border border-slate-200 text-xs text-slate-600 space-y-2.5">
-                <div className="flex items-center gap-2 font-semibold text-slate-800">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Buyer Protection & Guarantee</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 text-[11px]">
-                  <Truck className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Free doorstep delivery across all Indian pincodes</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 text-[11px]">
-                  <CreditCard className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Cash on Delivery & standard fulfillment supported</span>
-                </div>
-              </div>
             </div>
           </form>
         )}
@@ -892,7 +859,7 @@ export default function CustomerOrderForm() {
                     <span>Customer Address Details</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Please provide accurate contact and shipping information for delivery.
+                    Please provide accurate contact and address information.
                   </p>
                 </div>
                 <button
@@ -987,7 +954,7 @@ export default function CustomerOrderForm() {
               {/* Complete Address */}
               <div>
                 <label htmlFor="complete-address" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                  Complete Delivery Address <span className="text-red-500">*</span>
+                  Complete Address <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="complete-address"
@@ -1198,10 +1165,6 @@ export default function CustomerOrderForm() {
                     <span>Promoter ID</span>
                     <span className="font-mono font-semibold text-slate-800">{promoterId}</span>
                   </div>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Delivery</span>
-                    <span className="text-emerald-600 font-semibold">FREE</span>
-                  </div>
                 </div>
 
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
@@ -1287,7 +1250,7 @@ export default function CustomerOrderForm() {
                     <span className="font-bold text-slate-900">{orderResult.phoneNumber}</span>
                   </div>
                   <div className="sm:col-span-2">
-                    <span className="text-slate-400 block mb-0.5">Shipping Address:</span>
+                    <span className="text-slate-400 block mb-0.5">Address:</span>
                     <span className="font-medium text-slate-800">
                       {orderResult.completeAddress}, {orderResult.city}, {orderResult.state} - {orderResult.pincode}
                     </span>
