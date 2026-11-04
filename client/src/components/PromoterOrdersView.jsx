@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config';
 import { 
   ArrowLeft, 
   Download, 
@@ -39,7 +40,7 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/admin/orders?promoter_id=${encodeURIComponent(promoter.promoter_code)}`, {
+      const res = await fetch(apiUrl(`/api/admin/orders?promoter_id=${encodeURIComponent(promoter.promoter_code)}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load orders for this promoter');
@@ -93,7 +94,7 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
     setExporting(true);
 
     try {
-      const res = await fetch(`/api/admin/orders/export?promoter_id=${encodeURIComponent(promoter.promoter_code)}`, {
+      const res = await fetch(apiUrl(`/api/admin/orders/export?promoter_id=${encodeURIComponent(promoter.promoter_code)}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
 

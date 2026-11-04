@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config';
 import { 
   Plus, 
   Edit2, 
@@ -53,7 +54,7 @@ export default function PromoterManagement({ token }) {
     if (!code) return;
     setExportingCode(code);
     try {
-      const res = await fetch(`/api/admin/orders/export?promoter_id=${encodeURIComponent(code)}`, {
+      const res = await fetch(apiUrl(`/api/admin/orders/export?promoter_id=${encodeURIComponent(code)}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to export orders');
@@ -86,7 +87,7 @@ export default function PromoterManagement({ token }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/promoters', {
+      const res = await fetch(apiUrl('/api/admin/promoters'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load promoters');
@@ -143,7 +144,7 @@ export default function PromoterManagement({ token }) {
 
       let res;
       if (editingPromoter) {
-        res = await fetch(`/api/admin/promoters/${editingPromoter.id}`, {
+        res = await fetch(apiUrl(`/api/admin/promoters/${editingPromoter.id}`), {
           method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
@@ -152,7 +153,7 @@ export default function PromoterManagement({ token }) {
           body: JSON.stringify(payload)
         });
       } else {
-        res = await fetch('/api/admin/promoters', {
+        res = await fetch(apiUrl('/api/admin/promoters'), {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -179,7 +180,7 @@ export default function PromoterManagement({ token }) {
 
   const handleToggleActive = async (promoter) => {
     try {
-      const res = await fetch(`/api/admin/promoters/${promoter.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/promoters/${promoter.id}`), {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -204,7 +205,7 @@ export default function PromoterManagement({ token }) {
     if (!deletingPromoter) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/promoters/${deletingPromoter.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/promoters/${deletingPromoter.id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

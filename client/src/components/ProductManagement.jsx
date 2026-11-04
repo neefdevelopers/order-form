@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiUrl, getImageUrl } from '../config';
 import { 
   Plus, 
   Edit2, 
@@ -47,7 +48,7 @@ export default function ProductManagement({ token }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/products', {
+      const res = await fetch(apiUrl('/api/admin/products'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load products');
@@ -137,14 +138,14 @@ export default function ProductManagement({ token }) {
       let res;
       if (editingProduct) {
         // Edit existing product
-        res = await fetch(`/api/admin/products/${editingProduct.id}`, {
+        res = await fetch(apiUrl(`/api/admin/products/${editingProduct.id}`), {
           method: 'PUT',
           headers: { Authorization: `Bearer ${token}` },
           body: formData
         });
       } else {
         // Add new product
-        res = await fetch('/api/admin/products', {
+        res = await fetch(apiUrl('/api/admin/products'), {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData
@@ -174,7 +175,7 @@ export default function ProductManagement({ token }) {
       formData.append('price', product.price || 0);
       formData.append('is_active', product.is_active === 1 ? '0' : '1');
 
-      const res = await fetch(`/api/admin/products/${product.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/products/${product.id}`), {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -193,7 +194,7 @@ export default function ProductManagement({ token }) {
     if (!deletingProduct) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/products/${deletingProduct.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/products/${deletingProduct.id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -285,7 +286,7 @@ export default function ProductManagement({ token }) {
                 {/* Product Image & Status Header */}
                 <div className="relative w-full h-44 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3 overflow-hidden mb-3.5">
                   <img
-                    src={product.image_url}
+                    src={getImageUrl(product.image_url)}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain"
                     onError={(e) => {

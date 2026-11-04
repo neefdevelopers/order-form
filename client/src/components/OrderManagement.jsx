@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config';
 import { 
   Download, 
   Search, 
@@ -51,7 +52,7 @@ export default function OrderManagement({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/orders', {
+      const res = await fetch(apiUrl('/api/admin/orders'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load orders');
@@ -127,7 +128,7 @@ export default function OrderManagement({
       if (isFiltered) {
         // Export ONLY the filtered data
         const filteredIds = filteredOrders.map((o) => o.id);
-        res = await fetch('/api/admin/orders/export', {
+        res = await fetch(apiUrl('/api/admin/orders/export'), {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ export default function OrderManagement({
         });
       } else {
         // Export all orders
-        res = await fetch('/api/admin/orders/export', {
+        res = await fetch(apiUrl('/api/admin/orders/export'), {
           headers: { Authorization: `Bearer ${token}` }
         });
       }

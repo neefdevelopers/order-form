@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, getImageUrl } from '../config';
 import { 
   Package, 
   ArrowRight, 
@@ -59,7 +60,7 @@ export default function CustomerOrderForm() {
     setLoadingProducts(true);
     setProductsError('');
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch(apiUrl('/api/products'));
       if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
       setProducts(data);
@@ -110,7 +111,7 @@ export default function CustomerOrderForm() {
     // Validate Promoter ID against database
     setValidatingPromoter(true);
     try {
-      const res = await fetch(`/api/promoters/validate/${encodeURIComponent(promoterId.trim())}`);
+      const res = await fetch(apiUrl(`/api/promoters/validate/${encodeURIComponent(promoterId.trim())}`));
       const data = await res.json();
       if (!res.ok || !data.valid) {
         setErrors({
@@ -144,7 +145,7 @@ export default function CustomerOrderForm() {
 
     try {
       // 1. Try our fast backend route /api/pincode/:pincode
-      let res = await fetch(`/api/pincode/${cleanPin}`);
+      let res = await fetch(apiUrl(`/api/pincode/${cleanPin}`));
       let data = await res.json();
 
       // 2. Direct fallback to postalpincode.in if backend was unreachable
@@ -234,7 +235,7 @@ export default function CustomerOrderForm() {
         state: stateName.trim()
       };
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch(apiUrl('/api/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -492,7 +493,7 @@ export default function CustomerOrderForm() {
                 <div className="mt-3 p-3 rounded-xl bg-slate-50/70 border border-slate-200 flex items-center gap-3.5">
                   <div className="w-16 h-16 rounded-lg bg-white border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
                     <img
-                      src={selectedProduct.image_url}
+                      src={getImageUrl(selectedProduct.image_url)}
                       alt={selectedProduct.name}
                       className="w-full h-full object-contain"
                       onError={(e) => {

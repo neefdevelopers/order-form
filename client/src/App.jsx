@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CustomerOrderForm from './components/CustomerOrderForm';
 import AdminLogin from './components/AdminLogin';
 import AdminPanel from './components/AdminPanel';
+import { apiUrl } from './config';
 
 function getInitialView() {
   if (typeof window === 'undefined') return 'customer';
@@ -63,7 +64,7 @@ export default function App() {
       }
 
       try {
-        const res = await fetch('/api/admin/me', {
+        const res = await fetch(apiUrl('/api/admin/me'), {
           headers: { Authorization: `Bearer ${storedToken}` }
         });
 
@@ -100,7 +101,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      await fetch(apiUrl('/api/admin/logout'), { method: 'POST' });
     } catch (e) {
       // Ignore network errors on logout
     }
