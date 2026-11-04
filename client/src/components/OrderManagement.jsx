@@ -263,9 +263,6 @@ export default function OrderManagement({
               <p className="font-bold text-sm text-slate-900 leading-snug">
                 Orders for Promoter: <span className="font-mono text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md">{promoterIdFilter}</span>
               </p>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                Displaying {filteredOrders.length} {filteredOrders.length === 1 ? 'order' : 'orders'} placed with this promoter code.
-              </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">

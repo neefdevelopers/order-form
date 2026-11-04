@@ -118,7 +118,7 @@ export default function OrderDetailsModal({ order, onClose }) {
           {/* Address Details */}
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Delivery Address (House No, Building, Road, Area, Landmark)
+              Delivery Address
             </span>
 
             <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-800 whitespace-pre-wrap leading-relaxed">

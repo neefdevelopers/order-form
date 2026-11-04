@@ -286,14 +286,6 @@ export default function PromoterManagement({ token }) {
         </div>
       </div>
 
-      {/* Info notice: only authorized IDs can place orders */}
-      <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center gap-3 text-xs text-blue-900">
-        <ShieldCheck className="w-5 h-5 flex-shrink-0 text-blue-600" />
-        <p>
-          <strong>Access Control:</strong> Only active Promoter IDs registered here are permitted to submit customer orders. Any unauthorized or inactive Promoter ID will be rejected.
-        </p>
-      </div>
-
       {/* Search Input Bar */}
       <div className="relative max-w-md">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">

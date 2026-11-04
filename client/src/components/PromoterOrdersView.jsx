@@ -162,7 +162,7 @@ export default function PromoterOrdersView({ promoter, token, onBack }) {
             </div>
             {promoter.name && (
               <p className="text-xs text-slate-500 mt-0.5">
-                Assigned: <strong className="text-slate-700 font-medium">{promoter.name}</strong>
+                {promoter.name}
               </p>
             )}
           </div>

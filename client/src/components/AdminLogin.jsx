@@ -63,9 +63,6 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
             Admin Portal Login
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Restricted access. Authorized administrator authentication only.
-          </p>
         </div>
 
         {/* Login Card */}
@@ -161,12 +158,6 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
               )}
             </button>
           </form>
-
-          {/* Security Notice Banner */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center gap-2.5 text-[11px] text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span>Protected by rate-limiting security and encrypted sessions.</span>
-          </div>
 
           {/* Back to Customer Order Form */}
           <div className="pt-2 text-center">

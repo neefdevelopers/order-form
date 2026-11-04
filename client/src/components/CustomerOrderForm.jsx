@@ -38,7 +38,6 @@ export default function CustomerOrderForm() {
   const [completeAddress, setCompleteAddress] = useState('');
   const [pincode, setPincode] = useState('');
   const [loadingPincode, setLoadingPincode] = useState(false);
-  const [pincodeStatus, setPincodeStatus] = useState(null);
   const [city, setCity] = useState('');
   const [stateName, setStateName] = useState('');
 
@@ -138,12 +137,10 @@ export default function CustomerOrderForm() {
   const handlePincodeLookup = async (pinValue) => {
     const cleanPin = (pinValue || '').replace(/\D/g, '');
     if (cleanPin.length !== 6) {
-      setPincodeStatus(null);
       return;
     }
 
     setLoadingPincode(true);
-    setPincodeStatus(null);
 
     try {
       // 1. Try our fast backend route /api/pincode/:pincode
@@ -171,22 +168,10 @@ export default function CustomerOrderForm() {
       if (data && data.success) {
         if (data.city) setCity(data.city);
         if (data.state) setStateName(data.state);
-
         setErrors((prev) => ({ ...prev, city: null, stateName: null, pincode: null }));
-        setPincodeStatus({
-          success: true,
-          message: `Auto-filled via India Post: ${data.city}, ${data.state}`
-        });
-      } else {
-        setPincodeStatus({
-          error: data?.error || 'Pincode not found in India Post. You can enter City and State manually.'
-        });
       }
     } catch (err) {
       console.error('Error in pincode lookup:', err);
-      setPincodeStatus({
-        error: 'Postal service unavailable. You can enter City and State manually.'
-      });
     } finally {
       setLoadingPincode(false);
     }
@@ -295,7 +280,6 @@ export default function CustomerOrderForm() {
     setPhoneNumber('');
     setCompleteAddress('');
     setPincode('');
-    setPincodeStatus(null);
     setCity('');
     setStateName('');
     setErrors({});
@@ -518,9 +502,6 @@ export default function CustomerOrderForm() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[11px] font-semibold tracking-wide uppercase text-blue-600">
-                      Selected Item
-                    </span>
                     <h3 className="text-sm font-semibold text-slate-800 truncate">
                       {selectedProduct.name}
                     </h3>
@@ -631,9 +612,6 @@ export default function CustomerOrderForm() {
                   Step 2 – Customer Address Details
                 </h2>
               </div>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                Final Step
-              </span>
             </div>
 
             {/* Order Price & Product Summary Box */}
@@ -735,19 +713,14 @@ export default function CustomerOrderForm() {
               )}
             </div>
 
-            {/* Complete Address - ONE large textarea containing House No, Building, Road, Area, Landmark */}
+            {/* Complete Address */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label 
-                  htmlFor="complete-address"
-                  className="block text-sm font-medium text-slate-700"
-                >
-                  Complete Address <span className="text-red-500">*</span>
-                </label>
-                <span className="text-[11px] text-slate-500">
-                  House No, Building, Road, Area, Landmark
-                </span>
-              </div>
+              <label 
+                htmlFor="complete-address"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Complete Address <span className="text-red-500">*</span>
+              </label>
               <textarea
                 id="complete-address"
                 rows={4}
@@ -756,7 +729,7 @@ export default function CustomerOrderForm() {
                   setCompleteAddress(e.target.value);
                   if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
                 }}
-                placeholder="Enter complete address details here:&#10;House Number, Building Name, Road / Street, Area / Sector, Landmark"
+                placeholder="House Number, Building Name, Road / Street, Area / Sector, Landmark"
                 className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition resize-y ${
                   errors.completeAddress 
                     ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
@@ -784,10 +757,7 @@ export default function CustomerOrderForm() {
                       Pincode <span className="text-red-500">*</span>
                     </label>
                     {loadingPincode && (
-                      <span className="text-[10px] text-blue-600 flex items-center gap-1 font-medium">
-                        <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                        <span>Searching...</span>
-                      </span>
+                      <RefreshCw className="w-3 h-3 text-blue-600 animate-spin" />
                     )}
                   </div>
                   <input
@@ -802,8 +772,6 @@ export default function CustomerOrderForm() {
                       const clean = val.replace(/\D/g, '');
                       if (clean.length === 6) {
                         handlePincodeLookup(clean);
-                      } else if (clean.length < 6) {
-                        setPincodeStatus(null);
                       }
                     }}
                     onBlur={(e) => {
@@ -828,17 +796,12 @@ export default function CustomerOrderForm() {
 
                 {/* City */}
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label 
-                      htmlFor="city"
-                      className="block text-xs font-medium text-slate-700"
-                    >
-                      City / District <span className="text-red-500">*</span>
-                    </label>
-                    {pincodeStatus?.success && (
-                      <span className="text-[10px] text-emerald-600 font-medium">Auto-filled</span>
-                    )}
-                  </div>
+                  <label 
+                    htmlFor="city"
+                    className="block text-xs font-medium text-slate-700 mb-1"
+                  >
+                    City / District <span className="text-red-500">*</span>
+                  </label>
                   <input
                     id="city"
                     type="text"
@@ -863,17 +826,12 @@ export default function CustomerOrderForm() {
 
                 {/* State */}
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label 
-                      htmlFor="state-name"
-                      className="block text-xs font-medium text-slate-700"
-                    >
-                      State <span className="text-red-500">*</span>
-                    </label>
-                    {pincodeStatus?.success && (
-                      <span className="text-[10px] text-emerald-600 font-medium">Auto-filled</span>
-                    )}
-                  </div>
+                  <label 
+                    htmlFor="state-name"
+                    className="block text-xs font-medium text-slate-700 mb-1"
+                  >
+                    State <span className="text-red-500">*</span>
+                  </label>
                   <input
                     id="state-name"
                     type="text"
@@ -896,20 +854,6 @@ export default function CustomerOrderForm() {
                   )}
                 </div>
               </div>
-
-              {/* India Post auto-fill status banner */}
-              {pincodeStatus?.success && (
-                <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center gap-2 text-xs text-emerald-700">
-                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" />
-                  <span>{pincodeStatus.message}</span>
-                </div>
-              )}
-              {pincodeStatus?.error && (
-                <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2 text-xs text-amber-700">
-                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
-                  <span>{pincodeStatus.error}</span>
-                </div>
-              )}
             </div>
 
             {/* Buttons: Back and Make Order */}
@@ -1031,10 +975,6 @@ export default function CustomerOrderForm() {
         )}
       </div>
 
-      {/* Footer minimal info */}
-      <div className="mt-8 text-center text-xs text-slate-400">
-        <p>Simple Product Ordering System</p>
-      </div>
     </div>
   );
 }
