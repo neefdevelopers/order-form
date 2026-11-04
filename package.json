@@ -5,10 +5,13 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client install && npm --prefix client run build",
     "client": "npm --prefix client run dev",
     "server": "node server/index.js",
     "test": "node test/api-test.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
   },
   "keywords": ["order", "product-ordering", "excel-export", "admin-panel"],
   "author": "",

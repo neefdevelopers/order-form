@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: order-form
+    runtime: node
+    plan: free
+    nodeVersion: 22.19.0
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: JWT_SECRET
+        generateValue: true
