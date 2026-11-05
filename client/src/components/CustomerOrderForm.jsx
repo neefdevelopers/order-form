@@ -353,51 +353,51 @@ export default function CustomerOrderForm() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+    <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans pb-16 lg:pb-0">
+      {/* 2. Compact Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
-            <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
+            <span className="font-semibold text-slate-900 text-sm sm:text-base tracking-tight">
               Product Ordering System
             </span>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Verified & Secure</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+      {/* Main Container */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-6">
         
-        {/* Clean Balanced Stepper */}
+        {/* 3. Checkout Progress Indicator */}
         {step < 3 && (
-          <div className="mb-6 max-w-md mx-auto">
+          <div className="mb-6 max-w-xs sm:max-w-sm mx-auto px-2">
             <div className="flex items-center justify-between">
               {/* Step 1 Node */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <div 
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
                     step === 1 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-50 shadow-2xs' 
                       : 'bg-emerald-600 text-white'
                   }`}
                 >
-                  {step > 1 ? <Check className="w-4 h-4" /> : '1'}
+                  {step > 1 ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : '1'}
                 </div>
-                <span className={`text-xs font-semibold ${step === 1 ? 'text-blue-700' : 'text-slate-700'}`}>
+                <span className={`text-xs font-medium whitespace-nowrap ${step === 1 ? 'text-blue-700 font-semibold' : 'text-slate-700'}`}>
                   Product Details
                 </span>
               </div>
 
               {/* Connecting Line */}
-              <div className="flex-1 mx-4 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="flex-1 mx-3 h-0.5 bg-slate-200 rounded-full overflow-hidden">
                 <div 
                   className={`h-full bg-blue-600 transition-all duration-300 ${
                     step > 1 ? 'w-full' : 'w-0'
@@ -406,17 +406,17 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Step 2 Node */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <div 
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
                     step === 2 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-50 shadow-2xs' 
                       : 'bg-white border border-slate-300 text-slate-400'
                   }`}
                 >
                   2
                 </div>
-                <span className={`text-xs font-semibold ${step === 2 ? 'text-blue-700' : 'text-slate-400'}`}>
+                <span className={`text-xs font-medium whitespace-nowrap ${step === 2 ? 'text-blue-700 font-semibold' : 'text-slate-400'}`}>
                   Address Details
                 </span>
               </div>
@@ -424,41 +424,41 @@ export default function CustomerOrderForm() {
           </div>
         )}
 
-        {/* Catalog Error Alert */}
+        {/* Global Error Alert */}
         {productsError && (
-          <div className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-sm shadow-xs">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600" />
+          <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs shadow-2xs">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
             <div className="flex-1">
-              <p className="font-semibold text-xs">{productsError}</p>
+              <p className="font-semibold">{productsError}</p>
               <button
                 type="button"
                 onClick={fetchProducts}
-                className="mt-1.5 text-xs font-bold text-red-800 underline hover:no-underline"
+                className="mt-1 font-bold text-red-800 underline hover:no-underline"
               >
-                Click to retry
+                Click here to retry
               </button>
             </div>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* STEP 1: PRODUCT DETAILS                                 */}
+        {/* STEP 1: PRODUCT SELECTION & PROMOTER DETAILS             */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <form onSubmit={handleNext} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
-            {/* Left Column (Promoter ID + Product Cards unified in one card) */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-5">
+            {/* Left Column (Promoter ID + Product Cards) */}
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
               
-              {/* Promoter ID Section */}
-              <div className="pb-4 border-b border-slate-100">
-                <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="promoter-id" className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              {/* 5. Promoter ID Input Section */}
+              <div className="p-4 sm:p-5 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="promoter-id" className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-blue-600" />
                     <span>Promoter ID <span className="text-red-500">*</span></span>
                   </label>
                   {promoterVerified && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                       <Check className="w-3 h-3 text-emerald-600" />
                       Verified: {promoterVerified.name || promoterVerified.promoter_id}
                     </span>
@@ -466,7 +466,7 @@ export default function CustomerOrderForm() {
                 </div>
 
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Hash className="w-4 h-4" />
                   </div>
                   <input
@@ -479,7 +479,7 @@ export default function CustomerOrderForm() {
                       setPromoterVerified(null);
                     }}
                     placeholder="Enter Promoter ID (e.g. PR-1001)"
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                       errors.promoterId 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -495,11 +495,11 @@ export default function CustomerOrderForm() {
                 )}
               </div>
 
-              {/* Product Catalog Section */}
-              <div className="space-y-4">
+              {/* 4. Product Selection Section */}
+              <div className="p-4 sm:p-5 space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <Package className="w-4 h-4 text-blue-600" />
+                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5 text-blue-600" />
                     <span>Select Products <span className="text-red-500">*</span></span>
                   </h2>
                 </div>
@@ -507,11 +507,11 @@ export default function CustomerOrderForm() {
                 {loadingProducts ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="h-28 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                      <div key={n} className="h-56 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
                     ))}
                   </div>
                 ) : products.length === 0 ? (
-                  <div className="p-6 text-center bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs">
+                  <div className="p-6 text-center bg-amber-50 rounded-lg border border-amber-200 text-amber-800 text-xs">
                     No active products are available right now.
                   </div>
                 ) : (
@@ -523,15 +523,15 @@ export default function CustomerOrderForm() {
                       return (
                         <div 
                           key={prod.id} 
-                          className={`rounded-xl p-3.5 border transition-all flex flex-col justify-between ${
+                          className={`flex flex-col justify-between h-full rounded-xl border transition-all p-3 sm:p-3.5 ${
                             isSelected 
-                              ? 'bg-blue-50/30 border-blue-500 ring-1 ring-blue-500/30 shadow-2xs' 
+                              ? 'bg-blue-50/15 border-blue-500 ring-1 ring-blue-500 shadow-2xs' 
                               : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs'
                           }`}
                         >
-                          <div className="flex gap-3 mb-3">
-                            {/* Product Thumbnail */}
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                          <div>
+                            {/* Product Thumbnail (Fixed height, no distortion) */}
+                            <div className="w-full h-28 sm:h-32 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center p-2 mb-2.5 overflow-hidden">
                               <img
                                 src={getImageUrl(prod.image_url)}
                                 alt={prod.name}
@@ -543,54 +543,49 @@ export default function CustomerOrderForm() {
                               />
                             </div>
 
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <span className="font-semibold text-slate-900 text-xs sm:text-sm block leading-snug line-clamp-2">
+                            {/* Product Info (Fixed text height ensures alignment) */}
+                            <div className="mb-2">
+                              <span 
+                                className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug line-clamp-2 h-9 block" 
+                                title={prod.name}
+                              >
                                 {prod.name}
                               </span>
-                              <div className="mt-1">
-                                <span className="text-sm font-bold text-slate-900 font-mono">
-                                  {formatINR(prod.price)}
-                                </span>
-                              </div>
+                              <span className="text-sm sm:text-base font-bold text-slate-900 font-mono block mt-1">
+                                {formatINR(prod.price)}
+                              </span>
                             </div>
                           </div>
 
-                          {/* Action Row */}
+                          {/* Action Slot (Consistent height of 36px) */}
                           <div className="pt-2 border-t border-slate-100">
                             {isSelected ? (
-                              <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-semibold text-blue-700 flex items-center gap-1">
-                                  <Check className="w-3 h-3 text-blue-600" />
-                                  <span>In Order</span>
+                              <div className="w-full h-9 flex items-center justify-between border border-blue-300 rounded-lg overflow-hidden bg-white shadow-2xs">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
+                                  className="w-10 h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 transition font-bold"
+                                  title="Decrease quantity"
+                                >
+                                  <Minus className="w-3.5 h-3.5" />
+                                </button>
+                                <span className="flex-1 text-center text-xs font-bold font-mono text-slate-900">
+                                  {existing.quantity} in order
                                 </span>
-                                <div className="inline-flex items-center border border-blue-300 rounded-lg overflow-hidden bg-white shadow-2xs">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                    className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
-                                    title="Decrease quantity"
-                                  >
-                                    <Minus className="w-3 h-3" />
-                                  </button>
-                                  <span className="w-7 text-center text-xs font-bold text-slate-900 font-mono">
-                                    {existing.quantity}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                    className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
-                                    title="Increase quantity"
-                                  >
-                                    <Plus className="w-3 h-3" />
-                                  </button>
-                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
+                                  className="w-10 h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 transition font-bold"
+                                  title="Increase quantity"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
                               </div>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => handleAddItem(prod.id)}
-                                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold transition-colors shadow-2xs"
+                                className="w-full h-9 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                               >
                                 <Plus className="w-3.5 h-3.5" />
                                 <span>Add to Order</span>
@@ -612,32 +607,52 @@ export default function CustomerOrderForm() {
               </div>
             </div>
 
-            {/* Right Column (Sticky Order Summary) */}
-            <div className="lg:col-span-5 xl:col-span-4 sticky top-20 space-y-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+            {/* 6. Right Column (Sticky Order Summary on Desktop) */}
+            <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="font-bold text-slate-900 text-sm">
                     Order Summary
                   </h3>
-                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
-                {/* Items Mini List */}
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {/* Selected Products List */}
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
                   {itemsWithDetails.length === 0 ? (
-                    <div className="py-6 text-center text-slate-400">
-                      <ShoppingBag className="w-7 h-7 mx-auto text-slate-300 mb-1.5 stroke-[1.5]" />
-                      <span className="text-xs text-slate-400 block font-medium">No products selected yet</span>
+                    <div className="py-6 text-center text-slate-400 space-y-1">
+                      <ShoppingBag className="w-7 h-7 mx-auto text-slate-300 stroke-[1.5]" />
+                      <p className="text-xs font-medium text-slate-500">Your order is empty</p>
+                      <p className="text-[11px] text-slate-400">Select products on the left to add</p>
                     </div>
                   ) : (
                     itemsWithDetails.map((it) => (
-                      <div key={it.product_id} className="flex items-center justify-between text-xs py-1 border-b border-slate-50 last:border-none">
-                        <span className="text-slate-700 truncate max-w-[160px]" title={it.name}>
-                          {it.name} <span className="text-slate-400 font-mono">× {it.quantity}</span>
-                        </span>
-                        <div className="flex items-center gap-2">
+                      <div key={it.product_id} className="pt-2 first:pt-0 flex items-center justify-between text-xs gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={getImageUrl(it.image_url)}
+                              alt={it.name}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                              }}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-slate-800 font-medium block truncate max-w-[140px]" title={it.name}>
+                              {it.name}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              Qty: {it.quantity} × {formatINR(it.price)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <span className="font-mono font-semibold text-slate-900">
                             {formatINR(it.subtotal)}
                           </span>
@@ -657,36 +672,65 @@ export default function CustomerOrderForm() {
 
                 {/* Total Row */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900">Total Amount</span>
-                  <span className="text-xl font-bold font-mono text-blue-700 tracking-tight">
+                  <span className="text-xs font-semibold text-slate-600">Total Amount</span>
+                  <span className="text-xl font-bold font-mono text-slate-900 tracking-tight">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
 
-                {/* Next Button */}
+                {/* Continue Button */}
                 <button
                   type="submit"
                   disabled={loadingProducts || products.length === 0 || validatingPromoter || itemsWithDetails.length === 0}
-                  className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition ${
+                  className={`w-full h-10 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition ${
                     itemsWithDetails.length === 0 || validatingPromoter
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs hover:shadow'
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-2xs'
                   }`}
                 >
                   {validatingPromoter ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                       <span>Verifying Promoter...</span>
                     </>
                   ) : (
                     <>
                       <span>Next: Customer Address</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
               </div>
             </div>
+
+            {/* Mobile Bottom Checkout Bar (when items selected) */}
+            {itemsWithDetails.length > 0 && (
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 shadow-md z-20 flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-[11px] text-slate-500 block leading-tight">
+                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                  </span>
+                  <span className="text-base font-bold font-mono text-slate-900">
+                    {formatINR(totalAmount)}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={validatingPromoter}
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
+                >
+                  {validatingPromoter ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Next: Address</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </form>
         )}
 
@@ -694,21 +738,21 @@ export default function CustomerOrderForm() {
         {/* STEP 2: CUSTOMER ADDRESS DETAILS                         */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
             {/* Left Column (Address Form) */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-5 sm:p-7 border border-slate-200 shadow-xs space-y-5">
-              <div className="border-b border-slate-100 pb-3.5 flex items-center justify-between">
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 space-y-4">
+              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-blue-600" />
+                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
                     <span>Customer Address Details</span>
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Change Products</span>
@@ -716,7 +760,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {submitError && (
-                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs">
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
                   <div className="flex-1">
                     <p className="font-semibold">{submitError}</p>
@@ -725,14 +769,14 @@ export default function CustomerOrderForm() {
               )}
 
               {/* Name & Phone Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {/* Full Name */}
                 <div>
-                  <label htmlFor="full-name" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <User className="w-4 h-4" />
                     </div>
                     <input
@@ -744,7 +788,7 @@ export default function CustomerOrderForm() {
                         if (errors.fullName) setErrors({ ...errors, fullName: null });
                       }}
                       placeholder="e.g. Ananya Sharma"
-                      className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                      className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                         errors.fullName 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                           : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -761,11 +805,11 @@ export default function CustomerOrderForm() {
 
                 {/* Phone Number */}
                 <div>
-                  <label htmlFor="phone-number" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Phone className="w-4 h-4" />
                     </div>
                     <input
@@ -777,7 +821,7 @@ export default function CustomerOrderForm() {
                         if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
                       }}
                       placeholder="e.g. +91 98765 43210"
-                      className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                      className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                         errors.phoneNumber 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                           : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -795,7 +839,7 @@ export default function CustomerOrderForm() {
 
               {/* Complete Address */}
               <div>
-                <label htmlFor="complete-address" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
                   Complete Address <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -806,8 +850,8 @@ export default function CustomerOrderForm() {
                     setCompleteAddress(e.target.value);
                     if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
                   }}
-                  placeholder="Flat / House No., Apartment Name, Street, Landmark, Area"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition resize-y ${
+                  placeholder="Flat / House No., Building Name, Street, Landmark, Area"
+                  className={`w-full px-3 py-2 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-y ${
                     errors.completeAddress 
                       ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                       : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -825,13 +869,13 @@ export default function CustomerOrderForm() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Pincode */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label htmlFor="pincode" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
                       Pincode <span className="text-red-500">*</span>
                     </label>
                     {loadingPincode && (
-                      <span className="text-[11px] text-blue-600 flex items-center gap-1">
-                        <RefreshCw className="w-3 h-3 animate-spin" />
+                      <span className="text-[10px] text-blue-600 flex items-center gap-1">
+                        <RefreshCw className="w-2.5 h-2.5 animate-spin" />
                       </span>
                     )}
                   </div>
@@ -856,7 +900,7 @@ export default function CustomerOrderForm() {
                       }
                     }}
                     placeholder="6 Digits (e.g. 560001)"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm font-mono text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`h-10 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                       errors.pincode 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -871,7 +915,7 @@ export default function CustomerOrderForm() {
 
                 {/* City */}
                 <div>
-                  <label htmlFor="city" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
                     City / District <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -883,7 +927,7 @@ export default function CustomerOrderForm() {
                       if (errors.city) setErrors({ ...errors, city: null });
                     }}
                     placeholder="e.g. Bengaluru"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`h-10 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                       errors.city 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -898,7 +942,7 @@ export default function CustomerOrderForm() {
 
                 {/* State */}
                 <div>
-                  <label htmlFor="state-name" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
                     State <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -910,7 +954,7 @@ export default function CustomerOrderForm() {
                       if (errors.stateName) setErrors({ ...errors, stateName: null });
                     }}
                     placeholder="e.g. Karnataka"
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`h-10 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                       errors.stateName 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -925,31 +969,31 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5">
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={submitting}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 active:bg-slate-100 transition inline-flex items-center justify-center gap-2"
+                  className="h-10 px-4 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium text-xs sm:text-sm hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Products</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back</span>
                 </button>
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm transition shadow-xs hover:shadow disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                  className="h-10 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm transition shadow-2xs disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
                 >
                   {submitting ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                       <span>Placing Order...</span>
                     </>
                   ) : (
                     <>
                       <span>Make Order ({formatINR(totalAmount)})</span>
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
@@ -957,21 +1001,21 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Right Column (Review Order Summary) */}
-            <div className="lg:col-span-5 xl:col-span-4 sticky top-20 space-y-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+            <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="font-bold text-slate-900 text-sm">
                     Review Order
                   </h3>
-                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     {totalQuantity} items
                   </span>
                 </div>
 
                 {/* Items List */}
-                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
                   {itemsWithDetails.map((it) => (
-                    <div key={it.product_id} className="flex items-start justify-between text-xs gap-2 py-1 border-b border-slate-50 last:border-none">
+                    <div key={it.product_id} className="pt-2 first:pt-0 flex items-start justify-between text-xs gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
                           <img
@@ -985,7 +1029,7 @@ export default function CustomerOrderForm() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <span className="text-slate-800 font-semibold block truncate">
+                          <span className="text-slate-800 font-medium block truncate max-w-[140px]">
                             {it.name}
                           </span>
                           <span className="text-[11px] text-slate-400 font-mono">
@@ -993,7 +1037,7 @@ export default function CustomerOrderForm() {
                           </span>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                      <span className="font-mono font-semibold text-slate-900 whitespace-nowrap">
                         {formatINR(it.subtotal)}
                       </span>
                     </div>
@@ -1008,8 +1052,8 @@ export default function CustomerOrderForm() {
 
                 {/* Total */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900">Total Payable</span>
-                  <span className="text-xl font-bold font-mono text-blue-700 tracking-tight">
+                  <span className="text-xs font-semibold text-slate-600">Total Payable</span>
+                  <span className="text-xl font-bold font-mono text-slate-900 tracking-tight">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
@@ -1022,95 +1066,95 @@ export default function CustomerOrderForm() {
         {/* STEP 3: ORDER SUCCESS CONFIRMATION                       */}
         {/* ======================================================== */}
         {step === 3 && orderResult && (
-          <div className="max-w-2xl mx-auto space-y-5">
-            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs text-center space-y-5">
+          <div className="max-w-lg mx-auto space-y-4">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-7 text-center space-y-4">
               
               {/* Checkmark Icon */}
-              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border-2 border-emerald-200 shadow-xs">
-                <CheckCircle2 className="w-9 h-9" />
+              <div className="w-13 h-13 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border border-emerald-200 shadow-2xs">
+                <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
               </div>
 
               <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                   Order Placed Successfully!
                 </h2>
               </div>
 
               {/* Order ID Banner */}
-              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 max-w-sm mx-auto">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
+              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 max-w-xs mx-auto">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
                   Generated Order ID
                 </span>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="font-mono text-xl font-black text-slate-900 tracking-wider">
+                <div className="flex items-center justify-center gap-1.5">
+                  <span className="font-mono text-lg font-bold text-slate-900 tracking-wider">
                     {orderResult.orderId}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyOrderId}
                     title="Copy Order ID"
-                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 transition"
+                    className="p-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-blue-600 transition"
                   >
                     {copied ? (
-                      <Check className="w-4 h-4 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
                     ) : (
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-3.5 h-3.5" />
                     )}
                   </button>
                 </div>
                 {copied && (
-                  <p className="text-xs text-emerald-600 font-semibold mt-1">
+                  <p className="text-[11px] text-emerald-600 font-medium mt-1">
                     Order ID copied to clipboard!
                   </p>
                 )}
               </div>
 
               {/* Order Receipt Details */}
-              <div className="text-left bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200 space-y-3.5 max-w-lg mx-auto">
-                <div className="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              <div className="text-left bg-slate-50 rounded-lg p-3.5 sm:p-4 border border-slate-200 space-y-3 text-xs">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span className="font-semibold text-slate-700 uppercase tracking-wider text-[11px]">
                     Order Receipt
                   </span>
-                  <span className="text-xs text-slate-500 font-mono">
+                  <span className="text-slate-500 font-mono text-[11px]">
                     {orderResult.orderDate ? new Date(orderResult.orderDate).toLocaleString('en-IN') : 'Just now'}
                   </span>
                 </div>
 
                 {/* Customer Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
                     <span className="text-slate-400 block mb-0.5">Customer Name:</span>
-                    <span className="font-bold text-slate-900">{orderResult.customerName}</span>
+                    <span className="font-medium text-slate-900">{orderResult.customerName}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block mb-0.5">Phone Number:</span>
-                    <span className="font-bold text-slate-900">{orderResult.phoneNumber}</span>
+                    <span className="font-medium text-slate-900">{orderResult.phoneNumber}</span>
                   </div>
                   <div className="sm:col-span-2">
                     <span className="text-slate-400 block mb-0.5">Address:</span>
-                    <span className="font-medium text-slate-800">
+                    <span className="font-normal text-slate-800">
                       {orderResult.completeAddress}, {orderResult.city}, {orderResult.state} - {orderResult.pincode}
                     </span>
                   </div>
                 </div>
 
                 {/* Itemized List */}
-                <div className="border-t border-slate-200/70 pt-2.5">
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                <div className="border-t border-slate-200 pt-2">
+                  <span className="font-semibold text-slate-700 uppercase tracking-wider text-[11px] block mb-1.5">
                     Ordered Products ({orderResult.items?.length || 0})
                   </span>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     {(orderResult.items || []).map((it, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs bg-white p-2 rounded-lg border border-slate-100">
+                      <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border border-slate-100">
                         <div className="min-w-0 pr-2">
-                          <span className="font-bold text-slate-800 block truncate">
+                          <span className="font-medium text-slate-800 block truncate">
                             {it.name || it.product_name}
                           </span>
-                          <span className="text-[11px] text-slate-500 font-mono">
+                          <span className="text-[10px] text-slate-400 font-mono">
                             Qty: {it.quantity} × {formatINR(it.price || it.product_price)}
                           </span>
                         </div>
-                        <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                        <span className="font-mono font-semibold text-slate-900 whitespace-nowrap">
                           {formatINR(it.subtotal !== undefined ? it.subtotal : (it.price || it.product_price) * it.quantity)}
                         </span>
                       </div>
@@ -1119,20 +1163,20 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Total */}
-                <div className="border-t border-slate-200 pt-2.5 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900">Total Amount:</span>
-                  <span className="text-lg font-black text-blue-700 font-mono">
+                <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
+                  <span className="font-semibold text-slate-700">Total Amount:</span>
+                  <span className="text-base font-bold text-slate-900 font-mono">
                     {formatINR(orderResult.totalAmount)}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto h-9 px-4 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium text-xs hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Receipt</span>
@@ -1141,7 +1185,7 @@ export default function CustomerOrderForm() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition shadow-xs inline-flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto h-9 px-4 rounded-lg bg-blue-600 text-white font-medium text-xs hover:bg-blue-700 transition shadow-2xs inline-flex items-center justify-center gap-1.5"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Place Another Order</span>
