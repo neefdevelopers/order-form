@@ -14,7 +14,6 @@ import {
   Phone, 
   MapPin, 
   Hash,
-  IndianRupee,
   Plus,
   Minus,
   Trash2,
@@ -57,7 +56,7 @@ export default function CustomerOrderForm() {
   const [orderResult, setOrderResult] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  // Fetch active products on mount
+  // Fetch active products on mount (avoid automatic product selection)
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -94,7 +93,7 @@ export default function CustomerOrderForm() {
     setErrors((prev) => ({ ...prev, items: null }));
   };
 
-  // Update quantity of a selected product
+  // Update quantity of a selected product (reducing to 0 removes it)
   const handleUpdateQuantity = (pid, newQty) => {
     const qtyVal = parseInt(newQty, 10);
     if (isNaN(qtyVal) || qtyVal <= 0) {
@@ -355,93 +354,88 @@ export default function CustomerOrderForm() {
 
   return (
     <div className="w-full min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* Top Professional Header Bar */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-sm">
+      {/* Top Header Bar */}
+      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <div>
-              <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight block leading-tight">
-                Product Ordering System
-              </span>
-            </div>
+            <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
+              Product Ordering System
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Verified & Secure</span>
-            </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Verified & Secure</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      {/* Main Content */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
         
-        {/* Step Progress Tracker */}
+        {/* Clean Balanced Stepper */}
         {step < 3 && (
-          <div className="mb-8 max-w-2xl mx-auto">
-            <div className="flex items-center justify-between relative">
-              {/* Connecting Progress Track */}
-              <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-slate-200 -z-0 rounded-full">
+          <div className="mb-6 max-w-md mx-auto">
+            <div className="flex items-center justify-between">
+              {/* Step 1 Node */}
+              <div className="flex items-center gap-2.5">
                 <div 
-                  className={`h-full bg-blue-600 rounded-full transition-all duration-300 ${
-                    step === 1 ? 'w-1/2' : 'w-full'
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    step === 1 
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
+                      : 'bg-emerald-600 text-white'
+                  }`}
+                >
+                  {step > 1 ? <Check className="w-4 h-4" /> : '1'}
+                </div>
+                <span className={`text-xs font-semibold ${step === 1 ? 'text-blue-700' : 'text-slate-700'}`}>
+                  Product Details
+                </span>
+              </div>
+
+              {/* Connecting Line */}
+              <div className="flex-1 mx-4 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full bg-blue-600 transition-all duration-300 ${
+                    step > 1 ? 'w-full' : 'w-0'
                   }`}
                 />
               </div>
 
-              {/* Step 1 Node */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div 
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all shadow-sm ${
-                    step === 1 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
-                      : 'bg-emerald-600 text-white'
-                  }`}
-                >
-                  {step > 1 ? <Check className="w-5 h-5" /> : '1'}
-                </div>
-                <span className={`text-xs mt-2 font-semibold ${step === 1 ? 'text-blue-700' : 'text-slate-600'}`}>
-                  1. Product Details
-                </span>
-              </div>
-
               {/* Step 2 Node */}
-              <div className="relative z-10 flex flex-col items-center">
+              <div className="flex items-center gap-2.5">
                 <div 
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     step === 2 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-sm'
-                      : 'bg-white border-2 border-slate-300 text-slate-400'
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
+                      : 'bg-white border border-slate-300 text-slate-400'
                   }`}
                 >
                   2
                 </div>
-                <span className={`text-xs mt-2 font-semibold ${step === 2 ? 'text-blue-700' : 'text-slate-400'}`}>
-                  2. Address Details
+                <span className={`text-xs font-semibold ${step === 2 ? 'text-blue-700' : 'text-slate-400'}`}>
+                  Address Details
                 </span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Global Error Banner if Products fail to load */}
+        {/* Catalog Error Alert */}
         {productsError && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-sm shadow-xs">
+          <div className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-sm shadow-xs">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600" />
             <div className="flex-1">
-              <p className="font-semibold">Unable to load catalog</p>
-              <p className="text-xs text-red-600 mt-0.5">{productsError}</p>
+              <p className="font-semibold text-xs">{productsError}</p>
               <button
                 type="button"
                 onClick={fetchProducts}
-                className="mt-2 text-xs font-bold text-red-800 underline hover:no-underline"
+                className="mt-1.5 text-xs font-bold text-red-800 underline hover:no-underline"
               >
-                Click here to retry
+                Click to retry
               </button>
             </div>
           </div>
@@ -451,22 +445,22 @@ export default function CustomerOrderForm() {
         {/* STEP 1: PRODUCT DETAILS                                 */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <form onSubmit={handleNext} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* Left Column (Catalog & Selection) */}
-            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+            {/* Left Column (Promoter ID + Product Cards unified in one card) */}
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-5">
               
-              {/* Promoter ID Card */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <label htmlFor="promoter-id" className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <User className="w-4 h-4 text-blue-600" />
+              {/* Promoter ID Section */}
+              <div className="pb-4 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="promoter-id" className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-blue-600" />
                     <span>Promoter ID <span className="text-red-500">*</span></span>
                   </label>
                   {promoterVerified && (
                     <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                       <Check className="w-3 h-3 text-emerald-600" />
-                      Verified
+                      Verified: {promoterVerified.name || promoterVerified.promoter_id}
                     </span>
                   )}
                 </div>
@@ -485,7 +479,7 @@ export default function CustomerOrderForm() {
                       setPromoterVerified(null);
                     }}
                     placeholder="Enter Promoter ID (e.g. PR-1001)"
-                    className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
                       errors.promoterId 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -494,127 +488,123 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {errors.promoterId && (
-                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-medium">
+                  <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1 font-medium">
                     <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{errors.promoterId}</span>
                   </p>
                 )}
               </div>
 
-              {/* Product Catalog Grid */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
-                <div className="border-b border-slate-100 pb-3">
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <Package className="w-5 h-5 text-blue-600" />
+              {/* Product Catalog Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Package className="w-4 h-4 text-blue-600" />
                     <span>Select Products <span className="text-red-500">*</span></span>
                   </h2>
                 </div>
 
                 {loadingProducts ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="h-40 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                      <div key={n} className="h-28 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
                     ))}
                   </div>
                 ) : products.length === 0 ? (
-                  <div className="p-8 text-center bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs">
+                  <div className="p-6 text-center bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs">
                     No active products are available right now.
                   </div>
                 ) : (
-                  <>
-                    {/* Visual Product Cards Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {products.map((prod) => {
-                        const existing = selectedItems.find((it) => it.product_id === prod.id);
-                        const isSelected = !!existing;
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {products.map((prod) => {
+                      const existing = selectedItems.find((it) => it.product_id === prod.id);
+                      const isSelected = !!existing;
 
-                        return (
-                          <div 
-                            key={prod.id} 
-                            className={`rounded-xl p-4 border transition-all flex flex-col justify-between ${
-                              isSelected 
-                                ? 'bg-blue-50/30 border-blue-500 ring-2 ring-blue-500/20 shadow-xs' 
-                                : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
-                            }`}
-                          >
-                            <div className="flex gap-3.5 mb-3.5">
-                              {/* Product Thumbnail */}
-                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 border border-slate-100 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                <img
-                                  src={getImageUrl(prod.image_url)}
-                                  alt={prod.name}
-                                  className="w-full h-full object-contain"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                                  }}
-                                />
-                              </div>
-
-                              {/* Info */}
-                              <div className="flex-1 min-w-0">
-                                <span className="font-bold text-slate-900 text-sm block leading-snug line-clamp-2">
-                                  {prod.name}
-                                </span>
-                                <div className="mt-1 flex items-baseline gap-1.5">
-                                  <span className="text-base font-extrabold text-blue-700 font-mono">
-                                    {formatINR(prod.price)}
-                                  </span>
-                                  <span className="text-[11px] text-slate-400">/ unit</span>
-                                </div>
-                              </div>
+                      return (
+                        <div 
+                          key={prod.id} 
+                          className={`rounded-xl p-3.5 border transition-all flex flex-col justify-between ${
+                            isSelected 
+                              ? 'bg-blue-50/30 border-blue-500 ring-1 ring-blue-500/30 shadow-2xs' 
+                              : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                          }`}
+                        >
+                          <div className="flex gap-3 mb-3">
+                            {/* Product Thumbnail */}
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                              <img
+                                src={getImageUrl(prod.image_url)}
+                                alt={prod.name}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                                }}
+                              />
                             </div>
 
-                            {/* Action Row */}
-                            <div className="pt-2 border-t border-slate-100">
-                              {isSelected ? (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-semibold text-blue-700 flex items-center gap-1">
-                                    <Check className="w-3.5 h-3.5 text-blue-600" />
-                                    <span>In Order</span>
-                                  </span>
-                                  <div className="inline-flex items-center border border-blue-300 rounded-lg overflow-hidden bg-white shadow-2xs">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                      className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
-                                      title="Decrease quantity"
-                                    >
-                                      <Minus className="w-3 h-3" />
-                                    </button>
-                                    <span className="w-8 text-center text-xs font-bold text-slate-900 font-mono">
-                                      {existing.quantity}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                      className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
-                                      title="Increase quantity"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddItem(prod.id)}
-                                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors shadow-xs"
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                  <span>Add to Order</span>
-                                </button>
-                              )}
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <span className="font-semibold text-slate-900 text-xs sm:text-sm block leading-snug line-clamp-2">
+                                {prod.name}
+                              </span>
+                              <div className="mt-1">
+                                <span className="text-sm font-bold text-slate-900 font-mono">
+                                  {formatINR(prod.price)}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </>
+
+                          {/* Action Row */}
+                          <div className="pt-2 border-t border-slate-100">
+                            {isSelected ? (
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-semibold text-blue-700 flex items-center gap-1">
+                                  <Check className="w-3 h-3 text-blue-600" />
+                                  <span>In Order</span>
+                                </span>
+                                <div className="inline-flex items-center border border-blue-300 rounded-lg overflow-hidden bg-white shadow-2xs">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
+                                    className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
+                                    title="Decrease quantity"
+                                  >
+                                    <Minus className="w-3 h-3" />
+                                  </button>
+                                  <span className="w-7 text-center text-xs font-bold text-slate-900 font-mono">
+                                    {existing.quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
+                                    className="w-7 h-7 flex items-center justify-center bg-blue-50 text-blue-800 hover:bg-blue-100 active:bg-blue-200 font-bold transition"
+                                    title="Increase quantity"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleAddItem(prod.id)}
+                                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold transition-colors shadow-2xs"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Add to Order</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
 
                 {errors.items && (
-                  <p className="text-xs text-red-600 flex items-center gap-1 font-medium">
+                  <p className="text-xs text-red-600 flex items-center gap-1 font-medium pt-1">
                     <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{errors.items}</span>
                   </p>
@@ -623,25 +613,28 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Right Column (Sticky Order Summary) */}
-            <div className="lg:col-span-5 xl:col-span-4 sticky top-24 space-y-4">
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div className="lg:col-span-5 xl:col-span-4 sticky top-20 space-y-4">
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-base">
+                  <h3 className="font-bold text-slate-900 text-sm">
                     Order Summary
                   </h3>
-                  <span className="text-xs font-semibold text-slate-500">
+                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
                 {/* Items Mini List */}
-                <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {itemsWithDetails.length === 0 ? (
-                    <p className="text-xs text-slate-400 text-center py-4">No items selected</p>
+                    <div className="py-6 text-center text-slate-400">
+                      <ShoppingBag className="w-7 h-7 mx-auto text-slate-300 mb-1.5 stroke-[1.5]" />
+                      <span className="text-xs text-slate-400 block font-medium">No products selected yet</span>
+                    </div>
                   ) : (
                     itemsWithDetails.map((it) => (
-                      <div key={it.product_id} className="flex items-center justify-between text-xs">
-                        <span className="text-slate-700 truncate max-w-[170px]" title={it.name}>
+                      <div key={it.product_id} className="flex items-center justify-between text-xs py-1 border-b border-slate-50 last:border-none">
+                        <span className="text-slate-700 truncate max-w-[160px]" title={it.name}>
                           {it.name} <span className="text-slate-400 font-mono">× {it.quantity}</span>
                         </span>
                         <div className="flex items-center gap-2">
@@ -652,7 +645,7 @@ export default function CustomerOrderForm() {
                             type="button"
                             onClick={() => handleRemoveItem(it.product_id)}
                             title="Remove product"
-                            className="text-slate-400 hover:text-red-500 transition p-0.5"
+                            className="text-slate-300 hover:text-red-500 transition p-0.5"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -662,19 +655,23 @@ export default function CustomerOrderForm() {
                   )}
                 </div>
 
-                {/* Total Highlight */}
+                {/* Total Row */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900">Total Amount</span>
-                  <span className="text-2xl font-black font-mono text-blue-700 tracking-tight">
+                  <span className="text-xl font-bold font-mono text-blue-700 tracking-tight">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
 
-                {/* Primary CTA Button */}
+                {/* Next Button */}
                 <button
                   type="submit"
                   disabled={loadingProducts || products.length === 0 || validatingPromoter || itemsWithDetails.length === 0}
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                  className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition ${
+                    itemsWithDetails.length === 0 || validatingPromoter
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs hover:shadow'
+                  }`}
                 >
                   {validatingPromoter ? (
                     <>
@@ -697,11 +694,11 @@ export default function CustomerOrderForm() {
         {/* STEP 2: CUSTOMER ADDRESS DETAILS                         */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* Left Column (Address Form) */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-5 sm:p-7 border border-slate-200 shadow-sm space-y-6">
-              <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl p-5 sm:p-7 border border-slate-200 shadow-xs space-y-5">
+              <div className="border-b border-slate-100 pb-3.5 flex items-center justify-between">
                 <div>
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-blue-600" />
@@ -719,11 +716,10 @@ export default function CustomerOrderForm() {
               </div>
 
               {submitError && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-sm">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-600" />
+                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
                   <div className="flex-1">
-                    <p className="font-semibold">Order submission error</p>
-                    <p className="text-xs text-red-600 mt-0.5">{submitError}</p>
+                    <p className="font-semibold">{submitError}</p>
                   </div>
                 </div>
               )}
@@ -836,7 +832,6 @@ export default function CustomerOrderForm() {
                     {loadingPincode && (
                       <span className="text-[11px] text-blue-600 flex items-center gap-1">
                         <RefreshCw className="w-3 h-3 animate-spin" />
-                        <span>Searching...</span>
                       </span>
                     )}
                   </div>
@@ -930,12 +925,12 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={submitting}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 active:bg-slate-100 transition inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 active:bg-slate-100 transition inline-flex items-center justify-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Products</span>
@@ -944,7 +939,7 @@ export default function CustomerOrderForm() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-6 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:bg-blue-800 transition shadow-md hover:shadow-lg disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm transition shadow-xs hover:shadow disabled:opacity-60 inline-flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -962,21 +957,21 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Right Column (Review Order Summary) */}
-            <div className="lg:col-span-5 xl:col-span-4 sticky top-24 space-y-4">
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+            <div className="lg:col-span-5 xl:col-span-4 sticky top-20 space-y-4">
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-base">
+                  <h3 className="font-bold text-slate-900 text-sm">
                     Review Order
                   </h3>
-                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                     {totalQuantity} items
                   </span>
                 </div>
 
                 {/* Items List */}
-                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
                   {itemsWithDetails.map((it) => (
-                    <div key={it.product_id} className="flex items-start justify-between text-xs gap-2">
+                    <div key={it.product_id} className="flex items-start justify-between text-xs gap-2 py-1 border-b border-slate-50 last:border-none">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
                           <img
@@ -1005,17 +1000,16 @@ export default function CustomerOrderForm() {
                   ))}
                 </div>
 
-                {/* Promoters & Total */}
-                <div className="border-t border-slate-100 pt-3 space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Promoter ID</span>
-                    <span className="font-mono font-semibold text-slate-800">{promoterId}</span>
-                  </div>
+                {/* Promoter ID */}
+                <div className="border-t border-slate-100 pt-3 flex justify-between text-xs text-slate-600">
+                  <span>Promoter ID</span>
+                  <span className="font-mono font-semibold text-slate-800">{promoterId}</span>
                 </div>
 
+                {/* Total */}
                 <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900">Total Payable</span>
-                  <span className="text-2xl font-black font-mono text-blue-700 tracking-tight">
+                  <span className="text-xl font-bold font-mono text-blue-700 tracking-tight">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
@@ -1028,34 +1022,34 @@ export default function CustomerOrderForm() {
         {/* STEP 3: ORDER SUCCESS CONFIRMATION                       */}
         {/* ======================================================== */}
         {step === 3 && orderResult && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm text-center space-y-6">
+          <div className="max-w-2xl mx-auto space-y-5">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs text-center space-y-5">
               
               {/* Checkmark Icon */}
-              <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border-4 border-emerald-100 shadow-sm">
-                <CheckCircle2 className="w-10 h-10" />
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border-2 border-emerald-200 shadow-xs">
+                <CheckCircle2 className="w-9 h-9" />
               </div>
 
               <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                   Order Placed Successfully!
                 </h2>
               </div>
 
               {/* Order ID Banner */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border border-blue-200/80 max-w-md mx-auto">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-700 block mb-1">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 max-w-sm mx-auto">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
                   Generated Order ID
                 </span>
                 <div className="flex items-center justify-center gap-2">
-                  <span className="font-mono text-xl sm:text-2xl font-black text-slate-900 tracking-wider">
+                  <span className="font-mono text-xl font-black text-slate-900 tracking-wider">
                     {orderResult.orderId}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyOrderId}
                     title="Copy Order ID"
-                    className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition shadow-2xs"
+                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 transition"
                   >
                     {copied ? (
                       <Check className="w-4 h-4 text-emerald-600" />
@@ -1065,15 +1059,15 @@ export default function CustomerOrderForm() {
                   </button>
                 </div>
                 {copied && (
-                  <p className="text-xs text-emerald-600 font-semibold mt-1.5">
+                  <p className="text-xs text-emerald-600 font-semibold mt-1">
                     Order ID copied to clipboard!
                   </p>
                 )}
               </div>
 
               {/* Order Receipt Details */}
-              <div className="text-left bg-slate-50 rounded-2xl p-5 border border-slate-200/80 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200/70 pb-3">
+              <div className="text-left bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200 space-y-3.5 max-w-lg mx-auto">
+                <div className="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Order Receipt
                   </span>
@@ -1083,7 +1077,7 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Customer Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                   <div>
                     <span className="text-slate-400 block mb-0.5">Customer Name:</span>
                     <span className="font-bold text-slate-900">{orderResult.customerName}</span>
@@ -1101,13 +1095,13 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Itemized List */}
-                <div className="border-t border-slate-200/70 pt-3">
+                <div className="border-t border-slate-200/70 pt-2.5">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
                     Ordered Products ({orderResult.items?.length || 0})
                   </span>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {(orderResult.items || []).map((it, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs bg-white p-2.5 rounded-xl border border-slate-100">
+                      <div key={idx} className="flex justify-between items-center text-xs bg-white p-2 rounded-lg border border-slate-100">
                         <div className="min-w-0 pr-2">
                           <span className="font-bold text-slate-800 block truncate">
                             {it.name || it.product_name}
@@ -1125,31 +1119,31 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Total */}
-                <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <span className="text-sm font-bold text-slate-900">Total Paid / Payable:</span>
-                  <span className="text-xl font-black text-blue-700 font-mono">
+                <div className="border-t border-slate-200 pt-2.5 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900">Total Amount:</span>
+                  <span className="text-lg font-black text-blue-700 font-mono">
                     {formatINR(orderResult.totalAmount)}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 transition inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
                 >
-                  <Printer className="w-4 h-4" />
+                  <Printer className="w-3.5 h-3.5" />
                   <span>Print Receipt</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition shadow-md hover:shadow-lg inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition shadow-xs inline-flex items-center justify-center gap-1.5"
                 >
-                  <ShoppingBag className="w-4 h-4" />
+                  <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Place Another Order</span>
                 </button>
               </div>
