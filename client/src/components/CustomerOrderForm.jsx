@@ -38,7 +38,6 @@ export default function CustomerOrderForm() {
 
   // Selected products for the order: array of { product_id, quantity }
   const [selectedItems, setSelectedItems] = useState([]);
-  const [productToAdd, setProductToAdd] = useState('');
 
   // Step 2 fields
   const [fullName, setFullName] = useState('');
@@ -71,10 +70,6 @@ export default function CustomerOrderForm() {
       if (!res.ok) throw new Error('Failed to load products');
       const data = await res.json();
       setProducts(data);
-      // Auto-select first product if none selected
-      if (data.length > 0 && selectedItems.length === 0) {
-        setSelectedItems([{ product_id: data[0].id, quantity: 1 }]);
-      }
     } catch (err) {
       console.error(err);
       setProductsError('Unable to load available products. Please refresh the page.');
@@ -336,12 +331,7 @@ export default function CustomerOrderForm() {
     setStep(1);
     setPromoterId('');
     setPromoterVerified(null);
-    if (products.length > 0) {
-      setSelectedItems([{ product_id: products[0].id, quantity: 1 }]);
-    } else {
-      setSelectedItems([]);
-    }
-    setProductToAdd('');
+    setSelectedItems([]);
     setFullName('');
     setPhoneNumber('');
     setCompleteAddress('');
@@ -619,41 +609,6 @@ export default function CustomerOrderForm() {
                           </div>
                         );
                       })}
-                    </div>
-
-                    {/* Quick Dropdown Selector for Fast Add */}
-                    <div className="pt-4 border-t border-slate-100">
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <select
-                          value={productToAdd}
-                          onChange={(e) => setProductToAdd(e.target.value)}
-                          className="flex-1 min-w-0 px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
-                        >
-                          <option value="">Select a product to add...</option>
-                          {products.map((prod) => {
-                            const isAdded = selectedItems.some((it) => it.product_id === prod.id);
-                            return (
-                              <option key={prod.id} value={prod.id}>
-                                {prod.name} — {formatINR(prod.price)} {isAdded ? '(In order)' : ''}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (productToAdd) {
-                              handleAddItem(productToAdd);
-                              setProductToAdd('');
-                            }
-                          }}
-                          disabled={!productToAdd}
-                          className="flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 active:bg-slate-950 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xs"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Add Product</span>
-                        </button>
-                      </div>
                     </div>
                   </>
                 )}
