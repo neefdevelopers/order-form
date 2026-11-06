@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { apiUrl, getImageUrl } from '../config';
 import { 
   Package, 
@@ -18,7 +18,9 @@ import {
   Minus,
   Trash2,
   ShieldCheck,
-  Printer
+  Printer,
+  ChevronUp,
+  X
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -46,6 +48,10 @@ export default function CustomerOrderForm() {
 
   // Selected products for the order: array of { product_id, quantity }
   const [selectedItems, setSelectedItems] = useState([]);
+
+  // Floating Order Widget Popover state
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const hoverTimeoutRef = useRef(null);
 
   // Step 2 fields
   const [fullName, setFullName] = useState('');
@@ -78,7 +84,7 @@ export default function CustomerOrderForm() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // Fetch active products on mount (avoid automatic product selection)
+  // Fetch active products on mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -115,7 +121,7 @@ export default function CustomerOrderForm() {
     });
     setErrors((prev) => ({ ...prev, items: null }));
     if (prod) {
-      showToast(`Added "${prod.name}" to order`, 'success');
+      showToast(`Added "${prod.name}" to cart`, 'success');
     }
   };
 
@@ -140,7 +146,7 @@ export default function CustomerOrderForm() {
     const prod = products.find((p) => p.id === pid);
     setSelectedItems((prev) => prev.filter((item) => item.product_id !== pid));
     if (prod) {
-      showToast(`Removed "${prod.name}" from order`, 'info');
+      showToast(`Removed "${prod.name}" from cart`, 'info');
     }
   };
 
@@ -170,6 +176,42 @@ export default function CustomerOrderForm() {
   const formatINR = (val) => {
     return '₹' + Number(val || 0).toLocaleString('en-IN');
   };
+
+  // Hover handlers for floating widget
+  const handleFloatingMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsSummaryExpanded(true);
+  };
+
+  const handleFloatingMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    // 260ms delay ensures seamless cursor transit between trigger pill and popover body
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsSummaryExpanded(false);
+    }, 260);
+  };
+
+  const handleFloatingClick = (e) => {
+    e.stopPropagation();
+    setIsSummaryExpanded((prev) => !prev);
+  };
+
+  // Close floating popover when clicking anywhere outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      const container = document.getElementById('floating-order-summary-container');
+      if (container && !container.contains(e.target)) {
+        setIsSummaryExpanded(false);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   // Validate Promoter ID against backend
   const validatePromoterAsync = async (idToValidate) => {
@@ -206,7 +248,7 @@ export default function CustomerOrderForm() {
     }
   };
 
-  // Step 1 Validation -> Proceed to Step 2 (Screen 2)
+  // Step 1 Validation -> Proceed to Step 2
   const handleNext = async (e) => {
     if (e) e.preventDefault();
     const newErrors = {};
@@ -220,14 +262,21 @@ export default function CustomerOrderForm() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // If promoterId is missing, scroll to top
+      if (newErrors.promoterId) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       return;
     }
 
-    // Validate Promoter ID with backend
     const isValid = await validatePromoterAsync(promoterId);
-    if (!isValid) return;
+    if (!isValid) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     setErrors({});
+    setIsSummaryExpanded(false);
     setStep(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -245,7 +294,6 @@ export default function CustomerOrderForm() {
       let res = await fetch(apiUrl(`/api/pincode/${cleanPin}`));
       let data = await res.json();
 
-      // Direct fallback to postalpincode.in if backend was unreachable
       if (!res.ok || !data.success) {
         try {
           const directRes = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
@@ -287,7 +335,7 @@ export default function CustomerOrderForm() {
   // Step 2 Make Order Submission
   const handleSubmitOrder = async (e) => {
     if (e) e.preventDefault();
-    if (submitting) return; // Prevent duplicate clicks
+    if (submitting) return;
 
     const newErrors = {};
 
@@ -363,6 +411,7 @@ export default function CustomerOrderForm() {
         promoterId: payload.promoter_id
       });
 
+      setIsSummaryExpanded(false);
       setStep(3); // Success window
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
@@ -389,6 +438,7 @@ export default function CustomerOrderForm() {
     setSubmitError('');
     setOrderResult(null);
     setCopied(false);
+    setIsSummaryExpanded(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -402,11 +452,11 @@ export default function CustomerOrderForm() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans pb-16 lg:pb-0">
+    <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans relative pb-28 sm:pb-32">
       
-      {/* Toast Feedback Notification */}
+      {/* Toast Feedback Notification (Positioned safe above floating widget) */}
       {toast && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-xl border border-slate-800 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-24 right-5 sm:bottom-24 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-2xl border border-slate-800 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toast.type === 'error' ? (
             <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
           ) : (
@@ -418,7 +468,7 @@ export default function CustomerOrderForm() {
 
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
               <ShoppingBag className="w-4.5 h-4.5" />
@@ -436,7 +486,7 @@ export default function CustomerOrderForm() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         
         {/* Step Progress Indicator (Two-Step Checkout) */}
         {step < 3 && (
@@ -504,743 +554,606 @@ export default function CustomerOrderForm() {
         )}
 
         {/* ======================================================== */}
-        {/* SCREEN 1: PRODUCT DETAILS & STICKY ORDER SUMMARY         */}
+        {/* SCREEN 1: PRODUCT DETAILS                                */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              
-              {/* Left Column: Promoter ID + Products Selection Grid */}
-              <div className="lg:col-span-7 xl:col-span-7 space-y-5">
-                
-                {/* 1. Promoter ID Section */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="promoter-id" className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <User className="w-4 h-4 text-blue-600" />
-                      <span>Promoter ID <span className="text-red-500">*</span></span>
-                    </label>
-                    {promoterVerified && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        Verified: {promoterVerified.name || promoterVerified.promoter_id}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <Hash className="w-4 h-4" />
-                      </div>
-                      <input
-                        id="promoter-id"
-                        type="text"
-                        value={promoterId}
-                        onChange={(e) => {
-                          setPromoterId(e.target.value);
-                          if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
-                          setPromoterVerified(null);
-                        }}
-                        onBlur={() => {
-                          if (promoterId.trim() && !promoterVerified && !validatingPromoter) {
-                            validatePromoterAsync(promoterId);
-                          }
-                        }}
-                        placeholder="Enter your Promoter ID (e.g. PR-1001)"
-                        className={`h-11 w-full pl-10 pr-3.5 rounded-lg border text-sm text-slate-900 bg-slate-50/50 hover:bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
-                          errors.promoterId 
-                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                            : promoterVerified
-                            ? 'border-emerald-300 focus:ring-emerald-100 focus:border-emerald-500'
-                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                        }`}
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => validatePromoterAsync(promoterId)}
-                      disabled={validatingPromoter || !promoterId.trim()}
-                      className="px-3.5 h-11 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-                    >
-                      {validatingPromoter ? (
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
-                      ) : promoterVerified ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <span>Verify</span>
-                      )}
-                    </button>
-                  </div>
-
-                  {errors.promoterId ? (
-                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{errors.promoterId}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[11px] text-slate-400 mt-1.5">
-                      Enter your authorized Promoter ID to unlock ordering.
-                    </p>
-                  )}
-                </div>
-
-                {/* 2. Product Selection Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between px-0.5">
-                    <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <Package className="w-4 h-4 text-blue-600" />
-                      <span>Select Products <span className="text-red-500">*</span></span>
-                    </h2>
-                    <span className="text-xs text-slate-500 font-medium">
-                      {products.length} {products.length === 1 ? 'product' : 'products'} available
-                    </span>
-                  </div>
-
-                  {loadingProducts ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[1, 2].map((n) => (
-                        <div key={n} className="h-64 rounded-xl bg-white border border-slate-200/80 p-4 animate-pulse space-y-3">
-                          <div className="w-full h-32 bg-slate-100 rounded-lg" />
-                          <div className="h-4 bg-slate-100 rounded w-3/4" />
-                          <div className="h-5 bg-slate-100 rounded w-1/3" />
-                          <div className="h-9 bg-slate-100 rounded" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : products.length === 0 ? (
-                    <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-sm">
-                      No active products are available right now.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {products.map((prod) => {
-                        const existing = selectedItems.find((it) => it.product_id === prod.id);
-                        const isSelected = !!existing;
-
-                        return (
-                          <div 
-                            key={prod.id} 
-                            className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-4 bg-white ${
-                              isSelected 
-                                ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-xs' 
-                                : 'border-slate-200 hover:border-slate-300 hover:shadow-xs'
-                            }`}
-                          >
-                            <div>
-                              {/* Product Thumbnail Container */}
-                              <div className="w-full h-32 sm:h-36 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-center p-2 mb-3 overflow-hidden">
-                                <img
-                                  src={getImageUrl(prod.image_url)}
-                                  alt={prod.name}
-                                  className="w-full h-full object-contain transition-transform duration-200 hover:scale-105"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                                  }}
-                                />
-                              </div>
-
-                              {/* Product Name (Fixed 2-line height ensures equal alignment) */}
-                              <div className="h-10 mb-1 flex items-start">
-                                <h3 
-                                  className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2" 
-                                  title={prod.name}
-                                >
-                                  {prod.name}
-                                </h3>
-                              </div>
-
-                              {/* Unit Price */}
-                              <div className="h-6 flex items-baseline gap-1 mb-3">
-                                <span className="text-base sm:text-lg font-bold text-slate-900 font-mono">
-                                  {formatINR(prod.price)}
-                                </span>
-                                <span className="text-xs text-slate-400 font-normal">/ unit</span>
-                              </div>
-                            </div>
-
-                            {/* Action Slot & Subtotal */}
-                            <div className="pt-2 border-t border-slate-100 mt-auto">
-                              {isSelected ? (
-                                <div className="space-y-2">
-                                  {/* Subtotal calculation for selected product */}
-                                  <div className="flex items-center justify-between text-xs px-0.5 text-slate-600">
-                                    <span className="font-medium">Subtotal:</span>
-                                    <span className="font-mono font-bold text-blue-700">
-                                      {formatINR(prod.price * existing.quantity)}
-                                    </span>
-                                  </div>
-
-                                  {/* Stepper with plus and minus buttons */}
-                                  <div className="w-full h-10 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/40 shadow-2xs">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                      className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
-                                      title="Decrease quantity"
-                                    >
-                                      <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                    </button>
-                                    <span className="flex-1 text-center font-bold font-mono text-xs sm:text-sm text-slate-900">
-                                      {existing.quantity} in order
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                      className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
-                                      title="Increase quantity"
-                                    >
-                                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddItem(prod.id)}
-                                  className="w-full h-10 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors shadow-2xs hover:shadow active:scale-[0.99]"
-                                >
-                                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                  <span>Add to Order</span>
-                                </button>
-                              )}
-                            </div>
-
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {errors.items && (
-                    <p className="text-xs text-red-600 flex items-center gap-1 font-medium pt-1 px-1">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>{errors.items}</span>
-                    </p>
-                  )}
-                </div>
-
+          <form onSubmit={handleNext} className="space-y-6">
+            
+            {/* Promoter ID Section */}
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="promoter-id" className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span>Promoter ID <span className="text-red-500">*</span></span>
+                </label>
+                {promoterVerified && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    <Check className="w-3 h-3 text-emerald-600" />
+                    Verified: {promoterVerified.name || promoterVerified.promoter_id}
+                  </span>
+                )}
               </div>
 
-              {/* Right Column: Sticky Order Summary on Desktop */}
-              <div className="lg:col-span-5 xl:col-span-5 lg:sticky lg:top-20 space-y-4">
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-                  
-                  {/* Order Summary Header */}
-                  <div className="bg-slate-50/80 px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                        <ShoppingBag className="w-4 h-4" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
-                        Order Summary
-                      </h3>
-                    </div>
-                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all ${
-                      totalQuantity > 0 
-                        ? 'bg-blue-600 text-white shadow-2xs' 
-                        : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
-                    </span>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Hash className="w-4 h-4" />
                   </div>
+                  <input
+                    id="promoter-id"
+                    type="text"
+                    value={promoterId}
+                    onChange={(e) => {
+                      setPromoterId(e.target.value);
+                      if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
+                      setPromoterVerified(null);
+                    }}
+                    onBlur={() => {
+                      if (promoterId.trim() && !promoterVerified && !validatingPromoter) {
+                        validatePromoterAsync(promoterId);
+                      }
+                    }}
+                    placeholder="Enter your Promoter ID (e.g. PR-1001)"
+                    className={`h-11 w-full pl-10 pr-3.5 rounded-lg border text-sm text-slate-900 bg-slate-50/50 hover:bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
+                      errors.promoterId 
+                        ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                        : promoterVerified
+                        ? 'border-emerald-300 focus:ring-emerald-100 focus:border-emerald-500'
+                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                    }`}
+                  />
+                </div>
 
-                  {/* Body: Items or Empty State */}
-                  <div className="p-4 sm:p-5">
-                    {itemsWithDetails.length === 0 ? (
-                      /* Attractive Empty Cart State */
-                      <div className="py-8 px-2 text-center">
-                        <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mx-auto mb-3 border border-blue-100/70">
-                          <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+                <button
+                  type="button"
+                  onClick={() => validatePromoterAsync(promoterId)}
+                  disabled={validatingPromoter || !promoterId.trim()}
+                  className="px-4 h-11 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 font-semibold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                >
+                  {validatingPromoter ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                  ) : promoterVerified ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <span>Verify</span>
+                  )}
+                </button>
+              </div>
+
+              {errors.promoterId ? (
+                <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>{errors.promoterId}</span>
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-400 mt-1.5">
+                  Authorized promoter ID is required to place your order.
+                </p>
+              )}
+            </div>
+
+            {/* Product Selection Section */}
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between px-0.5">
+                <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <Package className="w-4 h-4 text-blue-600" />
+                  <span>Select Products <span className="text-red-500">*</span></span>
+                </h2>
+                <span className="text-xs text-slate-500 font-medium">
+                  {products.length} {products.length === 1 ? 'product' : 'products'} available
+                </span>
+              </div>
+
+              {loadingProducts ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-72 rounded-xl bg-white border border-slate-200/80 p-4 animate-pulse space-y-3">
+                      <div className="w-full h-40 bg-slate-100 rounded-lg" />
+                      <div className="h-4 bg-slate-100 rounded w-3/4" />
+                      <div className="h-5 bg-slate-100 rounded w-1/3" />
+                      <div className="h-10 bg-slate-100 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : products.length === 0 ? (
+                <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-sm">
+                  No active products are available right now.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {products.map((prod) => {
+                    const existing = selectedItems.find((it) => it.product_id === prod.id);
+                    const isSelected = !!existing;
+
+                    return (
+                      <div 
+                        key={prod.id} 
+                        className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-4 bg-white ${
+                          isSelected 
+                            ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10 shadow-xs' 
+                            : 'border-slate-200/90 hover:border-slate-300 hover:shadow-md'
+                        }`}
+                      >
+                        <div>
+                          {/* Product Image Container */}
+                          <div className="w-full h-40 sm:h-44 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-center p-3 mb-3 overflow-hidden group">
+                            <img
+                              src={getImageUrl(prod.image_url)}
+                              alt={prod.name}
+                              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                              }}
+                            />
+                          </div>
+
+                          {/* Product Name */}
+                          <div className="h-11 mb-1.5 flex items-start">
+                            <h3 
+                              className="text-sm sm:text-base font-semibold text-slate-900 leading-snug line-clamp-2" 
+                              title={prod.name}
+                            >
+                              {prod.name}
+                            </h3>
+                          </div>
+
+                          {/* Price in INR */}
+                          <div className="h-6 flex items-baseline gap-1 mb-3">
+                            <span className="text-lg sm:text-xl font-bold text-slate-900 font-mono">
+                              {formatINR(prod.price)}
+                            </span>
+                            <span className="text-xs text-slate-400 font-normal">/ unit</span>
+                          </div>
                         </div>
-                        <p className="text-sm font-bold text-slate-700 mb-1">
-                          No products added yet
-                        </p>
-                        <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                          No products added yet. Select a product to start your order.
-                        </p>
-                      </div>
-                    ) : (
-                      /* Itemized Cart List */
-                      <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pr-1">
-                        {itemsWithDetails.map((it) => (
-                          <div key={it.product_id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="w-11 h-11 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                <img
-                                  src={getImageUrl(it.image_url)}
-                                  alt={it.name}
-                                  className="w-full h-full object-contain"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
-                                  }}
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                <span className="font-semibold text-slate-800 text-xs sm:text-sm truncate block" title={it.name}>
-                                  {it.name}
-                                </span>
-                                <span className="text-[11px] text-slate-400 font-mono">
-                                  {formatINR(it.price)} each
-                                </span>
-                              </div>
-                            </div>
 
-                            <div className="flex items-center gap-2.5 flex-shrink-0">
-                              {/* Mini Stepper */}
-                              <div className="inline-flex items-center border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs">
+                        {/* Action Slot & Subtotal */}
+                        <div className="pt-2.5 border-t border-slate-100 mt-auto">
+                          {isSelected ? (
+                            <div className="space-y-2">
+                              {/* Subtotal calculation for each selected product */}
+                              <div className="flex items-center justify-between text-xs px-0.5 text-slate-600">
+                                <span className="font-medium">Subtotal:</span>
+                                <span className="font-mono font-bold text-blue-700">
+                                  {formatINR(prod.price * existing.quantity)}
+                                </span>
+                              </div>
+
+                              {/* Stepper with plus and minus buttons */}
+                              <div className="w-full h-10 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/40 shadow-2xs">
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
-                                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                                  onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
+                                  className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
                                   title="Decrease quantity"
                                 >
-                                  <Minus className="w-3 h-3" />
+                                  <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 </button>
-                                <span className="px-1.5 text-xs font-bold font-mono text-slate-800 min-w-[18px] text-center">
-                                  {it.quantity}
+                                <span className="flex-1 text-center font-bold font-mono text-xs sm:text-sm text-slate-900">
+                                  {existing.quantity} in order
                                 </span>
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
-                                  className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                                  onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
+                                  className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
                                   title="Increase quantity"
                                 >
-                                  <Plus className="w-3 h-3" />
+                                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 </button>
                               </div>
-
-                              {/* Subtotal */}
-                              <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm min-w-[55px] text-right">
-                                {formatINR(it.subtotal)}
-                              </span>
-
-                              {/* Remove Trash */}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveItem(it.product_id)}
-                                title="Remove product"
-                                className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
                             </div>
-                          </div>
-                        ))}
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleAddItem(prod.id)}
+                              className="w-full h-10 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
+                            >
+                              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <span>Add to Order</span>
+                            </button>
+                          )}
+                        </div>
+
                       </div>
-                    )}
-                  </div>
-
-                  {/* Summary Footer: Subtotals, Grand Total & Continue Button */}
-                  <div className="bg-slate-50/70 p-4 sm:p-5 border-t border-slate-100 space-y-3.5">
-                    
-                    {/* Item count & Subtotal */}
-                    <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
-                      <span>Total Quantity</span>
-                      <span className="font-mono font-bold text-slate-800">{totalQuantity} units</span>
-                    </div>
-
-                    {/* Grand Total Box */}
-                    <div className="p-3 sm:p-3.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between shadow-2xs">
-                      <div>
-                        <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
-                          Grand Total
-                        </span>
-                        <span className="text-[10px] text-blue-600 font-medium">
-                          All taxes & items included
-                        </span>
-                      </div>
-                      <span className="text-xl sm:text-2xl font-black font-mono text-blue-900 tracking-tight">
-                        {formatINR(totalAmount)}
-                      </span>
-                    </div>
-
-                    {/* Prominent Continue to Address Details Button */}
-                    <button
-                      type="submit"
-                      disabled={loadingProducts || products.length === 0 || validatingPromoter}
-                      className={`w-full h-11 sm:h-12 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
-                        itemsWithDetails.length === 0 || !promoterId.trim()
-                          ? 'bg-blue-600/60 hover:bg-blue-600/70 text-white cursor-pointer'
-                          : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow active:scale-[0.99]'
-                      }`}
-                    >
-                      {validatingPromoter ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Verifying Promoter...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Continue to Address Details</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-
-                    {/* Helpful validation guidance below button */}
-                    {itemsWithDetails.length === 0 && (
-                      <p className="text-[11px] text-center text-slate-400">
-                        Please select at least 1 product to continue
-                      </p>
-                    )}
-                  </div>
-
+                    );
+                  })}
                 </div>
+              )}
+
+              {errors.items && (
+                <p className="text-xs text-red-600 flex items-center gap-1 font-medium pt-1 px-1">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>{errors.items}</span>
+                </p>
+              )}
+            </div>
+
+            {/* Bottom Checkout Navigation Card */}
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
+              <div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                  Current Selection
+                </span>
+                <p className="text-sm sm:text-base font-semibold text-slate-800 mt-0.5">
+                  {totalQuantity > 0 ? (
+                    <span>
+                      <span className="font-bold text-blue-600">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-bold text-slate-900">{formatINR(totalAmount)}</span>
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">No products added yet. Select products above to proceed.</span>
+                  )}
+                </p>
               </div>
 
+              <button
+                type="submit"
+                disabled={loadingProducts || products.length === 0 || validatingPromoter}
+                className={`w-full sm:w-auto h-11 sm:h-12 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
+                  totalQuantity === 0 || !promoterId.trim()
+                    ? 'bg-blue-600/70 hover:bg-blue-600 text-white cursor-pointer'
+                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow active:scale-[0.99]'
+                }`}
+              >
+                {validatingPromoter ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Promoter...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Continue to Address Details</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
             </div>
+
           </form>
         )}
 
         {/* ======================================================== */}
-        {/* SCREEN 2: ADDRESS DETAILS & ORDER REVIEW                 */}
+        {/* SCREEN 2: ADDRESS DETAILS                                */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              
-              {/* Left Column: Customer Information Form Card */}
-              <div className="lg:col-span-7 xl:col-span-7 space-y-5">
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 sm:p-6 space-y-5">
-                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                    <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-blue-600" />
-                      <span>Customer Address</span>
-                    </h2>
-                    <button
-                      type="button"
-                      onClick={handleBack}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Back to Products</span>
-                    </button>
+          <form onSubmit={handleSubmitOrder} className="max-w-3xl mx-auto space-y-6">
+            
+            {/* Order Review Card */}
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+              <div className="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <ShoppingBag className="w-4 h-4" />
                   </div>
+                  <h3 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
+                    Order Review
+                  </h3>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Edit Products</span>
+                  </button>
+                </div>
+              </div>
 
-                  {submitError && (
-                    <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
-                      <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
-                      <div className="flex-1">
-                        <p className="font-semibold">{submitError}</p>
+              {/* Items List */}
+              <div className="p-4 sm:p-5 divide-y divide-slate-100 max-h-72 overflow-y-auto">
+                {itemsWithDetails.map((it) => (
+                  <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={getImageUrl(it.image_url)}
+                          alt={it.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="font-semibold text-slate-800 truncate block" title={it.name}>
+                          {it.name}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          Qty: {it.quantity} × {formatINR(it.price)}
+                        </span>
                       </div>
                     </div>
-                  )}
-
-                  {/* Contact Information Group */}
-                  <div className="space-y-3.5">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                      Contact Information
+                    <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                      {formatINR(it.subtotal)}
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      {/* Full Name */}
-                      <div>
-                        <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <User className="w-4 h-4" />
-                          </div>
-                          <input
-                            id="full-name"
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => {
-                              setFullName(e.target.value);
-                              if (errors.fullName) setErrors({ ...errors, fullName: null });
-                            }}
-                            placeholder="e.g. Ananya Sharma"
-                            className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                              errors.fullName 
-                                ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                                : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                            }`}
-                          />
-                        </div>
-                        {errors.fullName && (
-                          <p className="text-xs text-red-600 mt-1 font-medium">{errors.fullName}</p>
-                        )}
-                      </div>
-
-                      {/* Phone Number */}
-                      <div>
-                        <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
-                          Phone Number <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <Phone className="w-4 h-4" />
-                          </div>
-                          <input
-                            id="phone-number"
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => {
-                              setPhoneNumber(e.target.value);
-                              if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
-                            }}
-                            placeholder="e.g. 9876543210"
-                            className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                              errors.phoneNumber 
-                                ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                                : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                            }`}
-                          />
-                        </div>
-                        {errors.phoneNumber && (
-                          <p className="text-xs text-red-600 mt-1 font-medium">{errors.phoneNumber}</p>
-                        )}
-                      </div>
-                    </div>
                   </div>
+                ))}
+              </div>
 
-                  {/* Delivery Address Group */}
-                  <div className="space-y-3.5 pt-2 border-t border-slate-100">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                      Delivery Address
-                    </span>
+              {/* Review Footer with Promoter and Total */}
+              <div className="bg-slate-50/70 p-4 sm:px-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <span className="font-medium">Authorized Promoter:</span>
+                  <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
+                    {promoterId}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-slate-600">Total Payable:</span>
+                  <span className="text-xl sm:text-2xl font-black font-mono text-blue-900">
+                    {formatINR(totalAmount)}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-                    {/* Complete Address */}
-                    <div>
-                      <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
-                        Complete Address <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        id="complete-address"
-                        rows={2}
-                        value={completeAddress}
+            {/* Customer Address Form Card */}
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-5">
+              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                  <span>Customer Address</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Products</span>
+                </button>
+              </div>
+
+              {submitError && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
+                  <div className="flex-1">
+                    <p className="font-semibold">{submitError}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Information Group */}
+              <div className="space-y-3.5">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Contact Information
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Full Name */}
+                  <div>
+                    <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="full-name"
+                        type="text"
+                        value={fullName}
                         onChange={(e) => {
-                          setCompleteAddress(e.target.value);
-                          if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
+                          setFullName(e.target.value);
+                          if (errors.fullName) setErrors({ ...errors, fullName: null });
                         }}
-                        placeholder="House/Flat number, Street name, Area, Landmark"
-                        className={`w-full p-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-none ${
-                          errors.completeAddress 
+                        placeholder="e.g. Ananya Sharma"
+                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                          errors.fullName 
                             ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                             : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
                         }`}
                       />
-                      {errors.completeAddress && (
-                        <p className="text-xs text-red-600 mt-1 font-medium">{errors.completeAddress}</p>
-                      )}
                     </div>
-
-                    {/* Pincode, City, State Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {/* Pincode */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
-                            Pincode <span className="text-red-500">*</span>
-                          </label>
-                          {loadingPincode && (
-                            <span className="text-[10px] text-blue-600 flex items-center gap-1 font-semibold">
-                              <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                              <span>Detecting...</span>
-                            </span>
-                          )}
-                        </div>
-                        <input
-                          id="pincode"
-                          type="text"
-                          maxLength={6}
-                          value={pincode}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setPincode(val);
-                            if (errors.pincode) setErrors({ ...errors, pincode: null });
-                            const clean = val.replace(/\D/g, '');
-                            if (clean.length === 6) {
-                              handlePincodeLookup(clean);
-                            }
-                          }}
-                          onBlur={(e) => {
-                            const clean = e.target.value.replace(/\D/g, '');
-                            if (clean.length === 6 && (!city || !stateName)) {
-                              handlePincodeLookup(clean);
-                            }
-                          }}
-                          placeholder="6 Digits"
-                          className={`h-11 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                            errors.pincode 
-                              ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                              : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                          }`}
-                        />
-                        {errors.pincode && (
-                          <p className="text-xs text-red-600 mt-1 font-medium">{errors.pincode}</p>
-                        )}
-                      </div>
-
-                      {/* City */}
-                      <div>
-                        <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
-                          City / District <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          id="city"
-                          type="text"
-                          value={city}
-                          onChange={(e) => {
-                            setCity(e.target.value);
-                            if (errors.city) setErrors({ ...errors, city: null });
-                          }}
-                          placeholder="e.g. Bengaluru"
-                          className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                            errors.city 
-                              ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                              : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                          }`}
-                        />
-                        {errors.city && (
-                          <p className="text-xs text-red-600 mt-1 font-medium">{errors.city}</p>
-                        )}
-                      </div>
-
-                      {/* State Dropdown */}
-                      <div>
-                        <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
-                          State <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                          id="state-name"
-                          value={stateName}
-                          onChange={(e) => {
-                            setStateName(e.target.value);
-                            if (errors.stateName) setErrors({ ...errors, stateName: null });
-                          }}
-                          className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 transition ${
-                            errors.stateName 
-                              ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                              : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                          }`}
-                        >
-                          <option value="">Select State</option>
-                          {INDIAN_STATES.map((st) => (
-                            <option key={st} value={st}>{st}</option>
-                          ))}
-                          {stateName && !INDIAN_STATES.includes(stateName) && (
-                            <option value={stateName}>{stateName}</option>
-                          )}
-                        </select>
-                        {errors.stateName && (
-                          <p className="text-xs text-red-600 mt-1 font-medium">{errors.stateName}</p>
-                        )}
-                      </div>
-                    </div>
+                    {errors.fullName && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.fullName}</p>
+                    )}
                   </div>
 
-                  {/* Form Actions (Back + Place Order) */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <button
-                      type="button"
-                      onClick={handleBack}
-                      className="h-11 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition flex items-center gap-1.5"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Back</span>
-                    </button>
-
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="h-11 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
-                    >
-                      {submitting ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Placing Order...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Place Order ({formatINR(totalAmount)})</span>
-                          <CheckCircle2 className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                  {/* Phone Number */}
+                  <div>
+                    <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="phone-number"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => {
+                          setPhoneNumber(e.target.value);
+                          if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
+                        }}
+                        placeholder="e.g. 9876543210"
+                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                          errors.phoneNumber 
+                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                        }`}
+                      />
+                    </div>
+                    {errors.phoneNumber && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.phoneNumber}</p>
+                    )}
                   </div>
-
                 </div>
               </div>
 
-              {/* Right Column: Sticky Order Review Card */}
-              <div className="lg:col-span-5 xl:col-span-5 lg:sticky lg:top-20 space-y-4">
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-                  
-                  {/* Order Review Header */}
-                  <div className="bg-slate-50/80 px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                        <ShoppingBag className="w-4 h-4" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
-                        Order Review
-                      </h3>
-                    </div>
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
-                      {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
-                    </span>
-                  </div>
+              {/* Delivery Address Group */}
+              <div className="space-y-3.5 pt-2 border-t border-slate-100">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Delivery Address
+                </span>
 
-                  {/* Items List */}
-                  <div className="p-4 sm:p-5 divide-y divide-slate-100 max-h-72 overflow-y-auto">
-                    {itemsWithDetails.map((it) => (
-                      <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs sm:text-sm">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                            <img
-                              src={getImageUrl(it.image_url)}
-                              alt={it.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
-                              }}
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <span className="font-semibold text-slate-800 truncate block" title={it.name}>
-                              {it.name}
-                            </span>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              Qty: {it.quantity} × {formatINR(it.price)}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
-                          {formatINR(it.subtotal)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Promoter & Total Review Footer */}
-                  <div className="bg-slate-50/70 p-4 sm:p-5 border-t border-slate-100 space-y-3 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Authorized Promoter:</span>
-                      <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
-                        {promoterId}
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-lg bg-blue-50/80 border border-blue-100 flex items-center justify-between">
-                      <span className="font-bold text-blue-900 uppercase tracking-wider text-xs">
-                        Total Payable:
-                      </span>
-                      <span className="text-xl sm:text-2xl font-black font-mono text-blue-900">
-                        {formatINR(totalAmount)}
-                      </span>
-                    </div>
-                  </div>
-
+                {/* Complete Address */}
+                <div>
+                  <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
+                    Complete Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="complete-address"
+                    rows={2}
+                    value={completeAddress}
+                    onChange={(e) => {
+                      setCompleteAddress(e.target.value);
+                      if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
+                    }}
+                    placeholder="House/Flat number, Street name, Area, Landmark"
+                    className={`w-full p-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-none ${
+                      errors.completeAddress 
+                        ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                    }`}
+                  />
+                  {errors.completeAddress && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">{errors.completeAddress}</p>
+                  )}
                 </div>
+
+                {/* Pincode, City, State Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Pincode */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
+                        Pincode <span className="text-red-500">*</span>
+                      </label>
+                      {loadingPincode && (
+                        <span className="text-[10px] text-blue-600 flex items-center gap-1 font-semibold">
+                          <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                          <span>Detecting...</span>
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      id="pincode"
+                      type="text"
+                      maxLength={6}
+                      value={pincode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPincode(val);
+                        if (errors.pincode) setErrors({ ...errors, pincode: null });
+                        const clean = val.replace(/\D/g, '');
+                        if (clean.length === 6) {
+                          handlePincodeLookup(clean);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const clean = e.target.value.replace(/\D/g, '');
+                        if (clean.length === 6 && (!city || !stateName)) {
+                          handlePincodeLookup(clean);
+                        }
+                      }}
+                      placeholder="6 Digits"
+                      className={`h-11 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        errors.pincode 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    />
+                    {errors.pincode && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.pincode}</p>
+                    )}
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
+                      City / District <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="city"
+                      type="text"
+                      value={city}
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                        if (errors.city) setErrors({ ...errors, city: null });
+                      }}
+                      placeholder="e.g. Bengaluru"
+                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        errors.city 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    />
+                    {errors.city && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.city}</p>
+                    )}
+                  </div>
+
+                  {/* State Dropdown */}
+                  <div>
+                    <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="state-name"
+                      value={stateName}
+                      onChange={(e) => {
+                        setStateName(e.target.value);
+                        if (errors.stateName) setErrors({ ...errors, stateName: null });
+                      }}
+                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 transition ${
+                        errors.stateName 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    >
+                      <option value="">Select State</option>
+                      {INDIAN_STATES.map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                      {stateName && !INDIAN_STATES.includes(stateName) && (
+                        <option value={stateName}>{stateName}</option>
+                      )}
+                    </select>
+                    {errors.stateName && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.stateName}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Actions (Back + Place Order) */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="h-11 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition flex items-center gap-1.5"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="h-11 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Placing Order...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Place Order ({formatINR(totalAmount)})</span>
+                      <CheckCircle2 className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
               </div>
 
             </div>
+
           </form>
         )}
 
@@ -1382,6 +1295,195 @@ export default function CustomerOrderForm() {
         )}
 
       </main>
+
+      {/* ======================================================== */}
+      {/* FLOATING ORDER TOTAL WIDGET & HOVER/TAP EXPANDED POPOVER */}
+      {/* ======================================================== */}
+      {totalQuantity > 0 && step < 3 && (
+        <>
+          {/* Subtle Mobile Backdrop when summary is expanded */}
+          {isSummaryExpanded && (
+            <div 
+              className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] z-35 sm:hidden transition-opacity duration-200"
+              onClick={() => setIsSummaryExpanded(false)}
+            />
+          )}
+
+          <div
+            id="floating-order-summary-container"
+            onMouseEnter={handleFloatingMouseEnter}
+            onMouseLeave={handleFloatingMouseLeave}
+            className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none"
+          >
+            {/* Expanded Popover (Above the Widget) */}
+            {isSummaryExpanded && (
+              <div 
+                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-2.5rem)] sm:w-96 max-w-sm bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-slate-800"
+              >
+                {/* Popover Header */}
+                <div className="bg-slate-50/90 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <span className="font-bold text-slate-900 text-sm">
+                      Your Order
+                    </span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                      {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSummaryExpanded(false);
+                    }}
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                    title="Close summary"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Scrollable Items List */}
+                <div className="p-3 sm:p-4 max-h-64 sm:max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  {itemsWithDetails.map((it) => (
+                    <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                      {/* Product Thumbnail & Name */}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-11 h-11 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={getImageUrl(it.image_url)}
+                            alt={it.name}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                            }}
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-semibold text-slate-800 text-xs truncate block" title={it.name}>
+                            {it.name}
+                          </span>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {formatINR(it.price)} each
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quantity Controls, Subtotal, Remove */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* Stepper */}
+                        <div className="inline-flex items-center border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
+                            className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            title="Decrease quantity"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="px-1.5 text-xs font-bold font-mono text-slate-800 min-w-[18px] text-center">
+                            {it.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
+                            className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            title="Increase quantity"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {/* Individual Subtotal */}
+                        <span className="font-mono font-bold text-slate-900 text-xs min-w-[55px] text-right">
+                          {formatINR(it.subtotal)}
+                        </span>
+
+                        {/* Trash Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(it.product_id)}
+                          title="Remove item"
+                          className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Popover Footer with Grand Total & Action */}
+                <div className="bg-slate-50/80 p-3 sm:p-4 border-t border-slate-100 space-y-3">
+                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
+                        Grand Total
+                      </span>
+                      <span className="text-[10px] text-blue-600 font-medium">
+                        {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                      </span>
+                    </div>
+                    <span className="text-lg font-black font-mono text-blue-900">
+                      {formatINR(totalAmount)}
+                    </span>
+                  </div>
+
+                  {step === 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSummaryExpanded(false);
+                        handleNext();
+                      }}
+                      disabled={validatingPromoter}
+                      className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
+                    >
+                      <span>Continue to Address Details</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Floating Pill Trigger Widget */}
+            <button
+              type="button"
+              onClick={handleFloatingClick}
+              className="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-3 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xl hover:shadow-2xl shadow-blue-600/30 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/30 active:scale-95 group"
+              aria-expanded={isSummaryExpanded}
+              title="View order summary"
+            >
+              <div className="relative flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
+                <span className="absolute -top-1.5 -right-2 bg-amber-400 text-slate-900 text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center ring-2 ring-blue-600 shadow-2xs">
+                  {totalQuantity}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold tracking-tight">
+                <span>{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
+                <span className="text-blue-300 font-light">|</span>
+                <span className="font-mono text-sm sm:text-base font-black tracking-tight">
+                  {formatINR(totalAmount)}
+                </span>
+              </div>
+
+              <ChevronUp 
+                className={`w-4 h-4 text-blue-200 transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
+              />
+            </button>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }
