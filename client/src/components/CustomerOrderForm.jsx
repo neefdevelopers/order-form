@@ -356,7 +356,7 @@ export default function CustomerOrderForm() {
     <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans pb-16 lg:pb-0">
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
               <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
@@ -374,12 +374,12 @@ export default function CustomerOrderForm() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
         
         {/* Checkout Progress Indicator (Minimal, Compact & Centered) */}
         {step < 3 && (
-          <div className="mb-6 sm:mb-7 max-w-md mx-auto px-4">
-            <div className="flex items-center justify-center gap-3 sm:gap-4">
+          <div className="mb-6 sm:mb-7 max-w-xs sm:max-w-sm mx-auto px-2">
+            <div className="flex items-center justify-center gap-2.5 sm:gap-3.5">
               {/* Step 1 Node */}
               <div className="flex items-center gap-2">
                 <div 
@@ -397,7 +397,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Connecting Line */}
-              <div className="w-12 sm:w-20 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-10 sm:w-16 h-0.5 bg-slate-200 rounded-full overflow-hidden">
                 <div 
                   className={`h-full bg-blue-600 transition-all duration-300 ${
                     step > 1 ? 'w-full' : 'w-0'
@@ -445,7 +445,7 @@ export default function CustomerOrderForm() {
         {/* SCREEN 1: PRODUCT DETAILS                                */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="max-w-5xl mx-auto space-y-6">
+          <form onSubmit={handleNext} className="w-full space-y-5">
             
             {/* Promoter ID Section (Compact, full-width at top) */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5">
@@ -492,7 +492,7 @@ export default function CustomerOrderForm() {
               )}
             </div>
 
-            {/* Product Selection Section (3 Columns on Desktop, 2 on Tablet, 1 on Mobile) */}
+            {/* Product Selection Section (2 Columns on Desktop/Tablet, 1 on Mobile) */}
             <div className="space-y-3.5">
               <div className="flex items-center justify-between px-0.5">
                 <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -505,8 +505,8 @@ export default function CustomerOrderForm() {
               </div>
 
               {loadingProducts ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                  {[1, 2, 3].map((n) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[1, 2].map((n) => (
                     <div key={n} className="h-64 rounded-xl bg-white border border-slate-200/80 p-3.5 animate-pulse space-y-3">
                       <div className="w-full h-28 sm:h-32 bg-slate-100 rounded-lg" />
                       <div className="h-4 bg-slate-100 rounded w-3/4" />
@@ -520,7 +520,7 @@ export default function CustomerOrderForm() {
                   No active products are available right now.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {products.map((prod) => {
                     const existing = selectedItems.find((it) => it.product_id === prod.id);
                     const isSelected = !!existing;
@@ -769,7 +769,7 @@ export default function CustomerOrderForm() {
         {/* SCREEN 2: ADDRESS DETAILS (Completely Separate Screen)   */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="max-w-4xl mx-auto space-y-6">
+          <form onSubmit={handleSubmitOrder} className="w-full space-y-5">
             
             {/* 1. Full-Width Order Review Section */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -1125,7 +1125,7 @@ export default function CustomerOrderForm() {
         {/* STEP 3: ORDER SUCCESS CONFIRMATION                       */}
         {/* ======================================================== */}
         {step === 3 && orderResult && (
-          <div className="max-w-lg mx-auto space-y-4">
+          <div className="max-w-md mx-auto space-y-4">
             <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-7 text-center space-y-4">
               
               {/* Checkmark Icon */}
