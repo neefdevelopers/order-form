@@ -141,7 +141,7 @@ export default function CustomerOrderForm() {
     return '₹' + Number(val || 0).toLocaleString('en-IN');
   };
 
-  // Step 1 Validation -> Proceed to Step 2
+  // Step 1 Validation -> Proceed to Step 2 (Screen 2)
   const handleNext = async (e) => {
     if (e) e.preventDefault();
     const newErrors = {};
@@ -354,7 +354,7 @@ export default function CustomerOrderForm() {
 
   return (
     <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans pb-16 lg:pb-0">
-      {/* 2. Compact Header */}
+      {/* Header Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -376,28 +376,28 @@ export default function CustomerOrderForm() {
       {/* Main Container */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-6">
         
-        {/* 3. Checkout Progress Indicator */}
+        {/* Checkout Progress Indicator (Minimal, Compact & Centered) */}
         {step < 3 && (
-          <div className="mb-6 max-w-xs sm:max-w-sm mx-auto px-2">
-            <div className="flex items-center justify-between">
+          <div className="mb-6 max-w-sm mx-auto px-2">
+            <div className="flex items-center justify-center gap-3">
               {/* Step 1 Node */}
               <div className="flex items-center gap-2">
                 <div 
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     step === 1 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-50 shadow-2xs' 
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
                       : 'bg-emerald-600 text-white'
                   }`}
                 >
-                  {step > 1 ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : '1'}
+                  {step > 1 ? <Check className="w-4 h-4 stroke-[2.5]" /> : '1'}
                 </div>
-                <span className={`text-xs font-medium whitespace-nowrap ${step === 1 ? 'text-blue-700 font-semibold' : 'text-slate-700'}`}>
+                <span className={`text-xs font-semibold whitespace-nowrap ${step === 1 ? 'text-blue-700' : 'text-slate-700'}`}>
                   Product Details
                 </span>
               </div>
 
               {/* Connecting Line */}
-              <div className="flex-1 mx-3 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-12 sm:w-16 h-0.5 bg-slate-200 rounded-full overflow-hidden">
                 <div 
                   className={`h-full bg-blue-600 transition-all duration-300 ${
                     step > 1 ? 'w-full' : 'w-0'
@@ -408,15 +408,15 @@ export default function CustomerOrderForm() {
               {/* Step 2 Node */}
               <div className="flex items-center gap-2">
                 <div 
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     step === 2 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-50 shadow-2xs' 
-                      : 'bg-white border border-slate-300 text-slate-400'
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
+                      : 'bg-white border-2 border-slate-300 text-slate-400'
                   }`}
                 >
                   2
                 </div>
-                <span className={`text-xs font-medium whitespace-nowrap ${step === 2 ? 'text-blue-700 font-semibold' : 'text-slate-400'}`}>
+                <span className={`text-xs font-semibold whitespace-nowrap ${step === 2 ? 'text-blue-700' : 'text-slate-400'}`}>
                   Address Details
                 </span>
               </div>
@@ -424,7 +424,7 @@ export default function CustomerOrderForm() {
           </div>
         )}
 
-        {/* Global Error Alert */}
+        {/* Global Catalog Error Alert */}
         {productsError && (
           <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs shadow-2xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
@@ -442,23 +442,23 @@ export default function CustomerOrderForm() {
         )}
 
         {/* ======================================================== */}
-        {/* STEP 1: PRODUCT SELECTION & PROMOTER DETAILS             */}
+        {/* SCREEN 1: PRODUCT DETAILS                                */}
         {/* ======================================================== */}
         {step === 1 && (
           <form onSubmit={handleNext} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
             {/* Left Column (Promoter ID + Product Cards) */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+            <div className="lg:col-span-7 xl:col-span-8 space-y-4">
               
-              {/* 5. Promoter ID Input Section */}
-              <div className="p-4 sm:p-5 border-b border-slate-100">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="promoter-id" className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              {/* Promoter ID Card */}
+              <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="promoter-id" className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-blue-600" />
                     <span>Promoter ID <span className="text-red-500">*</span></span>
                   </label>
                   {promoterVerified && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                       <Check className="w-3 h-3 text-emerald-600" />
                       Verified: {promoterVerified.name || promoterVerified.promoter_id}
                     </span>
@@ -466,7 +466,7 @@ export default function CustomerOrderForm() {
                 </div>
 
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <Hash className="w-4 h-4" />
                   </div>
                   <input
@@ -479,7 +479,7 @@ export default function CustomerOrderForm() {
                       setPromoterVerified(null);
                     }}
                     placeholder="Enter Promoter ID (e.g. PR-1001)"
-                    className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`h-11 w-full pl-10 pr-3.5 rounded-lg border text-sm text-slate-900 bg-slate-50/50 hover:bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
                       errors.promoterId 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
@@ -495,27 +495,35 @@ export default function CustomerOrderForm() {
                 )}
               </div>
 
-              {/* 4. Product Selection Section */}
-              <div className="p-4 sm:p-5 space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+              {/* Product Selection Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                     <Package className="w-3.5 h-3.5 text-blue-600" />
                     <span>Select Products <span className="text-red-500">*</span></span>
                   </h2>
+                  <span className="text-xs text-slate-500 font-medium">
+                    {products.length} {products.length === 1 ? 'product' : 'products'} available
+                  </span>
                 </div>
 
                 {loadingProducts ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="h-56 rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                      <div key={n} className="h-64 rounded-xl bg-white border border-slate-200/80 p-4 animate-pulse space-y-3">
+                        <div className="w-full h-36 bg-slate-100 rounded-lg" />
+                        <div className="h-4 bg-slate-100 rounded w-3/4" />
+                        <div className="h-5 bg-slate-100 rounded w-1/3" />
+                        <div className="h-10 bg-slate-100 rounded" />
+                      </div>
                     ))}
                   </div>
                 ) : products.length === 0 ? (
-                  <div className="p-6 text-center bg-amber-50 rounded-lg border border-amber-200 text-amber-800 text-xs">
+                  <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-sm">
                     No active products are available right now.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {products.map((prod) => {
                       const existing = selectedItems.find((it) => it.product_id === prod.id);
                       const isSelected = !!existing;
@@ -523,19 +531,19 @@ export default function CustomerOrderForm() {
                       return (
                         <div 
                           key={prod.id} 
-                          className={`flex flex-col justify-between h-full rounded-xl border transition-all p-3 sm:p-3.5 ${
+                          className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-4 bg-white ${
                             isSelected 
-                              ? 'bg-blue-50/15 border-blue-500 ring-1 ring-blue-500 shadow-2xs' 
-                              : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                              ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-sm' 
+                              : 'border-slate-200/90 hover:border-slate-300 hover:shadow-xs'
                           }`}
                         >
                           <div>
                             {/* Product Thumbnail (Fixed height, no distortion) */}
-                            <div className="w-full h-28 sm:h-32 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center p-2 mb-2.5 overflow-hidden">
+                            <div className="w-full h-36 sm:h-40 rounded-lg bg-slate-50/70 border border-slate-100 flex items-center justify-center p-3 mb-3.5 overflow-hidden">
                               <img
                                 src={getImageUrl(prod.image_url)}
                                 alt={prod.name}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain transition-transform duration-200 hover:scale-105"
                                 onError={(e) => {
                                   e.target.onerror = null;
                                   e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
@@ -544,50 +552,53 @@ export default function CustomerOrderForm() {
                             </div>
 
                             {/* Product Info (Fixed text height ensures alignment) */}
-                            <div className="mb-2">
-                              <span 
-                                className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug line-clamp-2 h-9 block" 
+                            <div className="mb-3">
+                              <h3 
+                                className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 h-10 block" 
                                 title={prod.name}
                               >
                                 {prod.name}
-                              </span>
-                              <span className="text-sm sm:text-base font-bold text-slate-900 font-mono block mt-1">
-                                {formatINR(prod.price)}
-                              </span>
+                              </h3>
+                              <div className="mt-1 flex items-baseline gap-1">
+                                <span className="text-lg font-bold text-slate-900 font-mono">
+                                  {formatINR(prod.price)}
+                                </span>
+                                <span className="text-xs text-slate-400 font-normal">/ unit</span>
+                              </div>
                             </div>
                           </div>
 
-                          {/* Action Slot (Consistent height of 36px) */}
+                          {/* Action Slot (Consistent height of 40px) */}
                           <div className="pt-2 border-t border-slate-100">
                             {isSelected ? (
-                              <div className="w-full h-9 flex items-center justify-between border border-blue-300 rounded-lg overflow-hidden bg-white shadow-2xs">
+                              <div className="w-full h-10 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/30 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 transition font-bold"
+                                  className="w-11 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/70 text-blue-700 transition font-bold"
                                   title="Decrease quantity"
                                 >
-                                  <Minus className="w-3.5 h-3.5" />
+                                  <Minus className="w-4 h-4 stroke-[2.5]" />
                                 </button>
-                                <span className="flex-1 text-center text-xs font-bold font-mono text-slate-900">
+                                <span className="flex-1 text-center font-bold font-mono text-sm text-slate-900">
                                   {existing.quantity} in order
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-700 transition font-bold"
+                                  className="w-11 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/70 text-blue-700 transition font-bold"
                                   title="Increase quantity"
                                 >
-                                  <Plus className="w-3.5 h-3.5" />
+                                  <Plus className="w-4 h-4 stroke-[2.5]" />
                                 </button>
                               </div>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => handleAddItem(prod.id)}
-                                className="w-full h-9 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                                className="w-full h-10 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                               >
-                                <Plus className="w-3.5 h-3.5" />
+                                <Plus className="w-4 h-4 stroke-[2.5]" />
                                 <span>Add to Order</span>
                               </button>
                             )}
@@ -599,7 +610,7 @@ export default function CustomerOrderForm() {
                 )}
 
                 {errors.items && (
-                  <p className="text-xs text-red-600 flex items-center gap-1 font-medium pt-1">
+                  <p className="text-xs text-red-600 flex items-center gap-1 font-medium pt-1 px-1">
                     <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{errors.items}</span>
                   </p>
@@ -607,14 +618,15 @@ export default function CustomerOrderForm() {
               </div>
             </div>
 
-            {/* 6. Right Column (Sticky Order Summary on Desktop) */}
+            {/* Right Column (Sticky Order Summary on Desktop) */}
             <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-5 space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    Order Summary
+                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-blue-600" />
+                    <span>Order Summary</span>
                   </h3>
-                  <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
@@ -622,15 +634,17 @@ export default function CustomerOrderForm() {
                 {/* Selected Products List */}
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
                   {itemsWithDetails.length === 0 ? (
-                    <div className="py-6 text-center text-slate-400 space-y-1">
-                      <ShoppingBag className="w-7 h-7 mx-auto text-slate-300 stroke-[1.5]" />
+                    <div className="py-7 text-center text-slate-400 space-y-1.5">
+                      <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto text-slate-300">
+                        <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+                      </div>
                       <p className="text-xs font-medium text-slate-500">Your order is empty</p>
                       <p className="text-[11px] text-slate-400">Select products on the left to add</p>
                     </div>
                   ) : (
                     itemsWithDetails.map((it) => (
                       <div key={it.product_id} className="pt-2 first:pt-0 flex items-center justify-between text-xs gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
                             <img
                               src={getImageUrl(it.image_url)}
@@ -643,7 +657,7 @@ export default function CustomerOrderForm() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <span className="text-slate-800 font-medium block truncate max-w-[140px]" title={it.name}>
+                            <span className="text-slate-800 font-semibold block truncate max-w-[140px]" title={it.name}>
                               {it.name}
                             </span>
                             <span className="text-[11px] text-slate-400 font-mono">
@@ -660,7 +674,7 @@ export default function CustomerOrderForm() {
                             type="button"
                             onClick={() => handleRemoveItem(it.product_id)}
                             title="Remove product"
-                            className="text-slate-300 hover:text-red-500 transition p-0.5"
+                            className="text-slate-300 hover:text-red-500 hover:bg-red-50 rounded p-1 transition"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -678,14 +692,14 @@ export default function CustomerOrderForm() {
                   </span>
                 </div>
 
-                {/* Continue Button */}
+                {/* Continue to Address Button */}
                 <button
                   type="submit"
                   disabled={loadingProducts || products.length === 0 || validatingPromoter || itemsWithDetails.length === 0}
-                  className={`w-full h-10 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition ${
+                  className={`w-full h-11 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition ${
                     itemsWithDetails.length === 0 || validatingPromoter
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-2xs'
+                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs'
                   }`}
                 >
                   {validatingPromoter ? (
@@ -695,8 +709,8 @@ export default function CustomerOrderForm() {
                     </>
                   ) : (
                     <>
-                      <span>Next: Customer Address</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>Continue to Address</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -718,13 +732,13 @@ export default function CustomerOrderForm() {
                   type="button"
                   onClick={handleNext}
                   disabled={validatingPromoter}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
+                  className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
                 >
                   {validatingPromoter ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
-                      <span>Next: Address</span>
+                      <span>Continue to Address</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
@@ -735,18 +749,18 @@ export default function CustomerOrderForm() {
         )}
 
         {/* ======================================================== */}
-        {/* STEP 2: CUSTOMER ADDRESS DETAILS                         */}
+        {/* SCREEN 2: ADDRESS DETAILS (Completely Separate Screen)   */}
         {/* ======================================================== */}
         {step === 2 && (
           <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
-            {/* Left Column (Address Form) */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 space-y-4">
+            {/* Left Column (Customer Address Form) */}
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 space-y-5">
               <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Customer Address Details</span>
+                  <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                    <span>Customer Address</span>
                   </h2>
                 </div>
                 <button
@@ -755,7 +769,7 @@ export default function CustomerOrderForm() {
                   className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 transition"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Change Products</span>
+                  <span>Back to Products</span>
                 </button>
               </div>
 
@@ -768,255 +782,268 @@ export default function CustomerOrderForm() {
                 </div>
               )}
 
-              {/* Name & Phone Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* Full Name */}
-                <div>
-                  <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <input
-                      id="full-name"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => {
-                        setFullName(e.target.value);
-                        if (errors.fullName) setErrors({ ...errors, fullName: null });
-                      }}
-                      placeholder="e.g. Ananya Sharma"
-                      className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                        errors.fullName 
-                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                      }`}
-                    />
-                  </div>
-                  {errors.fullName && (
-                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      {errors.fullName}
-                    </p>
-                  )}
-                </div>
-
-                {/* Phone Number */}
-                <div>
-                  <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <input
-                      id="phone-number"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => {
-                        setPhoneNumber(e.target.value);
-                        if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
-                      }}
-                      placeholder="e.g. +91 98765 43210"
-                      className={`h-10 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                        errors.phoneNumber 
-                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                      }`}
-                    />
-                  </div>
-                  {errors.phoneNumber && (
-                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      {errors.phoneNumber}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Complete Address */}
-              <div>
-                <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
-                  Complete Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="complete-address"
-                  rows={3}
-                  value={completeAddress}
-                  onChange={(e) => {
-                    setCompleteAddress(e.target.value);
-                    if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
-                  }}
-                  placeholder="Flat / House No., Building Name, Street, Landmark, Area"
-                  className={`w-full px-3 py-2 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-y ${
-                    errors.completeAddress 
-                      ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                      : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                  }`}
-                />
-                {errors.completeAddress && (
-                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    {errors.completeAddress}
-                  </p>
-                )}
-              </div>
-
-              {/* Pincode, City, State Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Pincode */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
-                      Pincode <span className="text-red-500">*</span>
+              {/* Contact Information Group */}
+              <div className="space-y-3.5">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Contact Information
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Full Name */}
+                  <div>
+                    <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
+                      Full Name <span className="text-red-500">*</span>
                     </label>
-                    {loadingPincode && (
-                      <span className="text-[10px] text-blue-600 flex items-center gap-1">
-                        <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                      </span>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="full-name"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          if (errors.fullName) setErrors({ ...errors, fullName: null });
+                        }}
+                        placeholder="e.g. Ananya Sharma"
+                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                          errors.fullName 
+                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                        }`}
+                      />
+                    </div>
+                    {errors.fullName && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {errors.fullName}
+                      </p>
                     )}
                   </div>
-                  <input
-                    id="pincode"
-                    type="text"
-                    maxLength={6}
-                    value={pincode}
+
+                  {/* Phone Number */}
+                  <div>
+                    <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="phone-number"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => {
+                          setPhoneNumber(e.target.value);
+                          if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
+                        }}
+                        placeholder="e.g. +91 98765 43210"
+                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                          errors.phoneNumber 
+                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                        }`}
+                      />
+                    </div>
+                    {errors.phoneNumber && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        {errors.phoneNumber}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Address Group */}
+              <div className="space-y-3.5 pt-2 border-t border-slate-100">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Delivery Address
+                </span>
+
+                {/* Complete Address */}
+                <div>
+                  <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
+                    Complete Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="complete-address"
+                    rows={3}
+                    value={completeAddress}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      setPincode(val);
-                      if (errors.pincode) setErrors({ ...errors, pincode: null });
-                      const clean = val.replace(/\D/g, '');
-                      if (clean.length === 6) {
-                        handlePincodeLookup(clean);
-                      }
+                      setCompleteAddress(e.target.value);
+                      if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
                     }}
-                    onBlur={(e) => {
-                      const clean = e.target.value.replace(/\D/g, '');
-                      if (clean.length === 6 && (!city || !stateName)) {
-                        handlePincodeLookup(clean);
-                      }
-                    }}
-                    placeholder="6 Digits (e.g. 560001)"
-                    className={`h-10 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                      errors.pincode 
+                    placeholder="House/Flat No., Building Name, Street, Area, Landmark"
+                    className={`w-full px-3 py-2.5 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-y ${
+                      errors.completeAddress 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
                     }`}
                   />
-                  {errors.pincode && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
-                      {errors.pincode}
+                  {errors.completeAddress && (
+                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {errors.completeAddress}
                     </p>
                   )}
                 </div>
 
-                {/* City */}
-                <div>
-                  <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
-                    City / District <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="city"
-                    type="text"
-                    value={city}
-                    onChange={(e) => {
-                      setCity(e.target.value);
-                      if (errors.city) setErrors({ ...errors, city: null });
-                    }}
-                    placeholder="e.g. Bengaluru"
-                    className={`h-10 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                      errors.city 
-                        ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                    }`}
-                  />
-                  {errors.city && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
-                      {errors.city}
-                    </p>
-                  )}
-                </div>
+                {/* Pincode, City, State Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Pincode */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
+                        Pincode <span className="text-red-500">*</span>
+                      </label>
+                      {loadingPincode && (
+                        <span className="text-[10px] text-blue-600 flex items-center gap-1">
+                          <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      id="pincode"
+                      type="text"
+                      maxLength={6}
+                      value={pincode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPincode(val);
+                        if (errors.pincode) setErrors({ ...errors, pincode: null });
+                        const clean = val.replace(/\D/g, '');
+                        if (clean.length === 6) {
+                          handlePincodeLookup(clean);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const clean = e.target.value.replace(/\D/g, '');
+                        if (clean.length === 6 && (!city || !stateName)) {
+                          handlePincodeLookup(clean);
+                        }
+                      }}
+                      placeholder="6 Digits"
+                      className={`h-11 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        errors.pincode 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    />
+                    {errors.pincode && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">
+                        {errors.pincode}
+                      </p>
+                    )}
+                  </div>
 
-                {/* State */}
-                <div>
-                  <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
-                    State <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="state-name"
-                    type="text"
-                    value={stateName}
-                    onChange={(e) => {
-                      setStateName(e.target.value);
-                      if (errors.stateName) setErrors({ ...errors, stateName: null });
-                    }}
-                    placeholder="e.g. Karnataka"
-                    className={`h-10 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
-                      errors.stateName 
-                        ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
-                    }`}
-                  />
-                  {errors.stateName && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
-                      {errors.stateName}
-                    </p>
-                  )}
+                  {/* City */}
+                  <div>
+                    <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
+                      City / District <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="city"
+                      type="text"
+                      value={city}
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                        if (errors.city) setErrors({ ...errors, city: null });
+                      }}
+                      placeholder="e.g. Bengaluru"
+                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        errors.city 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    />
+                    {errors.city && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">
+                        {errors.city}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="state-name"
+                      type="text"
+                      value={stateName}
+                      onChange={(e) => {
+                        setStateName(e.target.value);
+                        if (errors.stateName) setErrors({ ...errors, stateName: null });
+                      }}
+                      placeholder="e.g. Karnataka"
+                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        errors.stateName 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                      }`}
+                    />
+                    {errors.stateName && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">
+                        {errors.stateName}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5">
+              <div className="pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={submitting}
-                  className="h-10 px-4 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium text-xs sm:text-sm hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
+                  className="h-11 px-5 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium text-xs sm:text-sm hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
                 >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back</span>
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Products</span>
                 </button>
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="h-10 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm transition shadow-2xs disabled:opacity-60 inline-flex items-center justify-center gap-1.5"
+                  className="h-11 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>Placing Order...</span>
                     </>
                   ) : (
                     <>
-                      <span>Make Order ({formatINR(totalAmount)})</span>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Place Order ({formatINR(totalAmount)})</span>
+                      <CheckCircle2 className="w-4 h-4" />
                     </>
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Right Column (Review Order Summary) */}
+            {/* Right Column (Review Order Summary on Screen 2) */}
             <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-5 space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    Review Order
+                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-blue-600" />
+                    <span>Order Summary</span>
                   </h3>
-                  <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                    {totalQuantity} items
+                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
                 {/* Items List */}
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
+                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
                   {itemsWithDetails.map((it) => (
-                    <div key={it.product_id} className="pt-2 first:pt-0 flex items-start justify-between text-xs gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div key={it.product_id} className="pt-2.5 first:pt-0 flex items-center justify-between text-xs gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
                           <img
                             src={getImageUrl(it.image_url)}
@@ -1029,7 +1056,7 @@ export default function CustomerOrderForm() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <span className="text-slate-800 font-medium block truncate max-w-[140px]">
+                          <span className="text-slate-800 font-semibold block truncate max-w-[140px]" title={it.name}>
                             {it.name}
                           </span>
                           <span className="text-[11px] text-slate-400 font-mono">
@@ -1037,7 +1064,7 @@ export default function CustomerOrderForm() {
                           </span>
                         </div>
                       </div>
-                      <span className="font-mono font-semibold text-slate-900 whitespace-nowrap">
+                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
                         {formatINR(it.subtotal)}
                       </span>
                     </div>
@@ -1046,8 +1073,8 @@ export default function CustomerOrderForm() {
 
                 {/* Promoter ID */}
                 <div className="border-t border-slate-100 pt-3 flex justify-between text-xs text-slate-600">
-                  <span>Promoter ID</span>
-                  <span className="font-mono font-semibold text-slate-800">{promoterId}</span>
+                  <span className="font-medium">Promoter ID</span>
+                  <span className="font-mono font-bold text-slate-900">{promoterId}</span>
                 </div>
 
                 {/* Total */}
