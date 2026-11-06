@@ -468,7 +468,7 @@ export default function CustomerOrderForm() {
 
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
               <ShoppingBag className="w-4.5 h-4.5" />
@@ -486,11 +486,11 @@ export default function CustomerOrderForm() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
+      <main className="flex-1 max-w-[940px] w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-6">
         
         {/* Step Progress Indicator (Two-Step Checkout) */}
         {step < 3 && (
-          <div className="mb-6 sm:mb-8 max-w-md mx-auto px-4">
+          <div className="mb-5 sm:mb-6 max-w-sm mx-auto px-2">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
               {/* Step 1 Node */}
               <div className="flex items-center gap-2">
@@ -509,7 +509,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Connecting Line */}
-              <div className="w-12 sm:w-20 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-10 sm:w-16 h-0.5 bg-slate-200 rounded-full overflow-hidden">
                 <div 
                   className={`h-full bg-blue-600 transition-all duration-300 ${
                     step > 1 ? 'w-full' : 'w-0'
@@ -538,7 +538,7 @@ export default function CustomerOrderForm() {
 
         {/* Global Catalog Error Alert */}
         {productsError && (
-          <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs shadow-2xs">
+          <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-xs shadow-2xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
             <div className="flex-1">
               <p className="font-semibold">{productsError}</p>
@@ -557,7 +557,7 @@ export default function CustomerOrderForm() {
         {/* SCREEN 1: PRODUCT DETAILS                                */}
         {/* ======================================================== */}
         {step === 1 && (
-          <form onSubmit={handleNext} className="space-y-6">
+          <form onSubmit={handleNext} className="space-y-4 sm:space-y-5">
             
             {/* Promoter ID Section */}
             <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5">
@@ -645,10 +645,10 @@ export default function CustomerOrderForm() {
               </div>
 
               {loadingProducts ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-72 rounded-xl bg-white border border-slate-200/80 p-4 animate-pulse space-y-3">
-                      <div className="w-full h-40 bg-slate-100 rounded-lg" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                  {[1, 2].map((n) => (
+                    <div key={n} className="h-64 rounded-xl bg-white border border-slate-200/80 p-3.5 animate-pulse space-y-3">
+                      <div className="w-full h-32 bg-slate-100 rounded-lg" />
                       <div className="h-4 bg-slate-100 rounded w-3/4" />
                       <div className="h-5 bg-slate-100 rounded w-1/3" />
                       <div className="h-10 bg-slate-100 rounded" />
@@ -660,7 +660,7 @@ export default function CustomerOrderForm() {
                   No active products are available right now.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                   {products.map((prod) => {
                     const existing = selectedItems.find((it) => it.product_id === prod.id);
                     const isSelected = !!existing;
@@ -668,15 +668,15 @@ export default function CustomerOrderForm() {
                     return (
                       <div 
                         key={prod.id} 
-                        className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-4 bg-white ${
+                        className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-3.5 sm:p-4 bg-white ${
                           isSelected 
                             ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10 shadow-xs' 
                             : 'border-slate-200/90 hover:border-slate-300 hover:shadow-md'
                         }`}
                       >
                         <div>
-                          {/* Product Image Container */}
-                          <div className="w-full h-40 sm:h-44 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-center p-3 mb-3 overflow-hidden group">
+                          {/* Product Image Container (Compact height, clear display) */}
+                          <div className="w-full h-32 sm:h-36 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-center p-2 mb-2.5 overflow-hidden group">
                             <img
                               src={getImageUrl(prod.image_url)}
                               alt={prod.name}
@@ -689,9 +689,9 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Product Name */}
-                          <div className="h-11 mb-1.5 flex items-start">
+                          <div className="h-10 mb-1 flex items-start">
                             <h3 
-                              className="text-sm sm:text-base font-semibold text-slate-900 leading-snug line-clamp-2" 
+                              className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2" 
                               title={prod.name}
                             >
                               {prod.name}
@@ -699,8 +699,8 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Price in INR */}
-                          <div className="h-6 flex items-baseline gap-1 mb-3">
-                            <span className="text-lg sm:text-xl font-bold text-slate-900 font-mono">
+                          <div className="h-6 flex items-baseline gap-1 mb-2.5">
+                            <span className="text-base sm:text-lg font-bold text-slate-900 font-mono">
                               {formatINR(prod.price)}
                             </span>
                             <span className="text-xs text-slate-400 font-normal">/ unit</span>
@@ -710,7 +710,7 @@ export default function CustomerOrderForm() {
                         {/* Action Slot & Subtotal */}
                         <div className="pt-2.5 border-t border-slate-100 mt-auto">
                           {isSelected ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               {/* Subtotal calculation for each selected product */}
                               <div className="flex items-center justify-between text-xs px-0.5 text-slate-600">
                                 <span className="font-medium">Subtotal:</span>
@@ -720,22 +720,22 @@ export default function CustomerOrderForm() {
                               </div>
 
                               {/* Stepper with plus and minus buttons */}
-                              <div className="w-full h-10 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/40 shadow-2xs">
+                              <div className="w-full h-9.5 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/40 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
+                                  className="w-9 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
                                   title="Decrease quantity"
                                 >
                                   <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 </button>
-                                <span className="flex-1 text-center font-bold font-mono text-xs sm:text-sm text-slate-900">
+                                <span className="flex-1 text-center font-bold font-mono text-xs text-slate-900">
                                   {existing.quantity} in order
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
+                                  className="w-9 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
                                   title="Increase quantity"
                                 >
                                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -746,7 +746,7 @@ export default function CustomerOrderForm() {
                             <button
                               type="button"
                               onClick={() => handleAddItem(prod.id)}
-                              className="w-full h-10 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
+                              className="w-full h-9.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
                             >
                               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                               <span>Add to Order</span>
@@ -769,12 +769,12 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Bottom Checkout Navigation Card */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3.5 mt-6">
               <div>
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                   Current Selection
                 </span>
-                <p className="text-sm sm:text-base font-semibold text-slate-800 mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-slate-800 mt-0.5">
                   {totalQuantity > 0 ? (
                     <span>
                       <span className="font-bold text-blue-600">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-bold text-slate-900">{formatINR(totalAmount)}</span>
@@ -788,7 +788,7 @@ export default function CustomerOrderForm() {
               <button
                 type="submit"
                 disabled={loadingProducts || products.length === 0 || validatingPromoter}
-                className={`w-full sm:w-auto h-11 sm:h-12 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
+                className={`w-full sm:w-auto h-11 px-5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
                   totalQuantity === 0 || !promoterId.trim()
                     ? 'bg-blue-600/70 hover:bg-blue-600 text-white cursor-pointer'
                     : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow active:scale-[0.99]'
@@ -815,20 +815,20 @@ export default function CustomerOrderForm() {
         {/* SCREEN 2: ADDRESS DETAILS                                */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="max-w-3xl mx-auto space-y-6">
+          <form onSubmit={handleSubmitOrder} className="w-full space-y-4 sm:space-y-5">
             
             {/* Order Review Card */}
             <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-              <div className="bg-slate-50/80 px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
+              <div className="bg-slate-50/80 px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
                     <ShoppingBag className="w-4 h-4" />
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
+                  <h3 className="font-bold text-slate-900 text-sm tracking-tight">
                     Order Review
                   </h3>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
@@ -844,7 +844,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Items List */}
-              <div className="p-4 sm:p-5 divide-y divide-slate-100 max-h-72 overflow-y-auto">
+              <div className="p-3.5 sm:p-4 divide-y divide-slate-100 max-h-72 overflow-y-auto">
                 {itemsWithDetails.map((it) => (
                   <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs sm:text-sm">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -876,7 +876,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Review Footer with Promoter and Total */}
-              <div className="bg-slate-50/70 p-4 sm:px-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
+              <div className="bg-slate-50/70 p-3.5 sm:px-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
                 <div className="flex items-center gap-2 text-slate-600">
                   <span className="font-medium">Authorized Promoter:</span>
                   <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
@@ -893,8 +893,8 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Customer Address Form Card */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-5">
-              <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5 space-y-4 sm:space-y-5">
+              <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
                 <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-blue-600" />
                   <span>Customer Address</span>
@@ -1315,21 +1315,21 @@ export default function CustomerOrderForm() {
             onMouseLeave={handleFloatingMouseLeave}
             className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none"
           >
-            {/* Expanded Popover (Above the Widget) */}
+            {/* Expanded Popover (Above the Widget, 280–320px width) */}
             {isSummaryExpanded && (
               <div 
-                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-2.5rem)] sm:w-96 max-w-sm bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-slate-800"
+                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-1.75rem)] sm:w-[310px] max-w-[320px] bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-slate-800"
               >
                 {/* Popover Header */}
-                <div className="bg-slate-50/90 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                      <ShoppingBag className="w-4 h-4" />
+                <div className="bg-slate-50/90 px-3.5 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <ShoppingBag className="w-3.5 h-3.5" />
                     </div>
-                    <span className="font-bold text-slate-900 text-sm">
+                    <span className="font-bold text-slate-900 text-xs sm:text-sm">
                       Your Order
                     </span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
                       {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                     </span>
                   </div>
@@ -1343,17 +1343,17 @@ export default function CustomerOrderForm() {
                     className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
                     title="Close summary"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* Scrollable Items List */}
-                <div className="p-3 sm:p-4 max-h-64 sm:max-h-72 overflow-y-auto divide-y divide-slate-100">
+                {/* Scrollable Items List (Compact 280-320px width without cutting off text) */}
+                <div className="p-2.5 sm:p-3 max-h-56 sm:max-h-64 overflow-y-auto divide-y divide-slate-100">
                   {itemsWithDetails.map((it) => (
-                    <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                    <div key={it.product_id} className="py-2 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
                       {/* Product Thumbnail & Name */}
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-11 h-11 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-9 h-9 rounded-md bg-slate-50 border border-slate-200/80 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
                           <img
                             src={getImageUrl(it.image_url)}
                             alt={it.name}
@@ -1368,39 +1368,39 @@ export default function CustomerOrderForm() {
                           <span className="font-semibold text-slate-800 text-xs truncate block" title={it.name}>
                             {it.name}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-slate-400 font-mono">
                             {formatINR(it.price)} each
                           </span>
                         </div>
                       </div>
 
                       {/* Quantity Controls, Subtotal, Remove */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         {/* Stepper */}
-                        <div className="inline-flex items-center border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs">
+                        <div className="inline-flex items-center border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs h-6">
                           <button
                             type="button"
                             onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
-                            className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            className="w-5.5 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
                             title="Decrease quantity"
                           >
-                            <Minus className="w-3 h-3" />
+                            <Minus className="w-2.5 h-2.5" />
                           </button>
-                          <span className="px-1.5 text-xs font-bold font-mono text-slate-800 min-w-[18px] text-center">
+                          <span className="px-1 text-[11px] font-bold font-mono text-slate-800 min-w-[16px] text-center">
                             {it.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
-                            className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            className="w-5.5 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
                             title="Increase quantity"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="w-2.5 h-2.5" />
                           </button>
                         </div>
 
                         {/* Individual Subtotal */}
-                        <span className="font-mono font-bold text-slate-900 text-xs min-w-[55px] text-right">
+                        <span className="font-mono font-bold text-slate-900 text-xs min-w-[48px] text-right">
                           {formatINR(it.subtotal)}
                         </span>
 
@@ -1409,7 +1409,7 @@ export default function CustomerOrderForm() {
                           type="button"
                           onClick={() => handleRemoveItem(it.product_id)}
                           title="Remove item"
-                          className="p-1 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition"
+                          className="p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1419,17 +1419,17 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Popover Footer with Grand Total & Action */}
-                <div className="bg-slate-50/80 p-3 sm:p-4 border-t border-slate-100 space-y-3">
-                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between">
+                <div className="bg-slate-50/80 p-2.5 sm:p-3 border-t border-slate-100 space-y-2.5">
+                  <div className="p-2 rounded-lg bg-blue-50/80 border border-blue-100 flex items-center justify-between">
                     <div>
-                      <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
+                      <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
                         Grand Total
                       </span>
-                      <span className="text-[10px] text-blue-600 font-medium">
+                      <span className="text-[9px] text-blue-600 font-medium">
                         {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                       </span>
                     </div>
-                    <span className="text-lg font-black font-mono text-blue-900">
+                    <span className="text-base font-black font-mono text-blue-900">
                       {formatINR(totalAmount)}
                     </span>
                   </div>
@@ -1443,7 +1443,7 @@ export default function CustomerOrderForm() {
                         handleNext();
                       }}
                       disabled={validatingPromoter}
-                      className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
+                      className="w-full h-9.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
                     >
                       <span>Continue to Address Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1457,27 +1457,27 @@ export default function CustomerOrderForm() {
             <button
               type="button"
               onClick={handleFloatingClick}
-              className="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-3 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xl hover:shadow-2xl shadow-blue-600/30 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/30 active:scale-95 group"
+              className="flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-lg hover:shadow-xl shadow-blue-600/25 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/30 active:scale-95 group text-xs sm:text-sm"
               aria-expanded={isSummaryExpanded}
               title="View order summary"
             >
               <div className="relative flex items-center justify-center">
-                <ShoppingBag className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
-                <span className="absolute -top-1.5 -right-2 bg-amber-400 text-slate-900 text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center ring-2 ring-blue-600 shadow-2xs">
+                <ShoppingBag className="w-4 h-4 text-white transition-transform group-hover:scale-110" />
+                <span className="absolute -top-1.5 -right-2 bg-amber-400 text-slate-900 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-blue-600 shadow-2xs">
                   {totalQuantity}
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold tracking-tight">
+              <div className="flex items-center gap-1.5 font-bold tracking-tight">
                 <span>{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
                 <span className="text-blue-300 font-light">|</span>
-                <span className="font-mono text-sm sm:text-base font-black tracking-tight">
+                <span className="font-mono font-black tracking-tight">
                   {formatINR(totalAmount)}
                 </span>
               </div>
 
               <ChevronUp 
-                className={`w-4 h-4 text-blue-200 transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
+                className={`w-3.5 h-3.5 text-blue-200 transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
               />
             </button>
           </div>
