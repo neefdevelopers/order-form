@@ -18,7 +18,9 @@ import {
   Minus,
   Trash2,
   ShieldCheck,
-  Printer
+  Printer,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 
 export default function CustomerOrderForm() {
@@ -37,6 +39,8 @@ export default function CustomerOrderForm() {
 
   // Selected products for the order: array of { product_id, quantity }
   const [selectedItems, setSelectedItems] = useState([]);
+  const [mobileCartExpanded, setMobileCartExpanded] = useState(false);
+  const [screen2CartExpanded, setScreen2CartExpanded] = useState(false);
 
   // Step 2 fields
   const [fullName, setFullName] = useState('');
@@ -618,34 +622,47 @@ export default function CustomerOrderForm() {
               </div>
             </div>
 
-            {/* Right Column (Sticky Order Summary on Desktop) */}
+            {/* Right Column: Mini Checkout / Cart Panel */}
             <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
-              <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-blue-600" />
-                    <span>Order Summary</span>
-                  </h3>
-                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col">
+                
+                {/* 1. Cart Header */}
+                <div className="bg-slate-50/80 px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-sm tracking-tight">
+                      Your Cart
+                    </h3>
+                  </div>
+                  <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full transition-all ${
+                    totalQuantity > 0 
+                      ? 'bg-blue-600 text-white shadow-2xs' 
+                      : 'bg-slate-200 text-slate-600'
+                  }`}>
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
-                {/* Selected Products List */}
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
+                {/* 2. Cart Body (Selected Products or Compact Empty State) */}
+                <div className="p-4 sm:p-5 flex-1">
                   {itemsWithDetails.length === 0 ? (
-                    <div className="py-7 text-center text-slate-400 space-y-1.5">
-                      <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto text-slate-300">
-                        <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+                    <div className="py-6 px-2 text-center space-y-2">
+                      <div className="w-11 h-11 rounded-full bg-blue-50/80 text-blue-500 flex items-center justify-center mx-auto border border-blue-100/70 shadow-2xs">
+                        <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
                       </div>
-                      <p className="text-xs font-medium text-slate-500">Your order is empty</p>
-                      <p className="text-[11px] text-slate-400">Select products on the left to add</p>
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-bold text-slate-700">Your cart is waiting</p>
+                        <p className="text-[11px] text-slate-400">Select products on the left to add</p>
+                      </div>
                     </div>
                   ) : (
-                    itemsWithDetails.map((it) => (
-                      <div key={it.product_id} className="pt-2 first:pt-0 flex items-center justify-between text-xs gap-2">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
+                    <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-slate-100">
+                      {itemsWithDetails.map((it) => (
+                        <div key={it.product_id} className="pt-3 first:pt-0 flex items-center gap-3">
+                          {/* Product Thumbnail */}
+                          <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
                             <img
                               src={getImageUrl(it.image_url)}
                               alt={it.name}
@@ -656,93 +673,217 @@ export default function CustomerOrderForm() {
                               }}
                             />
                           </div>
-                          <div className="min-w-0">
-                            <span className="text-slate-800 font-semibold block truncate max-w-[140px]" title={it.name}>
-                              {it.name}
-                            </span>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              Qty: {it.quantity} × {formatINR(it.price)}
-                            </span>
+
+                          {/* Product Info & Controls */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-1 mb-1">
+                              <span className="font-semibold text-slate-800 text-xs sm:text-sm truncate block" title={it.name}>
+                                {it.name}
+                              </span>
+                              <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm whitespace-nowrap">
+                                {formatINR(it.subtotal)}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] text-slate-500 font-mono">
+                                {formatINR(it.price)} each
+                              </span>
+
+                              <div className="flex items-center gap-1.5">
+                                {/* Inline Mini Quantity Stepper */}
+                                <div className="inline-flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
+                                    className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition active:scale-90"
+                                    title="Decrease quantity"
+                                  >
+                                    <Minus className="w-3 h-3 stroke-[2.5]" />
+                                  </button>
+                                  <span className="px-1.5 text-xs font-bold font-mono text-slate-800 min-w-[20px] text-center">
+                                    {it.quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
+                                    className="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition active:scale-90"
+                                    title="Increase quantity"
+                                  >
+                                    <Plus className="w-3 h-3 stroke-[2.5]" />
+                                  </button>
+                                </div>
+
+                                {/* Remove Icon */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveItem(it.product_id)}
+                                  title="Remove product"
+                                  className="p-1 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 transition active:scale-95"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="font-mono font-semibold text-slate-900">
-                            {formatINR(it.subtotal)}
+                {/* 3. Total Amount & Action Section */}
+                <div className="bg-slate-50/70 p-4 sm:p-5 border-t border-slate-100/90 space-y-3.5">
+                  {/* Subtotal Row */}
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span className="font-medium">Subtotal ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})</span>
+                    <span className="font-mono font-bold text-slate-800">{formatINR(totalAmount)}</span>
+                  </div>
+
+                  {/* Prominent Highlighted Total Box */}
+                  <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between shadow-2xs">
+                    <div>
+                      <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
+                        Total Amount
+                      </span>
+                      <span className="text-[10px] text-blue-600 font-medium">Final order value</span>
+                    </div>
+                    <span className="text-2xl font-black font-mono text-blue-900 tracking-tight">
+                      {formatINR(totalAmount)}
+                    </span>
+                  </div>
+
+                  {/* Continue to Address Button (Prominent & Full-Width) */}
+                  <button
+                    type="submit"
+                    disabled={loadingProducts || products.length === 0 || validatingPromoter || itemsWithDetails.length === 0}
+                    className={`w-full h-12 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm ${
+                      itemsWithDetails.length === 0 || validatingPromoter
+                        ? 'bg-slate-200/80 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none'
+                        : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow-md active:scale-[0.99]'
+                    }`}
+                  >
+                    {validatingPromoter ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Verifying Promoter...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue to Address</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Mobile Bottom Expandable Checkout Bar */}
+            {itemsWithDetails.length > 0 && (
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-xl z-30 transition-all">
+                {/* Expandable itemized drawer */}
+                {mobileCartExpanded && (
+                  <div className="p-3.5 border-b border-slate-100 max-h-60 overflow-y-auto space-y-2 divide-y divide-slate-100 bg-slate-50/60">
+                    <div className="flex items-center justify-between pb-1">
+                      <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Cart Items ({totalQuantity})</span>
+                      <button
+                        type="button"
+                        onClick={() => setMobileCartExpanded(false)}
+                        className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                      >
+                        Hide
+                      </button>
+                    </div>
+                    {itemsWithDetails.map((it) => (
+                      <div key={it.product_id} className="pt-2 first:pt-0 flex items-center gap-2.5 text-xs">
+                        <div className="w-8 h-8 rounded-md bg-white border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
+                          <img
+                            src={getImageUrl(it.image_url)}
+                            alt={it.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-slate-800 truncate block">{it.name}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {it.quantity} × {formatINR(it.price)}
                           </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="inline-flex items-center border border-slate-200 rounded-md bg-white">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
+                              className="w-5 h-5 flex items-center justify-center text-slate-600 hover:bg-slate-100"
+                            >
+                              <Minus className="w-2.5 h-2.5" />
+                            </button>
+                            <span className="px-1.5 font-mono font-bold text-[11px]">{it.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
+                              className="w-5 h-5 flex items-center justify-center text-slate-600 hover:bg-slate-100"
+                            >
+                              <Plus className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                          <span className="font-mono font-bold text-slate-900">{formatINR(it.subtotal)}</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveItem(it.product_id)}
-                            title="Remove product"
-                            className="text-slate-300 hover:text-red-500 hover:bg-red-50 rounded p-1 transition"
+                            className="text-slate-300 hover:text-red-500 p-1"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
 
-                {/* Total Row */}
-                <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-600">Total Amount</span>
-                  <span className="text-xl font-bold font-mono text-slate-900 tracking-tight">
-                    {formatINR(totalAmount)}
-                  </span>
-                </div>
+                {/* Compact Bottom Bar */}
+                <div className="p-3 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMobileCartExpanded(!mobileCartExpanded)}
+                    className="flex items-center gap-1.5 text-left focus:outline-none"
+                  >
+                    <div>
+                      <span className="text-[11px] text-slate-500 block leading-tight flex items-center gap-1">
+                        <span>{totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}</span>
+                        {mobileCartExpanded ? (
+                          <ChevronDown className="w-3 h-3 text-slate-400" />
+                        ) : (
+                          <ChevronUp className="w-3 h-3 text-slate-400" />
+                        )}
+                      </span>
+                      <span className="text-base font-bold font-mono text-slate-900">
+                        {formatINR(totalAmount)}
+                      </span>
+                    </div>
+                  </button>
 
-                {/* Continue to Address Button */}
-                <button
-                  type="submit"
-                  disabled={loadingProducts || products.length === 0 || validatingPromoter || itemsWithDetails.length === 0}
-                  className={`w-full h-11 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition ${
-                    itemsWithDetails.length === 0 || validatingPromoter
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-xs'
-                  }`}
-                >
-                  {validatingPromoter ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Verifying Promoter...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Continue to Address</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Mobile Bottom Checkout Bar (when items selected) */}
-            {itemsWithDetails.length > 0 && (
-              <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 shadow-md z-20 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-[11px] text-slate-500 block leading-tight">
-                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
-                  </span>
-                  <span className="text-base font-bold font-mono text-slate-900">
-                    {formatINR(totalAmount)}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={validatingPromoter}
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition active:scale-95"
+                  >
+                    {validatingPromoter ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Verifying...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue to Address</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={validatingPromoter}
-                  className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
-                >
-                  {validatingPromoter ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <>
-                      <span>Continue to Address</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </button>
               </div>
             )}
           </form>
@@ -756,6 +897,42 @@ export default function CustomerOrderForm() {
             
             {/* Left Column (Customer Address Form) */}
             <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200 shadow-2xs p-4 sm:p-6 space-y-5">
+              
+              {/* Mobile Cart Review Accordion on Screen 2 */}
+              <div className="lg:hidden bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setScreen2CartExpanded(!screen2CartExpanded)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-xs font-semibold text-slate-800 focus:outline-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 text-blue-600" />
+                    <span>Review Cart ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-slate-900">{formatINR(totalAmount)}</span>
+                    {screen2CartExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                  </div>
+                </button>
+                {screen2CartExpanded && (
+                  <div className="px-4 pb-3 pt-1 border-t border-slate-200/60 divide-y divide-slate-100 space-y-2">
+                    {itemsWithDetails.map((it) => (
+                      <div key={it.product_id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="truncate max-w-[150px] font-medium text-slate-800">{it.name}</span>
+                          <span className="text-[11px] text-slate-400 font-mono">Qty: {it.quantity}</span>
+                        </div>
+                        <span className="font-mono font-semibold text-slate-900">{formatINR(it.subtotal)}</span>
+                      </div>
+                    ))}
+                    <div className="pt-2 flex justify-between text-xs font-semibold text-slate-900">
+                      <span>Total Amount</span>
+                      <span className="font-mono text-blue-700">{formatINR(totalAmount)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -1026,25 +1203,31 @@ export default function CustomerOrderForm() {
               </div>
             </div>
 
-            {/* Right Column (Review Order Summary on Screen 2) */}
+            {/* Right Column: Mini Checkout / Cart Panel on Screen 2 */}
             <div className="lg:col-span-5 xl:col-span-4 sticky top-18 space-y-4">
-              <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 sm:p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-blue-600" />
-                    <span>Order Summary</span>
-                  </h3>
-                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col">
+                
+                {/* 1. Header */}
+                <div className="bg-slate-50/80 px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-sm tracking-tight">
+                      Your Cart
+                    </h3>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                 </div>
 
-                {/* Items List */}
-                <div className="space-y-2.5 max-h-60 overflow-y-auto pr-0.5 divide-y divide-slate-100">
-                  {itemsWithDetails.map((it) => (
-                    <div key={it.product_id} className="pt-2.5 first:pt-0 flex items-center justify-between text-xs gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 p-0.5 flex-shrink-0 flex items-center justify-center">
+                {/* 2. Items List */}
+                <div className="p-4 sm:p-5 flex-1">
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1 divide-y divide-slate-100">
+                    {itemsWithDetails.map((it) => (
+                      <div key={it.product_id} className="pt-3 first:pt-0 flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
                           <img
                             src={getImageUrl(it.image_url)}
                             alt={it.name}
@@ -1055,35 +1238,53 @@ export default function CustomerOrderForm() {
                             }}
                           />
                         </div>
-                        <div className="min-w-0">
-                          <span className="text-slate-800 font-semibold block truncate max-w-[140px]" title={it.name}>
-                            {it.name}
-                          </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
-                            Qty: {it.quantity} × {formatINR(it.price)}
-                          </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-1 mb-1">
+                            <span className="font-semibold text-slate-800 text-xs sm:text-sm truncate block" title={it.name}>
+                              {it.name}
+                            </span>
+                            <span className="font-mono font-bold text-slate-900 text-xs sm:text-sm whitespace-nowrap">
+                              {formatINR(it.subtotal)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                            <span>Qty: {it.quantity}</span>
+                            <span>{formatINR(it.price)} each</span>
+                          </div>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
-                        {formatINR(it.subtotal)}
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Footer Summary */}
+                <div className="bg-slate-50/70 p-4 sm:p-5 border-t border-slate-100/90 space-y-3.5">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span className="font-medium">Promoter ID</span>
+                    <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
+                      {promoterId}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span className="font-medium">Subtotal ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})</span>
+                    <span className="font-mono font-bold text-slate-800">{formatINR(totalAmount)}</span>
+                  </div>
+
+                  {/* Prominent Highlighted Total Box */}
+                  <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between shadow-2xs">
+                    <div>
+                      <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
+                        Total Payable
                       </span>
+                      <span className="text-[10px] text-blue-600 font-medium">Final order value</span>
                     </div>
-                  ))}
+                    <span className="text-2xl font-black font-mono text-blue-900 tracking-tight">
+                      {formatINR(totalAmount)}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Promoter ID */}
-                <div className="border-t border-slate-100 pt-3 flex justify-between text-xs text-slate-600">
-                  <span className="font-medium">Promoter ID</span>
-                  <span className="font-mono font-bold text-slate-900">{promoterId}</span>
-                </div>
-
-                {/* Total */}
-                <div className="border-t border-slate-200 pt-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-600">Total Payable</span>
-                  <span className="text-xl font-bold font-mono text-slate-900 tracking-tight">
-                    {formatINR(totalAmount)}
-                  </span>
-                </div>
               </div>
             </div>
           </form>
