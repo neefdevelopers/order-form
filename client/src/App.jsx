@@ -2,20 +2,42 @@ import React, { useState, useEffect } from 'react';
 import CustomerOrderForm from './components/CustomerOrderForm';
 import AdminLogin from './components/AdminLogin';
 import AdminPanel from './components/AdminPanel';
+import PromoterDashboard from './components/PromoterDashboard';
 import { apiUrl } from './config';
 
-function getInitialView() {
-  if (typeof window === 'undefined') return 'customer';
-  const path = window.location.pathname.toLowerCase();
-  const hash = window.location.hash.toLowerCase();
-  if (path.startsWith('/admin') || hash.includes('admin')) {
-    return 'admin';
+function parseCurrentRoute() {
+  if (typeof window === 'undefined') return { view: 'customer', promoterToken: null };
+  const path = window.location.pathname;
+  const hash = window.location.hash;
+  const searchParams = new URLSearchParams(window.location.search);
+
+  // Check for promoter dashboard link:
+  // e.g. /promoter/TOKEN, #promoter/TOKEN, #/promoter/TOKEN, or ?promoter_token=TOKEN
+  const pathMatch = path.match(/^\/promoter\/([a-zA-Z0-9_-]+)/i);
+  if (pathMatch && pathMatch[1]) {
+    return { view: 'promoter', promoterToken: pathMatch[1] };
   }
-  return 'customer';
+
+  const hashMatch = hash.match(/^#\/?promoter\/([a-zA-Z0-9_-]+)/i);
+  if (hashMatch && hashMatch[1]) {
+    return { view: 'promoter', promoterToken: hashMatch[1] };
+  }
+
+  if (searchParams.get('promoter_token')) {
+    return { view: 'promoter', promoterToken: searchParams.get('promoter_token') };
+  }
+
+  if (path.toLowerCase().startsWith('/admin') || hash.toLowerCase().includes('admin')) {
+    return { view: 'admin', promoterToken: null };
+  }
+
+  return { view: 'customer', promoterToken: null };
 }
 
 export default function App() {
-  const [view, setView] = useState(getInitialView);
+  const initialRoute = parseCurrentRoute();
+  const [view, setView] = useState(initialRoute.view);
+  const [promoterToken, setPromoterToken] = useState(initialRoute.promoterToken);
   const [token, setToken] = useState(() => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('admin_token') || null;
@@ -28,13 +50,9 @@ export default function App() {
   // Sync view state with browser URL navigation
   useEffect(() => {
     const handleLocationChange = () => {
-      const currentPath = window.location.pathname.toLowerCase();
-      const currentHash = window.location.hash.toLowerCase();
-      if (currentPath.startsWith('/admin') || currentHash.includes('admin')) {
-        setView('admin');
-      } else {
-        setView('customer');
-      }
+      const route = parseCurrentRoute();
+      setView(route.view);
+      setPromoterToken(route.promoterToken);
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -122,7 +140,12 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       {/* Main Content View */}
       <div className="flex-1 flex flex-col">
-        {view === 'customer' ? (
+        {view === 'promoter' ? (
+          <PromoterDashboard
+            token={promoterToken}
+            onNavigateHome={navigateToCustomer}
+          />
+        ) : view === 'customer' ? (
           <CustomerOrderForm />
         ) : token ? (
           <AdminPanel

@@ -1,6 +1,7 @@
 const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const dataDir = path.join(__dirname, '../data');
 if (!fs.existsSync(dataDir)) {
@@ -46,6 +47,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     promoter_code TEXT UNIQUE NOT NULL COLLATE NOCASE,
     name TEXT,
+    access_token TEXT UNIQUE,
     is_active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL
   );
@@ -80,6 +82,22 @@ if (!orderCols.some(c => c.name === 'items_json')) {
   db.exec('ALTER TABLE orders ADD COLUMN items_json TEXT;');
 }
 
+const promoterCols = db.prepare('PRAGMA table_info(promoters)').all();
+if (!promoterCols.some(c => c.name === 'access_token')) {
+  db.exec('ALTER TABLE promoters ADD COLUMN access_token TEXT;');
+}
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_promoters_access_token ON promoters(access_token);');
+
+// Backfill existing promoters missing access_token with secure random tokens
+const promotersWithoutToken = db.prepare("SELECT id FROM promoters WHERE access_token IS NULL OR access_token = ''").all();
+if (promotersWithoutToken.length > 0) {
+  const updateTokenStmt = db.prepare('UPDATE promoters SET access_token = ? WHERE id = ?');
+  for (const p of promotersWithoutToken) {
+    const token = crypto.randomBytes(16).toString('hex');
+    updateTokenStmt.run(token, p.id);
+  }
+}
+
 // Ensure default products have real prices
 db.exec(`
   UPDATE products SET price = 2499 WHERE name LIKE '%Headphones%' AND (price IS NULL OR price = 0 OR price = 500);
@@ -108,19 +126,19 @@ const promoterCountStmt = db.prepare('SELECT COUNT(*) as count FROM promoters');
 const promoterCountRow = promoterCountStmt.get();
 if (!promoterCountRow || promoterCountRow.count === 0) {
   const insertPromoter = db.prepare(`
-    INSERT OR IGNORE INTO promoters (promoter_code, name, is_active, created_at)
-    VALUES (?, ?, 1, ?)
+    INSERT OR IGNORE INTO promoters (promoter_code, name, access_token, is_active, created_at)
+    VALUES (?, ?, ?, 1, ?)
   `);
   const now = new Date().toISOString();
-  insertPromoter.run('PR-1001', 'North Zone Promoter', now);
-  insertPromoter.run('PR-1002', 'South Zone Promoter', now);
-  insertPromoter.run('PROM-9981', 'Field Sales Representative', now);
+  insertPromoter.run('PR-1001', 'North Zone Promoter', crypto.randomBytes(16).toString('hex'), now);
+  insertPromoter.run('PR-1002', 'South Zone Promoter', crypto.randomBytes(16).toString('hex'), now);
+  insertPromoter.run('PROM-9981', 'Field Sales Representative', crypto.randomBytes(16).toString('hex'), now);
 
   // Also import any distinct promoter_ids from existing orders
   try {
     const existingOrderPromoters = db.prepare('SELECT DISTINCT promoter_id FROM orders WHERE promoter_id IS NOT NULL AND promoter_id != ""').all();
     for (const row of existingOrderPromoters) {
-      insertPromoter.run(row.promoter_id.trim(), 'Existing Promoter', now);
+      insertPromoter.run(row.promoter_id.trim(), 'Existing Promoter', crypto.randomBytes(16).toString('hex'), now);
     }
   } catch (e) {
     // Ignore if orders table is empty

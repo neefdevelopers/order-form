@@ -42,7 +42,13 @@ export default function CustomerOrderForm() {
   const [productsError, setProductsError] = useState('');
 
   // Step 1 fields
-  const [promoterId, setPromoterId] = useState('');
+  const [promoterId, setPromoterId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get('promoter') || '';
+    }
+    return '';
+  });
   const [validatingPromoter, setValidatingPromoter] = useState(false);
   const [promoterVerified, setPromoterVerified] = useState(null);
 
@@ -247,6 +253,17 @@ export default function CustomerOrderForm() {
       setValidatingPromoter(false);
     }
   };
+
+  // If promoter ID is present in URL params, auto-verify it on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const urlPromoter = sp.get('promoter');
+      if (urlPromoter && urlPromoter.trim()) {
+        validatePromoterAsync(urlPromoter.trim());
+      }
+    }
+  }, []);
 
   // Step 1 Validation -> Proceed to Step 2
   const handleNext = async (e) => {

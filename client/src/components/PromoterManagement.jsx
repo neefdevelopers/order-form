@@ -18,7 +18,10 @@ import {
   Download,
   ExternalLink,
   ListOrdered,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Copy,
+  Share2,
+  Link2
 } from 'lucide-react';
 import PromoterOrdersView from './PromoterOrdersView';
 
@@ -44,6 +47,34 @@ export default function PromoterManagement({ token }) {
   // Delete modal state
   const [deletingPromoter, setDeletingPromoter] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Link copy feedback & newly created promoter modal
+  const [copiedLinkId, setCopiedLinkId] = useState(null);
+  const [createdPromoterInfo, setCreatedPromoterInfo] = useState(null);
+
+  const getDashboardUrl = (accessToken) => {
+    if (typeof window === 'undefined') return `/promoter/${accessToken}`;
+    return `${window.location.origin}/promoter/${accessToken}`;
+  };
+
+  const handleCopyLink = (p) => {
+    if (!p.access_token) return;
+    const url = getDashboardUrl(p.access_token);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedLinkId(p.id);
+      setTimeout(() => setCopiedLinkId(null), 2000);
+    }
+  };
+
+  const handleShareWhatsApp = (p) => {
+    if (!p.access_token) return;
+    const url = getDashboardUrl(p.access_token);
+    const msg = encodeURIComponent(
+      `Hello ${p.name || p.promoter_code},\nHere is your unique Promoter Dashboard link:\n${url}\n\nYou can track all your orders and sales in real time without login.`
+    );
+    window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+  };
 
   useEffect(() => {
     fetchPromoters();
@@ -168,8 +199,15 @@ export default function PromoterManagement({ token }) {
         throw new Error(data.error || 'Failed to save promoter');
       }
 
+      const wasNew = !editingPromoter;
+      const createdProm = data.promoter;
+
       closeModal();
-      fetchPromoters();
+      await fetchPromoters();
+
+      if (wasNew && createdProm) {
+        setCreatedPromoterInfo(createdProm);
+      }
     } catch (err) {
       console.error(err);
       setFormError(err.message || 'Error saving promoter');
@@ -354,6 +392,7 @@ export default function PromoterManagement({ token }) {
                     <th className="py-3.5 px-4">Name / Label</th>
                     <th className="py-3.5 px-4">Status</th>
                     <th className="py-3.5 px-4">Orders Placed</th>
+                    <th className="py-3.5 px-4">Dashboard Link</th>
                     <th className="py-3.5 px-4">Date Added</th>
                     <th className="py-3.5 px-4 text-center">Actions</th>
                   </tr>
@@ -409,6 +448,54 @@ export default function PromoterManagement({ token }) {
                             <ShoppingCart className="w-3 h-3" />
                             <span>{orderCount} {orderCount === 1 ? 'order' : 'orders'}</span>
                           </button>
+                        </td>
+
+                        {/* Shareable Dashboard Link */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleCopyLink(p)}
+                              title="Copy unique dashboard link to clipboard"
+                              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold transition ${
+                                copiedLinkId === p.id
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs'
+                                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                              }`}
+                            >
+                              {copiedLinkId === p.id ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                                  <span>Copy Link</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleShareWhatsApp(p)}
+                              title="Share link via WhatsApp"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition text-[11px] font-semibold shadow-2xs"
+                            >
+                              <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>WhatsApp</span>
+                            </button>
+
+                            <a
+                              href={getDashboardUrl(p.access_token)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open promoter dashboard in new tab"
+                              className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
                         </td>
 
                         <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
@@ -544,6 +631,50 @@ export default function PromoterManagement({ token }) {
                     <span className="text-[11px] text-slate-400">
                       Added: {formatDate(p.created_at)}
                     </span>
+                  </div>
+
+                  {/* Mobile Shareable Dashboard Link */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyLink(p)}
+                      className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-xs font-semibold transition ${
+                        copiedLinkId === p.id
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      {copiedLinkId === p.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Link Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Copy Link</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleShareWhatsApp(p)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold transition"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>WhatsApp</span>
+                    </button>
+
+                    <a
+                      href={getDashboardUrl(p.access_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                      title="Open Dashboard"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                   </div>
 
                   {/* Mobile Action Buttons */}
@@ -684,6 +815,52 @@ export default function PromoterManagement({ token }) {
                 </label>
               </div>
 
+              {/* If editing, show unique shareable dashboard link */}
+              {editingPromoter && editingPromoter.access_token && (
+                <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
+                      <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Promoter Dashboard Link</span>
+                    </span>
+                    <span className="text-[10px] text-blue-600 font-medium">No login required</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      readOnly
+                      value={getDashboardUrl(editingPromoter.access_token)}
+                      className="w-full text-xs font-mono bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 text-slate-700 select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCopyLink(editingPromoter)}
+                      className="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 flex items-center gap-1 flex-shrink-0 transition"
+                    >
+                      {copiedLinkId === editingPromoter.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-white" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-white" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleShareWhatsApp(editingPromoter)}
+                      title="Share on WhatsApp"
+                      className="p-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 flex-shrink-0 transition"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Submit & Cancel */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
                 <button
@@ -747,6 +924,94 @@ export default function PromoterManagement({ token }) {
                 className="flex-1 py-2 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* NEW PROMOTER CREATED SUCCESS MODAL                       */}
+      {/* ======================================================== */}
+      {createdPromoterInfo && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Promoter ID Created Successfully!
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Share this unique link with the promoter. They can access their dashboard directly without any login.
+              </p>
+
+              {/* Promoter Code & Link Box */}
+              <div className="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700">Promoter ID:</span>
+                  <span className="font-mono font-bold text-blue-700">{createdPromoterInfo.promoter_code}</span>
+                </div>
+                {createdPromoterInfo.name && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Name:</span>
+                    <span className="font-medium text-slate-800">{createdPromoterInfo.name}</span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-slate-200/80">
+                  <span className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Unique Shareable Dashboard Link:
+                  </span>
+                  <input
+                    type="text"
+                    readOnly
+                    value={getDashboardUrl(createdPromoterInfo.access_token)}
+                    className="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-800 select-all"
+                  />
+                </div>
+              </div>
+
+              {/* Share & Copy Buttons */}
+              <div className="mt-5 flex flex-col sm:flex-row items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopyLink(createdPromoterInfo)}
+                  className={`w-full sm:flex-1 py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                    copiedLinkId === createdPromoterInfo.id
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  {copiedLinkId === createdPromoterInfo.id ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      <span>Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 text-slate-500" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleShareWhatsApp(createdPromoterInfo)}
+                  className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share via WhatsApp</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCreatedPromoterInfo(null)}
+                className="mt-3 w-full py-2 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+              >
+                Close & Continue
               </button>
             </div>
           </div>
