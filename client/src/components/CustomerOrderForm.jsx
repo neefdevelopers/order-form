@@ -20,8 +20,7 @@ import {
   ShieldCheck, 
   Printer, 
   ChevronUp, 
-  X,
-  Leaf
+  X
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -601,12 +600,6 @@ export default function CustomerOrderForm() {
                         <div>
                           {/* Product Image Container */}
                           <div className="relative w-full h-36 sm:h-40 rounded-xl bg-gradient-to-b from-[#f8f9f4] via-[#f4f6ee] to-[#ebeece]/40 border border-[#d8dec2]/60 flex items-center justify-center p-3 mb-3 overflow-hidden">
-                            {/* Botanical Badge */}
-                            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/90 backdrop-blur-xs text-[#374011] border border-[#d8dec2]/80 shadow-2xs">
-                              <Leaf className="w-2.5 h-2.5 text-[#7f8f55]" />
-                              <span>100% Herbal</span>
-                            </span>
-
                             <img
                               src={getImageUrl(prod.image_url)}
                               alt={prod.name}
