@@ -20,7 +20,6 @@ import {
   ListOrdered,
   FileSpreadsheet,
   Copy,
-  Share2,
   Link2
 } from 'lucide-react';
 import PromoterOrdersView from './PromoterOrdersView';
@@ -65,15 +64,6 @@ export default function PromoterManagement({ token }) {
       setCopiedLinkId(p.id);
       setTimeout(() => setCopiedLinkId(null), 2000);
     }
-  };
-
-  const handleShareWhatsApp = (p) => {
-    if (!p.access_token) return;
-    const url = getDashboardUrl(p.access_token);
-    const msg = encodeURIComponent(
-      `Hello ${p.name || p.promoter_code},\nHere is your unique Promoter Dashboard link:\n${url}\n\nYou can track all your orders and sales in real time without login.`
-    );
-    window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
   };
 
   useEffect(() => {
@@ -476,16 +466,6 @@ export default function PromoterManagement({ token }) {
                               )}
                             </button>
 
-                            <button
-                              type="button"
-                              onClick={() => handleShareWhatsApp(p)}
-                              title="Share link via WhatsApp"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#a9b48a] bg-[#d8dec2]/40 text-[#374011] hover:bg-[#d8dec2] transition text-[11px] font-semibold shadow-xs"
-                            >
-                              <Share2 className="w-3.5 h-3.5 text-[#7f8f55]" />
-                              <span>WhatsApp</span>
-                            </button>
-
                             <a
                               href={getDashboardUrl(p.access_token)}
                               target="_blank"
@@ -638,7 +618,7 @@ export default function PromoterManagement({ token }) {
                     <button
                       type="button"
                       onClick={() => handleCopyLink(p)}
-                      className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border text-xs font-semibold transition ${
+                      className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold transition ${
                         copiedLinkId === p.id
                           ? 'bg-[#d8dec2] text-[#374011] border-[#a9b48a]'
                           : 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
@@ -652,25 +632,16 @@ export default function PromoterManagement({ token }) {
                       ) : (
                         <>
                           <Copy className="w-3.5 h-3.5 text-[#7f8f55]" />
-                          <span>Copy Link</span>
+                          <span>Copy Dashboard Link</span>
                         </>
                       )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleShareWhatsApp(p)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border border-[#a9b48a] bg-[#d8dec2]/40 text-[#374011] hover:bg-[#d8dec2] text-xs font-semibold transition"
-                    >
-                      <Share2 className="w-3.5 h-3.5 text-[#7f8f55]" />
-                      <span>WhatsApp</span>
                     </button>
 
                     <a
                       href={getDashboardUrl(p.access_token)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-xl border border-[#d8dec2] bg-white text-[#374011]/70 hover:bg-[#d8dec2]/30 hover:text-[#7f8f55]"
+                      className="p-2 rounded-xl border border-[#d8dec2] bg-white text-[#374011]/70 hover:bg-[#d8dec2]/30 hover:text-[#7f8f55]"
                       title="Open Dashboard"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -835,7 +806,7 @@ export default function PromoterManagement({ token }) {
                     <button
                       type="button"
                       onClick={() => handleCopyLink(editingPromoter)}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] flex items-center gap-1 flex-shrink-0 transition shadow-xs"
+                      className="px-3 py-1.5 rounded-lg bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] flex items-center gap-1 flex-shrink-0 transition shadow-xs"
                     >
                       {copiedLinkId === editingPromoter.id ? (
                         <>
@@ -848,14 +819,6 @@ export default function PromoterManagement({ token }) {
                           <span>Copy</span>
                         </>
                       )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleShareWhatsApp(editingPromoter)}
-                      title="Share on WhatsApp"
-                      className="p-1.5 rounded-lg bg-[#7f8f55] text-white hover:bg-[#6f7e49] flex-shrink-0 transition shadow-xs"
-                    >
-                      <Share2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -972,15 +935,15 @@ export default function PromoterManagement({ token }) {
                 </div>
               </div>
 
-              {/* Share & Copy Buttons */}
-              <div className="mt-5 flex flex-col sm:flex-row items-center gap-2">
+              {/* Copy Button */}
+              <div className="mt-5">
                 <button
                   type="button"
                   onClick={() => handleCopyLink(createdPromoterInfo)}
-                  className={`w-full sm:flex-1 py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                  className={`w-full py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
                     copiedLinkId === createdPromoterInfo.id
                       ? 'bg-[#d8dec2] text-[#374011] border-[#a9b48a]'
-                      : 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
+                      : 'bg-[#7f8f55] text-white hover:bg-[#6f7e49] border-[#7f8f55] shadow-xs'
                   }`}
                 >
                   {copiedLinkId === createdPromoterInfo.id ? (
@@ -990,19 +953,10 @@ export default function PromoterManagement({ token }) {
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-[#7f8f55]" />
-                      <span>Copy Link</span>
+                      <Copy className="w-4 h-4" />
+                      <span>Copy Dashboard Link</span>
                     </>
                   )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleShareWhatsApp(createdPromoterInfo)}
-                  className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-[#7f8f55] text-white hover:bg-[#6f7e49] text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span>Share via WhatsApp</span>
                 </button>
               </div>
 
