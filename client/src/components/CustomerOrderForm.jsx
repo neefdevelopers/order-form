@@ -458,11 +458,7 @@ export default function CustomerOrderForm() {
             />
           </a>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f4f6ee] border border-[#d8dec2] text-[#374011] text-xs font-semibold shadow-2xs">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7f8f55] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7f8f55]"></span>
-            </span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f4f6ee] border border-[#d8dec2] text-[#374011] text-xs font-semibold shadow-2xs">
             <ShieldCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
             <span>100% Ayurvedic & Verified</span>
           </div>
@@ -532,23 +528,18 @@ export default function CustomerOrderForm() {
         {step === 1 && (
           <form onSubmit={handleNext} className="space-y-4 sm:space-y-5">
             
-            {/* Promoter ID Section */}
-            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5 transition hover:shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
-                <div>
-                  <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
-                    <User className="w-4 h-4 text-[#7f8f55]" />
-                    <span>Promoter ID <span className="text-red-500">*</span></span>
-                  </label>
-                  <p className="text-[11px] text-[#374011]/60 mt-0.5 font-medium">
-                    Enter your authorized promoter ID to place your order
-                  </p>
-                </div>
+            {/* Promoter ID Section (Ultra-Compact Height) */}
+            <div className="bg-white rounded-xl border border-[#d8dec2] shadow-2xs px-3.5 sm:px-4 py-2 sm:py-2.5 transition">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5 flex-shrink-0">
+                  <User className="w-3.5 h-3.5 text-[#7f8f55]" />
+                  <span>Promoter ID <span className="text-red-500">*</span></span>
+                </label>
 
-                <div className="w-full sm:w-72 flex-shrink-0">
+                <div className="w-full sm:w-64 md:w-72 flex-shrink-0">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7f8f55]">
-                      <Hash className="w-4 h-4" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
+                      <Hash className="w-3.5 h-3.5" />
                     </div>
                     <input
                       id="promoter-id"
@@ -559,7 +550,7 @@ export default function CustomerOrderForm() {
                         if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
                       }}
                       placeholder="e.g. PR-1001"
-                      className={`h-11 w-full pl-9.5 pr-8 rounded-xl border text-sm font-semibold tracking-wide text-[#374011] bg-white placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 transition shadow-2xs ${
+                      className={`h-9 w-full pl-8 pr-7 rounded-lg border text-xs sm:text-sm font-semibold text-[#374011] bg-white placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 transition shadow-2xs ${
                         errors.promoterId 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                           : promoterId.trim()
@@ -568,14 +559,14 @@ export default function CustomerOrderForm() {
                       }`}
                     />
                     {promoterId.trim() && (
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#7f8f55]">
-                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-[#7f8f55]">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                       </div>
                     )}
                   </div>
                   {errors.promoterId && (
-                    <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1 font-medium">
+                      <AlertCircle className="w-3 h-3 flex-shrink-0" />
                       <span>{errors.promoterId}</span>
                     </p>
                   )}
@@ -726,41 +717,7 @@ export default function CustomerOrderForm() {
               )}
             </div>
 
-            {/* Bottom Checkout Navigation Card */}
-            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#d8dec2]/50 border border-[#a9b48a]/50 text-[#7f8f55] flex items-center justify-center flex-shrink-0 shadow-2xs">
-                  <ShoppingBag className="w-5 h-5 text-[#7f8f55]" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
-                    Order Summary
-                  </span>
-                  <p className="text-sm font-semibold text-[#374011]">
-                    {totalQuantity > 0 ? (
-                      <span>
-                        <span className="font-bold text-[#7f8f55]">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-black text-[#374011] text-base">{formatINR(totalAmount)}</span>
-                      </span>
-                    ) : (
-                      <span className="text-[#374011]/50 text-xs">No products added yet. Select products above to proceed.</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loadingProducts || products.length === 0}
-                className={`w-full sm:w-auto h-11 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
-                  totalQuantity === 0 || !promoterId.trim()
-                    ? 'bg-[#7f8f55]/70 hover:bg-[#7f8f55] text-white cursor-pointer'
-                    : 'bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white hover:shadow-md active:scale-[0.99]'
-                }`}
-              >
-                <span>Continue to Address Details</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
-            </div>
+            
 
           </form>
         )}
@@ -1414,33 +1371,53 @@ export default function CustomerOrderForm() {
               </div>
             )}
 
-            {/* Floating Pill Trigger Widget */}
-            <button
-              type="button"
-              onClick={handleFloatingClick}
-              className="flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-lg hover:shadow-xl shadow-[#7f8f55]/30 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/50 active:scale-95 group text-xs sm:text-sm"
-              aria-expanded={isSummaryExpanded}
-              title="View order summary"
-            >
-              <div className="relative flex items-center justify-center">
-                <ShoppingBag className="w-4 h-4 text-white transition-transform group-hover:scale-110" />
-                <span className="absolute -top-1.5 -right-2 bg-[#d8dec2] text-[#374011] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#7f8f55] shadow-2xs">
-                  {totalQuantity}
-                </span>
-              </div>
+            {/* Floating Unified Action Bar: Order Item & Total Button + Attached Continue Button */}
+            <div className="flex items-center bg-white/95 backdrop-blur-md rounded-full border border-[#d8dec2] shadow-xl p-1 sm:p-1.5 gap-1.5 ring-2 ring-[#7f8f55]/20 select-none">
+              
+              {/* Your Order Item & Total Button (Click/Hover to toggle summary popover) */}
+              <button
+                type="button"
+                onClick={handleFloatingClick}
+                className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold"
+                aria-expanded={isSummaryExpanded}
+                title="Click to view order items breakdown"
+              >
+                <div className="relative flex items-center justify-center">
+                  <ShoppingBag className="w-4 h-4 text-[#7f8f55]" />
+                  <span className="absolute -top-1.5 -right-2 bg-[#7f8f55] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-2xs">
+                    {totalQuantity}
+                  </span>
+                </div>
 
-              <div className="flex items-center gap-1.5 font-bold tracking-tight">
-                <span>{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
-                <span className="text-[#d8dec2] font-light">|</span>
-                <span className="font-mono font-black tracking-tight">
-                  {formatINR(totalAmount)}
-                </span>
-              </div>
+                <div className="flex items-center gap-1.5 font-bold tracking-tight">
+                  <span className="hidden sm:inline">{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
+                  <span className="hidden sm:inline text-[#d8dec2]">|</span>
+                  <span className="font-mono font-black text-[#374011]">
+                    {formatINR(totalAmount)}
+                  </span>
+                </div>
 
-              <ChevronUp 
-                className={`w-3.5 h-3.5 text-[#d8dec2] transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
-              />
-            </button>
+                <ChevronUp 
+                  className={`w-3.5 h-3.5 text-[#7f8f55] transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
+                />
+              </button>
+
+              {/* Continue to Address Button directly attached - Click without scrolling! */}
+              {step === 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSummaryExpanded(false);
+                    handleNext();
+                  }}
+                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-md hover:shadow-lg shadow-[#7f8f55]/25 font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap"
+                >
+                  <span>Continue to Address</span>
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                </button>
+              )}
+            </div>
           </div>
         </>
       )}
