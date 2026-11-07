@@ -426,7 +426,10 @@ export default function CustomerOrderForm() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col font-sans relative pb-28 sm:pb-32">
+    <div className="w-full min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col font-sans relative pb-28 sm:pb-32 overflow-x-hidden">
+      
+      {/* Soft Ambient Top Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[280px] bg-gradient-to-b from-[#d8dec2]/35 via-[#d8dec2]/10 to-transparent pointer-events-none blur-3xl" />
       
       {/* Toast Feedback Notification (Positioned safe above floating widget) */}
       {toast && (
@@ -441,7 +444,7 @@ export default function CustomerOrderForm() {
       )}
 
       {/* Header Bar */}
-      <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
+      <header className="bg-white/95 backdrop-blur-md border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-14 sm:h-16 flex items-center justify-between">
           <a 
             href="/" 
@@ -455,7 +458,11 @@ export default function CustomerOrderForm() {
             />
           </a>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs font-semibold shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f4f6ee] border border-[#d8dec2] text-[#374011] text-xs font-semibold shadow-2xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7f8f55] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7f8f55]"></span>
+            </span>
             <ShieldCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
             <span>100% Ayurvedic & Verified</span>
           </div>
@@ -467,47 +474,36 @@ export default function CustomerOrderForm() {
         
         {/* Step Progress Indicator (Two-Step Checkout) */}
         {step < 3 && (
-          <div className="mb-6 max-w-sm mx-auto px-2">
-            <div className="flex items-center justify-center gap-3 sm:gap-4">
-              {/* Step 1 Node */}
-              <div className="flex items-center gap-2">
-                <div 
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${
-                    step === 1 
-                      ? 'bg-[#7f8f55] text-white ring-4 ring-[#7f8f55]/20 shadow-xs' 
-                      : 'bg-[#7f8f55] text-white'
-                  }`}
-                >
-                  {step > 1 ? <Check className="w-4 h-4 stroke-[2.5]" /> : '1'}
-                </div>
-                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 1 ? 'text-[#374011]' : 'text-[#374011]/60'}`}>
-                  1. Product Details
+          <div className="mb-6 max-w-sm mx-auto">
+            <div className="bg-white/90 backdrop-blur-xs p-1 rounded-full border border-[#d8dec2] shadow-2xs flex items-center justify-between">
+              <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                step === 1 
+                  ? 'bg-[#7f8f55] text-white shadow-xs' 
+                  : 'text-[#7f8f55]'
+              }`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  step === 1 ? 'bg-white/20 text-white' : 'bg-[#d8dec2]/60 text-[#374011]'
+                }`}>
+                  {step > 1 ? <Check className="w-3 h-3 stroke-[2.5]" /> : '1'}
                 </span>
+                <span>Product Details</span>
               </div>
 
-              {/* Connecting Line */}
-              <div className="w-10 sm:w-16 h-0.5 bg-[#d8dec2] rounded-full overflow-hidden">
-                <div 
-                  className={`h-full bg-[#7f8f55] transition-all duration-300 ${
-                    step > 1 ? 'w-full' : 'w-0'
-                  }`}
-                />
+              <div className="w-8 h-0.5 bg-[#d8dec2] rounded-full mx-1 overflow-hidden">
+                <div className={`h-full bg-[#7f8f55] transition-all duration-300 ${step > 1 ? 'w-full' : 'w-0'}`} />
               </div>
 
-              {/* Step 2 Node */}
-              <div className="flex items-center gap-2">
-                <div 
-                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${
-                    step === 2 
-                      ? 'bg-[#7f8f55] text-white ring-4 ring-[#7f8f55]/20 shadow-xs' 
-                      : 'bg-white border-2 border-[#d8dec2] text-[#374011]/40'
-                  }`}
-                >
+              <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                step === 2 
+                  ? 'bg-[#7f8f55] text-white shadow-xs' 
+                  : 'text-[#374011]/50'
+              }`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  step === 2 ? 'bg-white/20 text-white' : 'bg-[#d8dec2]/40 text-[#374011]/40'
+                }`}>
                   2
-                </div>
-                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 2 ? 'text-[#374011]' : 'text-[#374011]/40'}`}>
-                  2. Address Details
                 </span>
+                <span>Address Details</span>
               </div>
             </div>
           </div>
@@ -537,7 +533,7 @@ export default function CustomerOrderForm() {
           <form onSubmit={handleNext} className="space-y-4 sm:space-y-5">
             
             {/* Promoter ID Section */}
-            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5">
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5 transition hover:shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
                 <div>
                   <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
@@ -545,14 +541,14 @@ export default function CustomerOrderForm() {
                     <span>Promoter ID <span className="text-red-500">*</span></span>
                   </label>
                   <p className="text-[11px] text-[#374011]/60 mt-0.5 font-medium">
-                    Authorized promoter ID is required to place your order.
+                    Enter your authorized promoter ID to place your order
                   </p>
                 </div>
 
-                <div className="w-full sm:w-72 md:w-80 flex-shrink-0">
+                <div className="w-full sm:w-72 flex-shrink-0">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Hash className="w-4 h-4 text-[#7f8f55]/70" />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#7f8f55]">
+                      <Hash className="w-4 h-4" />
                     </div>
                     <input
                       id="promoter-id"
@@ -563,12 +559,19 @@ export default function CustomerOrderForm() {
                         if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
                       }}
                       placeholder="e.g. PR-1001"
-                      className={`h-10 sm:h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
+                      className={`h-11 w-full pl-9.5 pr-8 rounded-xl border text-sm font-semibold tracking-wide text-[#374011] bg-white placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-2 transition shadow-2xs ${
                         errors.promoterId 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : promoterId.trim()
+                          ? 'border-[#7f8f55] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                           : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                       }`}
                     />
+                    {promoterId.trim() && (
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-[#7f8f55]">
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                    )}
                   </div>
                   {errors.promoterId && (
                     <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1 font-medium">
@@ -587,8 +590,9 @@ export default function CustomerOrderForm() {
                   <Package className="w-4 h-4 text-[#7f8f55]" />
                   <span>Select Products <span className="text-red-500">*</span></span>
                 </h2>
-                <span className="text-xs text-[#374011]/70 font-semibold">
-                  {products.length} {products.length === 1 ? 'product' : 'products'} available
+                <span className="inline-flex items-center gap-1.5 text-xs text-[#374011]/80 font-semibold bg-[#d8dec2]/40 px-2.5 py-0.5 rounded-full border border-[#a9b48a]/40">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#7f8f55]" />
+                  {products.length} Formulations Available
                 </span>
               </div>
 
@@ -616,15 +620,21 @@ export default function CustomerOrderForm() {
                     return (
                       <div 
                         key={prod.id} 
-                        className={`flex flex-col justify-between h-full rounded-2xl border transition-all duration-200 p-3.5 sm:p-4 bg-white ${
+                        className={`group relative flex flex-col justify-between h-full rounded-2xl border transition-all duration-300 p-3.5 sm:p-4 bg-white ${
                           isSelected 
-                            ? 'border-[#7f8f55] ring-2 ring-[#7f8f55]/25 bg-[#f4f6ee]/40 shadow-xs' 
-                            : 'border-[#d8dec2] hover:border-[#a9b48a] hover:shadow-md'
+                            ? 'border-[#7f8f55] ring-2 ring-[#7f8f55]/30 bg-gradient-to-b from-white via-white to-[#f4f6ee]/40 shadow-sm' 
+                            : 'border-[#d8dec2] hover:border-[#a9b48a] hover:shadow-lg hover:-translate-y-0.5'
                         }`}
                       >
                         <div>
-                          {/* Product Image Container (Compact height, clear display) */}
-                          <div className="w-full h-32 sm:h-36 rounded-xl bg-[#f4f6ee] border border-[#d8dec2]/60 flex items-center justify-center p-2 mb-2.5 overflow-hidden group">
+                          {/* Product Image Container */}
+                          <div className="relative w-full h-36 sm:h-40 rounded-xl bg-gradient-to-b from-[#f8f9f4] via-[#f4f6ee] to-[#ebeece]/40 border border-[#d8dec2]/60 flex items-center justify-center p-3 mb-3 overflow-hidden">
+                            {/* Botanical Badge */}
+                            <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/90 backdrop-blur-xs text-[#374011] border border-[#d8dec2]/80 shadow-2xs">
+                              <Leaf className="w-2.5 h-2.5 text-[#7f8f55]" />
+                              <span>100% Herbal</span>
+                            </span>
+
                             <img
                               src={getImageUrl(prod.image_url)}
                               alt={prod.name}
@@ -637,7 +647,7 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Product Name */}
-                          <div className="h-10 mb-1 flex items-start">
+                          <div className="min-h-[2.5rem] mb-1.5 flex items-start">
                             <h3 
                               className="text-sm font-bold text-[#374011] leading-snug line-clamp-2" 
                               title={prod.name}
@@ -647,46 +657,46 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Price in INR */}
-                          <div className="h-6 flex items-baseline gap-1 mb-2.5">
-                            <span className="text-base sm:text-lg font-black text-[#374011] font-mono">
+                          <div className="flex items-baseline gap-1.5 mb-3">
+                            <span className="text-lg sm:text-xl font-black text-[#374011] font-mono tracking-tight">
                               {formatINR(prod.price)}
                             </span>
-                            <span className="text-xs text-[#374011]/60 font-medium">/ unit</span>
+                            <span className="text-xs text-[#374011]/60 font-semibold">/ unit</span>
                           </div>
                         </div>
 
                         {/* Action Slot & Subtotal */}
-                        <div className="pt-2.5 border-t border-[#d8dec2]/70 mt-auto">
+                        <div className="pt-3 border-t border-[#d8dec2]/70 mt-auto">
                           {isSelected ? (
-                            <div className="space-y-1.5">
+                            <div className="space-y-2">
                               {/* Subtotal calculation for each selected product */}
                               <div className="flex items-center justify-between text-xs px-0.5 text-[#374011]">
-                                <span className="font-semibold">Subtotal:</span>
-                                <span className="font-mono font-bold text-[#7f8f55]">
+                                <span className="font-semibold text-[#374011]/70">Subtotal:</span>
+                                <span className="font-mono font-bold text-sm text-[#7f8f55]">
                                   {formatINR(prod.price * existing.quantity)}
                                 </span>
                               </div>
 
                               {/* Stepper with plus and minus buttons */}
-                              <div className="w-full h-9.5 flex items-center justify-between border border-[#7f8f55]/40 rounded-xl overflow-hidden bg-[#d8dec2]/25 shadow-2xs">
+                              <div className="w-full h-10 flex items-center justify-between border border-[#7f8f55]/40 rounded-xl overflow-hidden bg-[#d8dec2]/30 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                  className="w-9 h-full flex items-center justify-center bg-[#d8dec2]/60 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
+                                  className="w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Decrease quantity"
                                 >
-                                  <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                  <Minus className="w-4 h-4 stroke-[2.5]" />
                                 </button>
-                                <span className="flex-1 text-center font-bold font-mono text-xs text-[#374011]">
+                                <span className="flex-1 text-center font-bold font-mono text-xs sm:text-sm text-[#374011]">
                                   {existing.quantity} in order
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                  className="w-9 h-full flex items-center justify-center bg-[#d8dec2]/60 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
+                                  className="w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Increase quantity"
                                 >
-                                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                  <Plus className="w-4 h-4 stroke-[2.5]" />
                                 </button>
                               </div>
                             </div>
@@ -694,9 +704,9 @@ export default function CustomerOrderForm() {
                             <button
                               type="button"
                               onClick={() => handleAddItem(prod.id)}
-                              className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
+                              className="w-full h-10 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.98]"
                             >
-                              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <Plus className="w-4 h-4 stroke-[2.5]" />
                               <span>Add to Order</span>
                             </button>
                           )}
@@ -717,33 +727,38 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Bottom Checkout Navigation Card */}
-            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3.5 mt-6">
-              <div>
-                <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
-                  Current Selection
-                </span>
-                <p className="text-xs sm:text-sm font-semibold text-[#374011] mt-0.5">
-                  {totalQuantity > 0 ? (
-                    <span>
-                      <span className="font-bold text-[#7f8f55]">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-black text-[#374011]">{formatINR(totalAmount)}</span>
-                    </span>
-                  ) : (
-                    <span className="text-[#374011]/50">No products added yet. Select products above to proceed.</span>
-                  )}
-                </p>
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#d8dec2]/50 border border-[#a9b48a]/50 text-[#7f8f55] flex items-center justify-center flex-shrink-0 shadow-2xs">
+                  <ShoppingBag className="w-5 h-5 text-[#7f8f55]" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
+                    Order Summary
+                  </span>
+                  <p className="text-sm font-semibold text-[#374011]">
+                    {totalQuantity > 0 ? (
+                      <span>
+                        <span className="font-bold text-[#7f8f55]">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-black text-[#374011] text-base">{formatINR(totalAmount)}</span>
+                      </span>
+                    ) : (
+                      <span className="text-[#374011]/50 text-xs">No products added yet. Select products above to proceed.</span>
+                    )}
+                  </p>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loadingProducts || products.length === 0}
-                className={`w-full sm:w-auto h-11 px-5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
+                className={`w-full sm:w-auto h-11 px-6 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
                   totalQuantity === 0 || !promoterId.trim()
                     ? 'bg-[#7f8f55]/70 hover:bg-[#7f8f55] text-white cursor-pointer'
-                    : 'bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white hover:shadow active:scale-[0.99]'
+                    : 'bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white hover:shadow-md active:scale-[0.99]'
                 }`}
               >
                 <span>Continue to Address Details</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
