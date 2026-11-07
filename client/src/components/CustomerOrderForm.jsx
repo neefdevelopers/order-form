@@ -414,7 +414,7 @@ export default function CustomerOrderForm() {
       
       {/* Toast Feedback Notification (Positioned safe above floating widget) */}
       {toast && (
-        <div className="fixed bottom-24 right-5 sm:bottom-24 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#374011] text-white text-xs sm:text-sm font-medium shadow-2xl border border-[#7f8f55]/40 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#374011] text-white text-xs sm:text-sm font-medium shadow-2xl border border-[#7f8f55]/40 animate-in fade-in slide-in-from-bottom-3 duration-200 whitespace-nowrap">
           {toast.type === 'error' ? (
             <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
           ) : (
@@ -1105,12 +1105,12 @@ export default function CustomerOrderForm() {
 
           <div
             id="floating-order-summary-container"
-            className="fixed bottom-0 inset-x-0 w-full sm:bottom-6 sm:right-6 sm:inset-x-auto sm:w-auto z-40 select-none bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-0 border-[#d8dec2] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:shadow-none px-3.5 sm:px-0 py-2.5 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
+            className="fixed bottom-0 inset-x-0 w-full sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:w-auto z-40 select-none bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-0 border-[#d8dec2] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:shadow-none px-3.5 sm:px-0 py-2.5 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
           >
-            {/* Expanded Popover (Above the Widget, 280–320px width on desktop, full-card drawer on mobile) */}
+            {/* Expanded Popover (Above the Widget, centered on desktop, full-card drawer on mobile) */}
             {isSummaryExpanded && (
               <div 
-                className="absolute bottom-full mb-2.5 sm:mb-3 bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50 text-[#374011] left-3 right-3 sm:left-auto sm:right-0 w-auto sm:w-[320px] max-w-none sm:max-w-[340px]"
+                className="absolute bottom-full mb-2.5 sm:mb-3 bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50 text-[#374011] left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto w-auto sm:w-[340px] max-w-none sm:max-w-[360px]"
               >
                 {/* Popover Header */}
                 <div className="bg-[#d8dec2]/35 px-3.5 py-2.5 border-b border-[#d8dec2] flex items-center justify-between">
@@ -1283,13 +1283,13 @@ export default function CustomerOrderForm() {
               </div>
             )}
 
-            {/* Action Bar: Order Items & Total Button + Attached Action Buttons */}
-            <div className="flex items-center justify-between gap-2 sm:gap-2.5 max-w-[940px] mx-auto w-full sm:bg-white/95 sm:backdrop-blur-md sm:rounded-full sm:border sm:border-[#d8dec2] sm:shadow-xl sm:p-1.5 sm:ring-2 sm:ring-[#7f8f55]/20 sm:w-auto">
+            {/* Action Bar: Order Items & Total Button + Attached Action Buttons (Centered) */}
+            <div className="flex items-center justify-center gap-2 sm:gap-2.5 max-w-lg sm:max-w-none mx-auto w-full sm:w-auto sm:bg-white/95 sm:backdrop-blur-md sm:rounded-full sm:border sm:border-[#d8dec2] sm:shadow-xl sm:p-1.5 sm:ring-2 sm:ring-[#7f8f55]/20">
               {/* Your Order Items & Total Button (Click to toggle summary popover) */}
               <button
                 type="button"
                 onClick={handleFloatingClick}
-                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold flex-shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold flex-shrink-0"
                 aria-expanded={isSummaryExpanded}
                 title="Click to view order items breakdown"
               >
@@ -1333,7 +1333,7 @@ export default function CustomerOrderForm() {
 
               {/* Step 2: Back Button & Confirm Order Button directly attached to item button */}
               {step === 2 && (
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial justify-end">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial justify-center">
                   {/* Attached Back Button */}
                   <button
                     type="button"
