@@ -56,7 +56,6 @@ export default function CustomerOrderForm() {
 
   // Floating Order Widget Popover state
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
-  const hoverTimeoutRef = useRef(null);
 
   // Step 2 fields
   const [fullName, setFullName] = useState('');
@@ -182,25 +181,7 @@ export default function CustomerOrderForm() {
     return '₹' + Number(val || 0).toLocaleString('en-IN');
   };
 
-  // Hover handlers for floating widget
-  const handleFloatingMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setIsSummaryExpanded(true);
-  };
-
-  const handleFloatingMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    // 260ms delay ensures seamless cursor transit between trigger pill and popover body
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsSummaryExpanded(false);
-    }, 260);
-  };
-
+  // Toggle floating order summary popover on click
   const handleFloatingClick = (e) => {
     e.stopPropagation();
     setIsSummaryExpanded((prev) => !prev);
@@ -1230,14 +1211,20 @@ export default function CustomerOrderForm() {
 
           <div
             id="floating-order-summary-container"
-            onMouseEnter={handleFloatingMouseEnter}
-            onMouseLeave={handleFloatingMouseLeave}
-            className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none"
+            className={
+              step === 1
+                ? "fixed bottom-0 inset-x-0 w-full sm:bottom-6 sm:right-6 sm:inset-x-auto sm:w-auto z-40 select-none bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-0 border-[#d8dec2] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:shadow-none px-3.5 sm:px-0 py-2.5 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
+                : "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 select-none"
+            }
           >
-            {/* Expanded Popover (Above the Widget, 280–320px width) */}
+            {/* Expanded Popover (Above the Widget, 280–320px width on desktop, full-card drawer on mobile) */}
             {isSummaryExpanded && (
               <div 
-                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-1.75rem)] sm:w-[310px] max-w-[320px] bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-[#374011]"
+                className={`absolute bottom-full mb-2.5 sm:mb-3 bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50 text-[#374011] ${
+                  step === 1 
+                    ? 'left-3 right-3 sm:left-auto sm:right-0 w-auto sm:w-[310px] max-w-none sm:max-w-[320px]' 
+                    : 'right-0 w-[calc(100vw-2rem)] sm:w-[310px] max-w-[320px]'
+                }`}
               >
                 {/* Popover Header */}
                 <div className="bg-[#d8dec2]/35 px-3.5 py-2.5 border-b border-[#d8dec2] flex items-center justify-between">
@@ -1259,7 +1246,7 @@ export default function CustomerOrderForm() {
                       e.stopPropagation();
                       setIsSummaryExpanded(false);
                     }}
-                    className="p-1 rounded-md text-slate-400 hover:text-[#374011] hover:bg-[#d8dec2]/50 transition"
+                    className="p-1 rounded-md text-slate-400 hover:text-[#374011] hover:bg-[#d8dec2]/50 transition cursor-pointer"
                     title="Close summary"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -1361,7 +1348,7 @@ export default function CustomerOrderForm() {
                         setIsSummaryExpanded(false);
                         handleNext();
                       }}
-                      className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
+                      className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99] cursor-pointer"
                     >
                       <span>Continue to Address Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1371,34 +1358,41 @@ export default function CustomerOrderForm() {
               </div>
             )}
 
-            {/* Floating Unified Action Bar: Order Item & Total Button + Attached Continue Button */}
-            <div className="flex items-center bg-white/95 backdrop-blur-md rounded-full border border-[#d8dec2] shadow-xl p-1 sm:p-1.5 gap-1.5 ring-2 ring-[#7f8f55]/20 select-none">
-              
-              {/* Your Order Item & Total Button (Click/Hover to toggle summary popover) */}
+            {/* Action Bar: Order Items & Total Button + Attached Continue Button */}
+            <div 
+              className={
+                step === 1
+                  ? "flex items-center justify-between gap-2.5 max-w-[940px] mx-auto w-full sm:bg-white/95 sm:backdrop-blur-md sm:rounded-full sm:border sm:border-[#d8dec2] sm:shadow-xl sm:p-1.5 sm:gap-1.5 sm:ring-2 sm:ring-[#7f8f55]/20 sm:w-auto"
+                  : "flex items-center bg-white/95 backdrop-blur-md rounded-full border border-[#d8dec2] shadow-xl p-1 sm:p-1.5 gap-1.5 ring-2 ring-[#7f8f55]/20 select-none"
+              }
+            >
+              {/* Your Order Items & Total Button (Click to toggle summary popover) */}
               <button
                 type="button"
                 onClick={handleFloatingClick}
-                className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold"
+                className="flex items-center gap-2 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold flex-shrink-0"
                 aria-expanded={isSummaryExpanded}
                 title="Click to view order items breakdown"
               >
-                <div className="relative flex items-center justify-center">
+                <div className="relative flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto rounded-full bg-[#f4f6ee] sm:bg-transparent border border-[#d8dec2]/60 sm:border-0 flex-shrink-0">
                   <ShoppingBag className="w-4 h-4 text-[#7f8f55]" />
-                  <span className="absolute -top-1.5 -right-2 bg-[#7f8f55] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-2xs">
+                  <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-2 bg-[#7f8f55] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-2xs">
                     {totalQuantity}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 font-bold tracking-tight">
-                  <span className="hidden sm:inline">{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-1.5 leading-tight sm:leading-normal text-left">
+                  <span className="text-[10px] sm:text-xs text-[#7f8f55] sm:text-[#374011] font-bold">
+                    {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                  </span>
                   <span className="hidden sm:inline text-[#d8dec2]">|</span>
-                  <span className="font-mono font-black text-[#374011]">
+                  <span className="font-mono font-black text-[#374011] text-sm">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
 
                 <ChevronUp 
-                  className={`w-3.5 h-3.5 text-[#7f8f55] transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
+                  className={`w-3.5 h-3.5 text-[#7f8f55] transition-transform duration-200 ml-0.5 sm:ml-0 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
                 />
               </button>
 
@@ -1411,7 +1405,7 @@ export default function CustomerOrderForm() {
                     setIsSummaryExpanded(false);
                     handleNext();
                   }}
-                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-md hover:shadow-lg shadow-[#7f8f55]/25 font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-10 sm:h-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-md hover:shadow-lg shadow-[#7f8f55]/25 font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap"
                 >
                   <span>Continue to Address</span>
                   <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
