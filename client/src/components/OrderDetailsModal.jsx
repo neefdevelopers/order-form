@@ -55,13 +55,20 @@ export default function OrderDetailsModal({ order, onClose }) {
       <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-[#d8dec2] flex items-center justify-between bg-[#d8dec2]/25 flex-shrink-0">
-          <div>
-            <h3 className="text-base font-bold text-[#374011]">
-              Order Details
-            </h3>
-            <p className="text-xs text-[#374011]/70">
-              Submitted on {formattedDate()}
-            </p>
+          <div className="flex items-center gap-2.5">
+            <img 
+              src="/dhaara-logo.png" 
+              alt="Dhaara Wellness" 
+              className="w-8 h-8 rounded-lg object-cover bg-black flex-shrink-0 shadow-2xs ring-1 ring-black/10" 
+            />
+            <div>
+              <h3 className="text-base font-bold text-[#374011] leading-tight">
+                Order Details
+              </h3>
+              <p className="text-xs text-[#374011]/70">
+                Submitted on {formattedDate()}
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}

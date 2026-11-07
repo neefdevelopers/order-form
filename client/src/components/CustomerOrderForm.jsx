@@ -488,15 +488,19 @@ export default function CustomerOrderForm() {
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
         <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-15 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#7f8f55] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-              <Leaf className="w-5 h-5 fill-white/20" />
-            </div>
-            <div>
-              <span className="font-black text-[#374011] text-base sm:text-lg tracking-tight block leading-tight">
-                Dhaara Herbal
-              </span>
-              <span className="text-[11px] font-semibold text-[#7f8f55] tracking-wide block leading-none">
-                Hair Oil Ordering Portal
+            <img 
+              src="/dhaara-logo.png" 
+              alt="Dhaara Wellness" 
+              className="w-10 h-10 rounded-xl object-cover bg-black flex-shrink-0 shadow-xs ring-1 ring-black/10" 
+            />
+            <div className="flex flex-col justify-center">
+              <img 
+                src="/dhaara-logo-dark.png" 
+                alt="dhaara wellness" 
+                className="h-5 sm:h-5.5 w-auto object-contain object-left" 
+              />
+              <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
+                Product Ordering Portal
               </span>
             </div>
           </div>
@@ -1187,9 +1191,22 @@ export default function CustomerOrderForm() {
           <div className="max-w-md mx-auto space-y-4">
             <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-sm p-5 sm:p-7 text-center space-y-4">
               
-              {/* Herbal Green Success Checkmark Icon */}
-              <div className="w-14 h-14 rounded-full bg-[#d8dec2]/50 text-[#7f8f55] mx-auto flex items-center justify-center border border-[#a9b48a] shadow-2xs">
-                <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
+              {/* Brand Logo & Herbal Green Success Checkmark */}
+              <div className="flex flex-col items-center gap-2.5">
+                <img 
+                  src="/dhaara-logo.png" 
+                  alt="Dhaara Wellness" 
+                  className="w-14 h-14 rounded-2xl object-cover bg-black shadow-sm ring-4 ring-[#d8dec2]" 
+                />
+                <img 
+                  src="/dhaara-logo-dark.png" 
+                  alt="dhaara wellness" 
+                  className="h-5.5 w-auto object-contain" 
+                />
+              </div>
+
+              <div className="w-12 h-12 rounded-full bg-[#d8dec2]/50 text-[#7f8f55] mx-auto flex items-center justify-center border border-[#a9b48a] shadow-2xs">
+                <CheckCircle2 className="w-7 h-7 stroke-[2.2]" />
               </div>
 
               <div>
@@ -1197,7 +1214,7 @@ export default function CustomerOrderForm() {
                   Order Placed Successfully!
                 </h2>
                 <p className="text-xs text-[#374011]/70 mt-1 font-medium">
-                  Thank you for ordering Dhaara Herbal Hair Oil. Your order has been recorded.
+                  Thank you for ordering with Dhaara Wellness. Your order has been recorded.
                 </p>
               </div>
 

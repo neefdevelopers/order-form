@@ -58,14 +58,21 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
       <div className="w-full max-w-md mx-auto">
         {/* Brand / Security Badge Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#7f8f55] text-white mb-3.5 shadow-md ring-4 ring-[#d8dec2]">
-            <ShieldCheck className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center mb-3">
+            <img 
+              src="/dhaara-logo.png" 
+              alt="Dhaara Wellness" 
+              className="w-16 h-16 rounded-2xl object-cover bg-black shadow-md ring-4 ring-[#d8dec2]" 
+            />
           </div>
-          <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#7f8f55] tracking-wider uppercase mb-1">
-            <Leaf className="w-3.5 h-3.5 fill-current" />
-            <span>Dhaara Herbal Admin</span>
+          <div className="flex items-center justify-center mb-1.5">
+            <img 
+              src="/dhaara-logo-dark.png" 
+              alt="dhaara wellness" 
+              className="h-6 w-auto object-contain" 
+            />
           </div>
-          <h2 className="text-2xl font-bold text-[#374011] tracking-tight">
+          <h2 className="text-xl font-bold text-[#374011] tracking-tight">
             Administrator Portal
           </h2>
           <p className="text-xs text-[#374011]/70 mt-1">
