@@ -487,15 +487,12 @@ export default function CustomerOrderForm() {
       {/* Header Bar */}
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
         <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-15 flex items-center justify-between">
-          <div className="flex flex-col justify-center">
+          <div className="flex items-center">
             <img 
               src="/dhaara-logo-dark.png" 
               alt="dhaara wellness" 
-              className="h-6 sm:h-7 w-auto object-contain object-left" 
+              className="h-7 sm:h-8 w-auto object-contain" 
             />
-            <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
-              Product Ordering Portal
-            </span>
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs font-semibold">

@@ -20,16 +20,13 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
-            {/* Left Brand & Title */}
-            <div className="flex flex-col justify-center">
+            {/* Left Brand */}
+            <div className="flex items-center">
               <img 
                 src="/dhaara-logo-dark.png" 
                 alt="dhaara wellness" 
-                className="h-5 sm:h-6 w-auto object-contain object-left" 
+                className="h-6 sm:h-7 w-auto object-contain" 
               />
-              <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
-                Admin Panel
-              </span>
             </div>
 
             {/* Middle Desktop Tabs (hidden on mobile, visible on sm and up) */}

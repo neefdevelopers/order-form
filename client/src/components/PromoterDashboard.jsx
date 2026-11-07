@@ -161,20 +161,15 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Brand / Title */}
-            <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/dhaara-logo-dark.png" 
-                  alt="dhaara wellness" 
-                  className="h-5 sm:h-6 w-auto object-contain object-left" 
-                />
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#d8dec2]/60 text-[#374011] border border-[#a9b48a]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7f8f55]" />
-                  Promoter Portal
-                </span>
-              </div>
-              <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
-                Sales & Orders Dashboard
+            <div className="flex items-center gap-2.5">
+              <img 
+                src="/dhaara-logo-dark.png" 
+                alt="dhaara wellness" 
+                className="h-6 sm:h-7 w-auto object-contain object-left" 
+              />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#d8dec2]/60 text-[#374011] border border-[#a9b48a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7f8f55]" />
+                Promoter Portal
               </span>
             </div>
 
