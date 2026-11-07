@@ -18,14 +18,14 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
     <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col">
       {/* Top Admin Header Navigation */}
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+          <div className="flex items-center justify-between h-16 sm:h-18">
             {/* Left Brand */}
             <div className="flex items-center">
               <img 
                 src="/dhaara-logo-dark.png" 
                 alt="dhaara wellness" 
-                className="h-6 sm:h-7 w-auto object-contain" 
+                className="h-8 sm:h-9 md:h-10 w-auto object-contain" 
               />
             </div>
 
