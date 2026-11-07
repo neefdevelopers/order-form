@@ -441,7 +441,7 @@ export default function CustomerOrderForm() {
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f4f6ee] border border-[#d8dec2] text-[#374011] text-xs font-semibold shadow-2xs">
             <ShieldCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
-            <span>100% Ayurvedic & Verified</span>
+            <span>100% Ayurvedic</span>
           </div>
         </div>
       </header>
