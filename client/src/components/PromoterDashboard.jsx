@@ -159,15 +159,15 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
       {/* Top Header */}
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between h-16 sm:h-18">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Brand / Title */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <img 
                 src="/dhaara-logo-dark.png" 
                 alt="dhaara wellness" 
-                className="h-8 sm:h-9 md:h-10 w-auto object-contain object-left" 
+                className="h-6 sm:h-7 w-auto object-contain object-left" 
               />
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#d8dec2]/60 text-[#374011] border border-[#a9b48a]">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#d8dec2]/60 text-[#374011] border border-[#a9b48a]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#7f8f55]" />
                 Promoter Portal
               </span>

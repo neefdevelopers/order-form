@@ -486,7 +486,7 @@ export default function CustomerOrderForm() {
 
       {/* Header Bar */}
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-16 sm:h-18 md:h-20 flex items-center justify-between">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-14 sm:h-16 flex items-center justify-between">
           <a 
             href="/" 
             className="flex items-center transition-opacity hover:opacity-90 focus:outline-hidden"
@@ -495,12 +495,12 @@ export default function CustomerOrderForm() {
             <img 
               src="/dhaara-logo-dark.png" 
               alt="dhaara wellness" 
-              className="h-8 sm:h-9 md:h-10 lg:h-11 w-auto object-contain" 
+              className="h-6 sm:h-7 w-auto object-contain" 
             />
           </a>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs sm:text-sm font-semibold shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7f8f55]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs font-semibold shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
             <span>100% Ayurvedic & Verified</span>
           </div>
         </div>
