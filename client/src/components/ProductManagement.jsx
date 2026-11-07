@@ -219,7 +219,7 @@ export default function ProductManagement({ token }) {
       {/* Top toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl font-bold text-[#374011]">
             Product Management
           </h2>
         </div>
@@ -229,14 +229,14 @@ export default function ProductManagement({ token }) {
             onClick={fetchProducts}
             disabled={loading}
             title="Refresh Products"
-            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-xs disabled:opacity-50"
+            className="p-2.5 rounded-xl border border-[#d8dec2] bg-white text-[#374011] hover:bg-[#d8dec2]/30 transition shadow-xs disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           <button
             onClick={openAddModal}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 active:bg-blue-800 transition shadow-xs"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] active:bg-[#5c6a38] transition shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Add Product</span>
@@ -253,23 +253,23 @@ export default function ProductManagement({ token }) {
 
       {loading ? (
         <div className="py-16 text-center">
-          <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-500 font-medium">Loading products...</p>
+          <RefreshCw className="w-8 h-8 text-[#7f8f55] animate-spin mx-auto mb-3" />
+          <p className="text-xs text-[#374011]/70 font-medium">Loading products...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-slate-50 text-slate-400 mx-auto flex items-center justify-center mb-3">
+        <div className="bg-white rounded-2xl border border-[#d8dec2] p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#f4f6ee] text-[#7f8f55] mx-auto flex items-center justify-center mb-3">
             <Package className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-semibold text-slate-800">
+          <h3 className="text-sm font-semibold text-[#374011]">
             No products added yet
           </h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          <p className="text-xs text-[#374011]/70 mt-1 max-w-sm mx-auto">
             Click "Add Product" to add your first product to the catalog.
           </p>
           <button
             onClick={openAddModal}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] transition shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Product Now</span>
@@ -280,18 +280,18 @@ export default function ProductManagement({ token }) {
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition"
+              className="bg-white rounded-2xl border border-[#d8dec2] p-4 shadow-xs flex flex-col justify-between hover:border-[#a9b48a] transition"
             >
               <div>
                 {/* Product Image & Status Header */}
-                <div className="relative w-full h-44 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3 overflow-hidden mb-3.5">
+                <div className="relative w-full h-44 rounded-xl bg-[#f4f6ee] border border-[#d8dec2] flex items-center justify-center p-3 overflow-hidden mb-3.5">
                   <img
                     src={getImageUrl(product.image_url)}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%237f8f55" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
                     }}
                   />
 
@@ -299,13 +299,13 @@ export default function ProductManagement({ token }) {
                   <span
                     className={`absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border flex items-center gap-1 ${
                       product.is_active === 1
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        ? 'bg-[#d8dec2]/60 text-[#374011] border-[#a9b48a]'
+                        : 'bg-[#f4f6ee] text-[#374011]/60 border-[#d8dec2]'
                     }`}
                   >
                     <span 
                       className={`w-1.5 h-1.5 rounded-full ${
-                        product.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'
+                        product.is_active === 1 ? 'bg-[#7f8f55]' : 'bg-[#374011]/40'
                       }`} 
                     />
                     {product.is_active === 1 ? 'Active' : 'Inactive'}
@@ -313,23 +313,23 @@ export default function ProductManagement({ token }) {
                 </div>
 
                 {/* Product Name */}
-                <h3 className="font-semibold text-slate-900 text-sm line-clamp-2">
+                <h3 className="font-semibold text-[#374011] text-sm line-clamp-2">
                   {product.name}
                 </h3>
                 
                 {/* Product Price Tag */}
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-base font-bold text-slate-900 font-mono">
+                  <span className="text-base font-bold text-[#374011] font-mono">
                     {formatINR(product.price)}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-[#374011]/60 font-mono">
                     ID: #{product.id}
                   </span>
                 </div>
               </div>
 
               {/* Actions Footer */}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div className="mt-4 pt-3 border-t border-[#d8dec2]/60 flex items-center justify-between gap-2">
                 {/* Quick Toggle Active Button */}
                 <button
                   type="button"
@@ -337,18 +337,18 @@ export default function ProductManagement({ token }) {
                   title={product.is_active === 1 ? 'Deactivate product' : 'Activate product'}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1 transition ${
                     product.is_active === 1
-                      ? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                      ? 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
+                      : 'bg-[#d8dec2]/50 text-[#374011] border-[#a9b48a] hover:bg-[#d8dec2]'
                   }`}
                 >
                   {product.is_active === 1 ? (
                     <>
-                      <EyeOff className="w-3.5 h-3.5 text-slate-400" />
+                      <EyeOff className="w-3.5 h-3.5 text-[#374011]/60" />
                       <span>Deactivate</span>
                     </>
                   ) : (
                     <>
-                      <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                      <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />
                       <span>Activate</span>
                     </>
                   )}
@@ -359,7 +359,7 @@ export default function ProductManagement({ token }) {
                     type="button"
                     onClick={() => openEditModal(product)}
                     title="Edit Product"
-                    className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition"
+                    className="p-1.5 rounded-lg text-[#374011] hover:text-[#7f8f55] hover:bg-[#d8dec2]/40 border border-[#d8dec2] transition"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -368,7 +368,7 @@ export default function ProductManagement({ token }) {
                     type="button"
                     onClick={() => setDeletingProduct(product)}
                     title="Delete Product"
-                    className="p-1.5 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 transition"
+                    className="p-1.5 rounded-lg text-[#374011]/80 hover:text-red-600 hover:bg-red-50 border border-[#d8dec2] transition"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -383,15 +383,15 @@ export default function ProductManagement({ token }) {
       {/* ADD / EDIT PRODUCT MODAL                                 */}
       {/* ======================================================== */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
-              <h3 className="text-base font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-5 sm:px-6 py-4 border-b border-[#d8dec2] flex items-center justify-between bg-[#d8dec2]/25 flex-shrink-0">
+              <h3 className="text-base font-bold text-[#374011]">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h3>
               <button
                 onClick={closeModal}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                className="p-1 rounded-lg text-[#374011]/60 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -409,7 +409,7 @@ export default function ProductManagement({ token }) {
               <div>
                 <label 
                   htmlFor="product-name"
-                  className="block text-xs font-medium text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
                 >
                   Product Name <span className="text-red-500">*</span>
                 </label>
@@ -418,8 +418,8 @@ export default function ProductManagement({ token }) {
                   type="text"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  placeholder="e.g. Wireless Noise-Canceling Headphones"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                  placeholder="e.g. Dhaara Herbal Hair Oil 100ml"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
               </div>
 
@@ -427,12 +427,12 @@ export default function ProductManagement({ token }) {
               <div>
                 <label 
                   htmlFor="product-price"
-                  className="block text-xs font-medium text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
                 >
                   Product Price in INR (₹) <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 font-bold text-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55] font-bold text-sm">
                     ₹
                   </div>
                   <input
@@ -442,23 +442,23 @@ export default function ProductManagement({ token }) {
                     step="1"
                     value={productPrice}
                     onChange={(e) => setProductPrice(e.target.value)}
-                    placeholder="500"
-                    className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                    placeholder="349"
+                    className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition font-mono"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#374011]/60 mt-1">
                   This price will be displayed to customers and used for total calculation.
                 </p>
               </div>
 
               {/* Product Image Upload */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#374011] mb-1">
                   Product Image {!editingProduct && <span className="text-red-500">*</span>}
                 </label>
 
                 {previewUrl ? (
-                  <div className="relative w-full h-36 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-2 mb-2">
+                  <div className="relative w-full h-36 rounded-xl bg-[#f4f6ee] border border-[#d8dec2] overflow-hidden flex items-center justify-center p-2 mb-2">
                     <img
                       src={previewUrl}
                       alt="Preview"
@@ -470,7 +470,7 @@ export default function ProductManagement({ token }) {
                         setSelectedFile(null);
                         setPreviewUrl('');
                       }}
-                      className="absolute top-2 right-2 p-1 rounded-full bg-slate-900/60 text-white hover:bg-slate-900 transition"
+                      className="absolute top-2 right-2 p-1 rounded-full bg-[#374011]/70 text-white hover:bg-[#374011] transition"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -488,9 +488,9 @@ export default function ProductManagement({ token }) {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-2.5 px-3 rounded-lg border border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/50 hover:bg-blue-50/30 text-xs text-slate-600 flex items-center justify-center gap-2 transition"
+                  className="w-full py-2.5 px-3 rounded-xl border border-dashed border-[#a9b48a] hover:border-[#7f8f55] bg-[#f4f6ee]/60 hover:bg-[#d8dec2]/30 text-xs text-[#374011] font-medium flex items-center justify-center gap-2 transition"
                 >
-                  <Upload className="w-4 h-4 text-slate-500" />
+                  <Upload className="w-4 h-4 text-[#7f8f55]" />
                   <span>{previewUrl ? 'Change image file' : 'Upload product image (PNG, JPG, SVG)'}</span>
                 </button>
               </div>
@@ -502,21 +502,21 @@ export default function ProductManagement({ token }) {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                    className="w-4 h-4 rounded text-[#7f8f55] border-[#d8dec2] focus:ring-[#7f8f55]"
                   />
-                  <span className="text-xs font-medium text-slate-700">
+                  <span className="text-xs font-semibold text-[#374011]">
                     Product is active (visible in customer order form)
                   </span>
                 </label>
               </div>
 
               {/* Submit & Cancel Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#d8dec2]/60 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                  className="px-4 py-2 rounded-xl border border-[#d8dec2] text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition"
                 >
                   Cancel
                 </button>
@@ -524,7 +524,7 @@ export default function ProductManagement({ token }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] transition disabled:opacity-50 shadow-xs"
                 >
                   {saving ? (
                     <>
@@ -545,16 +545,16 @@ export default function ProductManagement({ token }) {
       {/* DELETE CONFIRMATION MODAL                                */}
       {/* ======================================================== */}
       {deletingProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm max-h-[90vh] overflow-y-auto p-5 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-sm max-h-[90vh] overflow-y-auto p-5 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-3">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-base font-bold text-[#374011]">
               Delete Product?
             </h3>
-            <p className="text-xs text-slate-500 mt-1.5">
-              Are you sure you want to delete <strong className="text-slate-700">"{deletingProduct.name}"</strong>? This action cannot be undone.
+            <p className="text-xs text-[#374011]/70 mt-1.5">
+              Are you sure you want to delete <strong className="text-[#374011]">"{deletingProduct.name}"</strong>? This action cannot be undone.
             </p>
 
             <div className="mt-5 flex items-center justify-center gap-2.5">
@@ -562,7 +562,7 @@ export default function ProductManagement({ token }) {
                 type="button"
                 onClick={() => setDeletingProduct(null)}
                 disabled={deleting}
-                className="flex-1 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="flex-1 py-2 rounded-xl border border-[#d8dec2] text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 Cancel
               </button>
@@ -570,7 +570,7 @@ export default function ProductManagement({ token }) {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition disabled:opacity-50"
+                className="flex-1 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition disabled:opacity-50 shadow-xs"
               >
                 {deleting ? 'Deleting...' : 'Yes, Delete'}
               </button>

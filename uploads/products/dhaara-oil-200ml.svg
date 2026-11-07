@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="oilGrad200" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a9b48a"/>
+      <stop offset="40%" stop-color="#7f8f55"/>
+      <stop offset="100%" stop-color="#374011"/>
+    </linearGradient>
+    <linearGradient id="capGrad200" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6d7d45"/>
+      <stop offset="50%" stop-color="#8c9c60"/>
+      <stop offset="100%" stop-color="#4d592a"/>
+    </linearGradient>
+    <filter id="softShadow2" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="5" stdDeviation="4" flood-color="#374011" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <!-- Background Aura -->
+  <circle cx="100" cy="105" r="75" fill="#f4f6ee" />
+  <circle cx="100" cy="105" r="62" fill="#d8dec2" opacity="0.6" />
+  
+  <!-- Bottle Group with shadow -->
+  <g filter="url(#softShadow2)">
+    <!-- Cap -->
+    <rect x="83" y="24" width="34" height="20" rx="3" fill="url(#capGrad200)" />
+    <!-- Neck -->
+    <path d="M86,44 L114,44 L120,64 L80,64 Z" fill="#7f8f55" opacity="0.8" />
+    <!-- Bottle Body (Taller & slightly wider) -->
+    <rect x="64" y="64" width="72" height="102" rx="16" fill="#ffffff" stroke="#7f8f55" stroke-width="2" />
+    <!-- Oil liquid inside -->
+    <rect x="68" y="74" width="64" height="88" rx="12" fill="url(#oilGrad200)" opacity="0.85" />
+    
+    <!-- Bottle Label -->
+    <rect x="71" y="86" width="58" height="54" rx="4" fill="#ffffff" stroke="#d8dec2" stroke-width="1.5" />
+    <!-- Label Brand Text & Leaf Motif -->
+    <path d="M100,92 C106,89 112,94 110,99 C105,105 98,103 100,92 Z" fill="#7f8f55" />
+    <path d="M100,92 C94,89 88,94 90,99 C95,105 102,103 100,92 Z" fill="#a9b48a" />
+    
+    <text x="100" y="112" font-family="-apple-system, sans-serif" font-size="8" font-weight="900" fill="#374011" text-anchor="middle" letter-spacing="0.5">DHAARA</text>
+    <text x="100" y="121" font-family="-apple-system, sans-serif" font-size="5.5" font-weight="700" fill="#7f8f55" text-anchor="middle">HERBAL HAIR OIL</text>
+    <text x="100" y="131" font-family="-apple-system, sans-serif" font-size="5" font-weight="700" fill="#374011" text-anchor="middle">200 ML • VALUE PACK</text>
+  </g>
+</svg>

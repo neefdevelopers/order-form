@@ -4,8 +4,7 @@ import {
   ShoppingCart, 
   LogOut, 
   ArrowLeft, 
-  ShieldCheck, 
-  Layers,
+  Leaf, 
   UserCheck
 } from 'lucide-react';
 import OrderManagement from './OrderManagement';
@@ -16,34 +15,37 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'promoters'
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col">
       {/* Top Admin Header Navigation */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Left Brand & Title */}
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#7f8f55] text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                <Leaf className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               </div>
               <div>
-                <h1 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                <span className="text-[10px] font-semibold text-[#7f8f55] uppercase tracking-wider block -mb-0.5">
+                  Dhaara Herbal
+                </span>
+                <h1 className="text-sm sm:text-base font-bold text-[#374011] leading-tight">
                   Admin Panel
                 </h1>
               </div>
             </div>
 
             {/* Middle Desktop Tabs (hidden on mobile, visible on sm and up) */}
-            <nav className="hidden sm:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/60">
+            <nav className="hidden sm:flex items-center p-1 bg-[#d8dec2]/35 rounded-xl border border-[#d8dec2]/80">
               <button
                 onClick={() => setActiveTab('orders')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'orders'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011] hover:bg-white/50'
                 }`}
               >
-                <ShoppingCart className="w-3.5 h-3.5" />
+                <ShoppingCart className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Orders</span>
               </button>
 
@@ -51,11 +53,11 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
                 onClick={() => setActiveTab('products')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'products'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011] hover:bg-white/50'
                 }`}
               >
-                <Package className="w-3.5 h-3.5" />
+                <Package className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Products</span>
               </button>
 
@@ -63,11 +65,11 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
                 onClick={() => setActiveTab('promoters')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'promoters'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011] hover:bg-white/50'
                 }`}
               >
-                <UserCheck className="w-3.5 h-3.5" />
+                <UserCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Promoters</span>
               </button>
             </nav>
@@ -77,7 +79,7 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
               <button
                 onClick={onNavigateToCustomer}
                 title="Return to Customer Order Form"
-                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition border border-transparent hover:border-slate-200"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-[#374011]/80 hover:text-[#7f8f55] hover:bg-[#d8dec2]/40 transition border border-transparent hover:border-[#d8dec2]"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">Customer Form</span>
@@ -87,7 +89,7 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
               <button
                 onClick={onLogout}
                 title="Sign out of Admin"
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#d8dec2] bg-white text-xs font-medium text-[#374011] hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Logout</span>
@@ -96,17 +98,17 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
           </div>
 
           {/* Mobile Bottom Navigation Bar (Visible only on < sm) */}
-          <div className="sm:hidden pb-2 pt-0.5 border-t border-slate-100">
-            <nav className="grid grid-cols-3 gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/60">
+          <div className="sm:hidden pb-2 pt-0.5 border-t border-[#d8dec2]/50">
+            <nav className="grid grid-cols-3 gap-1 p-1 bg-[#d8dec2]/35 rounded-xl border border-[#d8dec2]/80">
               <button
                 onClick={() => setActiveTab('orders')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'orders'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011]'
                 }`}
               >
-                <ShoppingCart className="w-3.5 h-3.5" />
+                <ShoppingCart className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Orders</span>
               </button>
 
@@ -114,11 +116,11 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
                 onClick={() => setActiveTab('products')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'products'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011]'
                 }`}
               >
-                <Package className="w-3.5 h-3.5" />
+                <Package className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Products</span>
               </button>
 
@@ -126,11 +128,11 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
                 onClick={() => setActiveTab('promoters')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
                   activeTab === 'promoters'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#374011] shadow-xs border border-[#d8dec2]'
+                    : 'text-[#374011]/70 hover:text-[#374011]'
                 }`}
               >
-                <UserCheck className="w-3.5 h-3.5" />
+                <UserCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
                 <span>Promoters</span>
               </button>
             </nav>

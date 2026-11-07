@@ -137,7 +137,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col font-sans">
       {/* Main Content View */}
       <div className="flex-1 flex flex-col">
         {view === 'promoter' ? (

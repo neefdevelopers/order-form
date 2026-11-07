@@ -98,11 +98,11 @@ if (promotersWithoutToken.length > 0) {
   }
 }
 
-// Ensure default products have real prices
+// Ensure products use Dhaara Herbal Hair Oil branding and authentic prices
 db.exec(`
-  UPDATE products SET price = 2499 WHERE name LIKE '%Headphones%' AND (price IS NULL OR price = 0 OR price = 500);
-  UPDATE products SET price = 1899 WHERE name LIKE '%Watch%' AND (price IS NULL OR price = 0 OR price = 500);
-  UPDATE products SET price = 799 WHERE name LIKE '%Mouse%' AND (price IS NULL OR price = 0 OR price = 500);
+  UPDATE products SET name = 'Dhaara Herbal Hair Oil (100ml)', price = 349, image_url = '/uploads/products/dhaara-oil-100ml.svg' WHERE id = 1 OR name LIKE '%Headphones%';
+  UPDATE products SET name = 'Dhaara Herbal Hair Oil (200ml)', price = 599, image_url = '/uploads/products/dhaara-oil-200ml.svg' WHERE id = 2 OR name LIKE '%Watch%';
+  UPDATE products SET name = 'Dhaara Herbal Hair Growth Combo (2x200ml)', price = 1099, image_url = '/uploads/products/dhaara-combo.svg' WHERE id = 3 OR name LIKE '%Mouse%';
 `);
 
 // Seed default products if empty
@@ -115,10 +115,10 @@ if (!countRow || countRow.count === 0) {
   `);
 
   const now = new Date().toISOString();
-  insertProduct.run('Wireless Noise-Canceling Headphones', 2499, '/uploads/products/headphones.svg', now, now);
-  insertProduct.run('Smart Fitness Watch', 1899, '/uploads/products/smartwatch.svg', now, now);
-  insertProduct.run('Ergonomic Wireless Mouse', 799, '/uploads/products/mouse.svg', now, now);
-  console.log('Database seeded with initial active products with prices.');
+  insertProduct.run('Dhaara Herbal Hair Oil (100ml)', 349, '/uploads/products/dhaara-oil-100ml.svg', now, now);
+  insertProduct.run('Dhaara Herbal Hair Oil (200ml)', 599, '/uploads/products/dhaara-oil-200ml.svg', now, now);
+  insertProduct.run('Dhaara Herbal Hair Growth Combo (2x200ml)', 1099, '/uploads/products/dhaara-combo.svg', now, now);
+  console.log('Database seeded with Dhaara Herbal Hair Oil products.');
 }
 
 // Seed default promoters if empty

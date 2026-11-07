@@ -300,7 +300,7 @@ export default function PromoterManagement({ token }) {
       {/* Top toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl font-bold text-[#374011]">
             Promoter ID Management
           </h2>
         </div>
@@ -310,14 +310,14 @@ export default function PromoterManagement({ token }) {
             onClick={fetchPromoters}
             disabled={loading}
             title="Refresh Promoters"
-            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-xs disabled:opacity-50"
+            className="p-2.5 rounded-xl border border-[#d8dec2] bg-white text-[#374011] hover:bg-[#d8dec2]/30 transition shadow-xs disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           <button
             onClick={openAddModal}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 active:bg-blue-800 transition shadow-xs"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] active:bg-[#5c6a38] transition shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Add Promoter ID</span>
@@ -327,7 +327,7 @@ export default function PromoterManagement({ token }) {
 
       {/* Search Input Bar */}
       <div className="relative max-w-md">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
           <Search className="w-4 h-4" />
         </div>
         <input
@@ -335,12 +335,12 @@ export default function PromoterManagement({ token }) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by Promoter Code or Name..."
-          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition shadow-xs"
+          className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition shadow-xs"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 hover:text-slate-600"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-[#374011]/60 hover:text-[#374011]"
           >
             Clear
           </button>
@@ -356,23 +356,23 @@ export default function PromoterManagement({ token }) {
 
       {loading ? (
         <div className="py-16 text-center">
-          <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-500 font-medium">Loading promoter IDs...</p>
+          <RefreshCw className="w-8 h-8 text-[#7f8f55] animate-spin mx-auto mb-3" />
+          <p className="text-xs text-[#374011]/70 font-medium">Loading promoter IDs...</p>
         </div>
       ) : filteredPromoters.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-slate-50 text-slate-400 mx-auto flex items-center justify-center mb-3">
+        <div className="bg-white rounded-2xl border border-[#d8dec2] p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#f4f6ee] text-[#7f8f55] mx-auto flex items-center justify-center mb-3">
             <UserCheck className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-semibold text-slate-800">
+          <h3 className="text-sm font-semibold text-[#374011]">
             {searchQuery ? 'No matching promoter IDs found' : 'No promoter IDs added yet'}
           </h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          <p className="text-xs text-[#374011]/70 mt-1 max-w-sm mx-auto">
             Add authorized promoter IDs so customer orders can be placed.
           </p>
           <button
             onClick={openAddModal}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition"
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] transition shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Promoter ID Now</span>
@@ -383,11 +383,11 @@ export default function PromoterManagement({ token }) {
           {/* ======================================================== */}
           {/* DESKTOP TABLE VIEW                                       */}
           {/* ======================================================== */}
-          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="hidden md:block bg-white rounded-2xl border border-[#d8dec2] shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider text-[11px]">
+                  <tr className="bg-[#d8dec2]/40 border-b border-[#d8dec2] text-[#374011] font-semibold uppercase tracking-wider text-[11px]">
                     <th className="py-3.5 px-4">Promoter ID Code</th>
                     <th className="py-3.5 px-4">Name / Label</th>
                     <th className="py-3.5 px-4">Status</th>
@@ -397,38 +397,38 @@ export default function PromoterManagement({ token }) {
                     <th className="py-3.5 px-4 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#d8dec2]/40">
                   {filteredPromoters.map((p) => {
                     const orderCount = Number(p.order_count || 0);
 
                     return (
-                      <tr key={p.id} className="hover:bg-slate-50/60 transition group">
+                      <tr key={p.id} className="hover:bg-[#d8dec2]/15 transition group">
                         {/* Clickable Promoter Code */}
                         <td className="py-3.5 px-4 font-mono font-bold whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => setSelectedPromoterForOrders(p)}
                             title={`Click to view order details for ${p.promoter_code}`}
-                            className="text-blue-700 hover:text-blue-900 hover:underline inline-flex items-center gap-1.5 transition text-left group-hover:text-blue-800"
+                            className="text-[#7f8f55] hover:text-[#5c6a38] hover:underline inline-flex items-center gap-1.5 transition text-left"
                           >
                             <span>{p.promoter_code}</span>
-                            <ExternalLink className="w-3 h-3 text-blue-400 group-hover:text-blue-600 opacity-60" />
+                            <ExternalLink className="w-3 h-3 text-[#7f8f55] opacity-70" />
                           </button>
                         </td>
 
-                        <td className="py-3.5 px-4 font-medium text-slate-800 whitespace-nowrap">
-                          {p.name || <span className="text-slate-400 italic">No name provided</span>}
+                        <td className="py-3.5 px-4 font-medium text-[#374011] whitespace-nowrap">
+                          {p.name || <span className="text-[#374011]/40 italic">No name provided</span>}
                         </td>
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                               p.is_active === 1
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                                ? 'bg-[#d8dec2]/60 text-[#374011] border-[#a9b48a]'
+                                : 'bg-[#f4f6ee] text-[#374011]/60 border-[#d8dec2]'
                             }`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-[#7f8f55]' : 'bg-[#374011]/40'}`} />
                             {p.is_active === 1 ? 'Active (Can Order)' : 'Inactive (Blocked)'}
                           </span>
                         </td>
@@ -441,11 +441,11 @@ export default function PromoterManagement({ token }) {
                             title={`Click to view ${orderCount} orders for ${p.promoter_code}`}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition ${
                               orderCount > 0
-                                ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-2xs'
-                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                                ? 'bg-[#d8dec2]/40 text-[#374011] hover:bg-[#d8dec2] border border-[#a9b48a] shadow-xs'
+                                : 'bg-[#f4f6ee] text-[#374011]/60 border border-[#d8dec2]'
                             }`}
                           >
-                            <ShoppingCart className="w-3 h-3" />
+                            <ShoppingCart className="w-3 h-3 text-[#7f8f55]" />
                             <span>{orderCount} {orderCount === 1 ? 'order' : 'orders'}</span>
                           </button>
                         </td>
@@ -459,18 +459,18 @@ export default function PromoterManagement({ token }) {
                               title="Copy unique dashboard link to clipboard"
                               className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold transition ${
                                 copiedLinkId === p.id
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs'
-                                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                                  ? 'bg-[#d8dec2] text-[#374011] border-[#a9b48a] shadow-xs'
+                                  : 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
                               }`}
                             >
                               {copiedLinkId === p.id ? (
                                 <>
-                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
                                   <span>Copied!</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                                  <Copy className="w-3.5 h-3.5 text-[#7f8f55]" />
                                   <span>Copy Link</span>
                                 </>
                               )}
@@ -480,9 +480,9 @@ export default function PromoterManagement({ token }) {
                               type="button"
                               onClick={() => handleShareWhatsApp(p)}
                               title="Share link via WhatsApp"
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition text-[11px] font-semibold shadow-2xs"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#a9b48a] bg-[#d8dec2]/40 text-[#374011] hover:bg-[#d8dec2] transition text-[11px] font-semibold shadow-xs"
                             >
-                              <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <Share2 className="w-3.5 h-3.5 text-[#7f8f55]" />
                               <span>WhatsApp</span>
                             </button>
 
@@ -491,14 +491,14 @@ export default function PromoterManagement({ token }) {
                               target="_blank"
                               rel="noopener noreferrer"
                               title="Open promoter dashboard in new tab"
-                              className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition"
+                              className="p-1.5 rounded-lg border border-[#d8dec2] bg-white text-[#374011]/70 hover:text-[#7f8f55] hover:bg-[#d8dec2]/30 transition"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           </div>
                         </td>
 
-                        <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-[#374011]/70 whitespace-nowrap">
                           {formatDate(p.created_at)}
                         </td>
 
@@ -510,9 +510,9 @@ export default function PromoterManagement({ token }) {
                               type="button"
                               onClick={() => setSelectedPromoterForOrders(p)}
                               title={`View all order details for ${p.promoter_code}`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition text-[11px] font-medium"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[#374011] bg-[#d8dec2]/50 hover:bg-[#d8dec2] border border-[#d8dec2] transition text-[11px] font-semibold"
                             >
-                              <ListOrdered className="w-3.5 h-3.5 text-blue-600" />
+                              <ListOrdered className="w-3.5 h-3.5 text-[#7f8f55]" />
                               <span>View Orders</span>
                             </button>
 
@@ -522,10 +522,10 @@ export default function PromoterManagement({ token }) {
                               onClick={() => handleExportPromoter(p.promoter_code)}
                               disabled={exportingCode === p.promoter_code || orderCount === 0}
                               title={orderCount === 0 ? 'No orders to export' : `Export ${p.promoter_code} orders to Excel (.xlsx)`}
-                              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition text-[11px] font-medium ${
+                              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border transition text-[11px] font-semibold ${
                                 orderCount > 0
-                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100 shadow-2xs'
-                                  : 'text-slate-400 bg-slate-50 border-slate-200 cursor-not-allowed opacity-50'
+                                  ? 'text-white bg-[#7f8f55] border-[#7f8f55] hover:bg-[#6f7e49] shadow-xs'
+                                  : 'text-[#374011]/40 bg-[#f4f6ee] border-[#d8dec2] cursor-not-allowed opacity-50'
                               }`}
                             >
                               <Download className={`w-3.5 h-3.5 ${exportingCode === p.promoter_code ? 'animate-bounce' : ''}`} />
@@ -539,11 +539,11 @@ export default function PromoterManagement({ token }) {
                               title={p.is_active === 1 ? 'Deactivate (block orders)' : 'Activate (allow orders)'}
                               className={`p-1.5 rounded-lg border transition ${
                                 p.is_active === 1
-                                  ? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                  ? 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
+                                  : 'bg-[#d8dec2]/50 text-[#374011] border-[#a9b48a] hover:bg-[#d8dec2]'
                               }`}
                             >
-                              {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-slate-400" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+                              {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-[#374011]/60" /> : <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />}
                             </button>
 
                             {/* 4. Edit */}
@@ -551,7 +551,7 @@ export default function PromoterManagement({ token }) {
                               type="button"
                               onClick={() => openEditModal(p)}
                               title="Edit Promoter Details"
-                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition"
+                              className="p-1.5 rounded-lg text-[#374011] hover:text-[#7f8f55] hover:bg-[#d8dec2]/40 border border-[#d8dec2] transition"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
@@ -561,7 +561,7 @@ export default function PromoterManagement({ token }) {
                               type="button"
                               onClick={() => setDeletingPromoter(p)}
                               title="Delete Promoter ID"
-                              className="p-1.5 rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 transition"
+                              className="p-1.5 rounded-lg text-[#374011]/80 hover:text-red-600 hover:bg-red-50 border border-[#d8dec2] transition"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -585,73 +585,73 @@ export default function PromoterManagement({ token }) {
               return (
                 <div 
                   key={p.id}
-                  className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3"
+                  className="bg-white rounded-2xl border border-[#d8dec2] p-4 shadow-xs space-y-3"
                 >
-                  <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100">
+                  <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d8dec2]/60">
                     <div>
                       <button
                         type="button"
                         onClick={() => setSelectedPromoterForOrders(p)}
-                        className="font-mono text-sm font-bold text-blue-700 hover:underline flex items-center gap-1"
+                        className="font-mono text-sm font-bold text-[#7f8f55] hover:underline flex items-center gap-1"
                       >
                         <span>{p.promoter_code}</span>
-                        <ExternalLink className="w-3 h-3 text-blue-400" />
+                        <ExternalLink className="w-3 h-3 text-[#7f8f55]" />
                       </button>
-                      <p className="text-xs font-medium text-slate-800 mt-0.5">
-                        {p.name || <span className="text-slate-400 italic">No name</span>}
+                      <p className="text-xs font-semibold text-[#374011] mt-0.5">
+                        {p.name || <span className="text-[#374011]/40 italic">No name</span>}
                       </p>
                     </div>
 
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                         p.is_active === 1
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-slate-100 text-slate-500 border-slate-200'
+                          ? 'bg-[#d8dec2]/60 text-[#374011] border-[#a9b48a]'
+                          : 'bg-[#f4f6ee] text-[#374011]/60 border-[#d8dec2]'
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.is_active === 1 ? 'bg-[#7f8f55]' : 'bg-[#374011]/40'}`} />
                       {p.is_active === 1 ? 'Active' : 'Blocked'}
                     </span>
                   </div>
 
                   {/* Order Count & Date Added */}
-                  <div className="flex items-center justify-between text-xs text-slate-600">
+                  <div className="flex items-center justify-between text-xs text-[#374011]/80">
                     <button
                       type="button"
                       onClick={() => setSelectedPromoterForOrders(p)}
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
                         orderCount > 0
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-slate-100 text-slate-500 border border-slate-200'
+                          ? 'bg-[#d8dec2]/40 text-[#374011] border border-[#a9b48a]'
+                          : 'bg-[#f4f6ee] text-[#374011]/60 border border-[#d8dec2]'
                       }`}
                     >
-                      <ShoppingCart className="w-3 h-3" />
+                      <ShoppingCart className="w-3 h-3 text-[#7f8f55]" />
                       <span>{orderCount} {orderCount === 1 ? 'order' : 'orders'}</span>
                     </button>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-[#374011]/60">
                       Added: {formatDate(p.created_at)}
                     </span>
                   </div>
 
                   {/* Mobile Shareable Dashboard Link */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5">
+                  <div className="pt-2 border-t border-[#d8dec2]/60 flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => handleCopyLink(p)}
-                      className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-xs font-semibold transition ${
+                      className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border text-xs font-semibold transition ${
                         copiedLinkId === p.id
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                          ? 'bg-[#d8dec2] text-[#374011] border-[#a9b48a]'
+                          : 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
                       }`}
                     >
                       {copiedLinkId === p.id ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
                           <span>Link Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5 text-slate-500" />
+                          <Copy className="w-3.5 h-3.5 text-[#7f8f55]" />
                           <span>Copy Link</span>
                         </>
                       )}
@@ -660,9 +660,9 @@ export default function PromoterManagement({ token }) {
                     <button
                       type="button"
                       onClick={() => handleShareWhatsApp(p)}
-                      className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold transition"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border border-[#a9b48a] bg-[#d8dec2]/40 text-[#374011] hover:bg-[#d8dec2] text-xs font-semibold transition"
                     >
-                      <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <Share2 className="w-3.5 h-3.5 text-[#7f8f55]" />
                       <span>WhatsApp</span>
                     </button>
 
@@ -670,7 +670,7 @@ export default function PromoterManagement({ token }) {
                       href={getDashboardUrl(p.access_token)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                      className="p-1.5 rounded-xl border border-[#d8dec2] bg-white text-[#374011]/70 hover:bg-[#d8dec2]/30 hover:text-[#7f8f55]"
                       title="Open Dashboard"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -678,14 +678,14 @@ export default function PromoterManagement({ token }) {
                   </div>
 
                   {/* Mobile Action Buttons */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-[#d8dec2]/60 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 flex-1">
                       <button
                         type="button"
                         onClick={() => setSelectedPromoterForOrders(p)}
-                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl text-[#374011] bg-[#d8dec2]/50 hover:bg-[#d8dec2] border border-[#d8dec2] text-xs font-semibold transition"
                       >
-                        <ListOrdered className="w-3.5 h-3.5" />
+                        <ListOrdered className="w-3.5 h-3.5 text-[#7f8f55]" />
                         <span>Orders</span>
                       </button>
 
@@ -693,10 +693,10 @@ export default function PromoterManagement({ token }) {
                         type="button"
                         onClick={() => handleExportPromoter(p.promoter_code)}
                         disabled={exportingCode === p.promoter_code || orderCount === 0}
-                        className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg border text-xs font-semibold transition ${
+                        className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border text-xs font-semibold transition ${
                           orderCount > 0
-                            ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                            : 'text-slate-400 bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed'
+                            ? 'text-white bg-[#7f8f55] border-[#7f8f55]'
+                            : 'text-[#374011]/40 bg-[#f4f6ee] border-[#d8dec2] opacity-50 cursor-not-allowed'
                         }`}
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -708,21 +708,21 @@ export default function PromoterManagement({ token }) {
                       <button
                         type="button"
                         onClick={() => handleToggleActive(p)}
-                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                        className="p-1.5 rounded-lg border border-[#d8dec2] bg-white text-[#374011] hover:bg-[#d8dec2]/30"
                       >
-                        {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-slate-400" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+                        {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-[#374011]/60" /> : <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />}
                       </button>
                       <button
                         type="button"
                         onClick={() => openEditModal(p)}
-                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                        className="p-1.5 rounded-lg border border-[#d8dec2] bg-white text-[#374011] hover:bg-[#d8dec2]/40 hover:text-[#7f8f55]"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => setDeletingPromoter(p)}
-                        className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-red-50 hover:text-red-600"
+                        className="p-1.5 rounded-lg border border-[#d8dec2] bg-white text-[#374011]/80 hover:bg-red-50 hover:text-red-600"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -739,15 +739,15 @@ export default function PromoterManagement({ token }) {
       {/* ADD / EDIT PROMOTER MODAL                                */}
       {/* ======================================================== */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
-              <h3 className="text-base font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-5 sm:px-6 py-4 border-b border-[#d8dec2] flex items-center justify-between bg-[#d8dec2]/25 flex-shrink-0">
+              <h3 className="text-base font-bold text-[#374011]">
                 {editingPromoter ? 'Edit Promoter ID' : 'Add Authorized Promoter ID'}
               </h3>
               <button
                 onClick={closeModal}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                className="p-1 rounded-lg text-[#374011]/60 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -765,7 +765,7 @@ export default function PromoterManagement({ token }) {
               <div>
                 <label 
                   htmlFor="promoter-code-input"
-                  className="block text-xs font-medium text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
                 >
                   Promoter ID Code <span className="text-red-500">*</span>
                 </label>
@@ -775,9 +775,9 @@ export default function PromoterManagement({ token }) {
                   value={promoterCode}
                   onChange={(e) => setPromoterCode(e.target.value.toUpperCase())}
                   placeholder="e.g. PR-1005"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-sm font-mono text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
-                <p className="text-[11px] text-slate-400 mt-1">
+                <p className="text-[11px] text-[#374011]/60 mt-1">
                   Customers must enter this exact Promoter ID to place an order.
                 </p>
               </div>
@@ -786,7 +786,7 @@ export default function PromoterManagement({ token }) {
               <div>
                 <label 
                   htmlFor="promoter-name-input"
-                  className="block text-xs font-medium text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
                 >
                   Promoter Name / Label (Optional)
                 </label>
@@ -796,7 +796,7 @@ export default function PromoterManagement({ token }) {
                   value={promoterName}
                   onChange={(e) => setPromoterName(e.target.value)}
                   placeholder="e.g. John Doe / City Agency"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                  className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
               </div>
 
@@ -807,9 +807,9 @@ export default function PromoterManagement({ token }) {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                    className="w-4 h-4 rounded text-[#7f8f55] border-[#d8dec2] focus:ring-[#7f8f55]"
                   />
-                  <span className="text-xs font-medium text-slate-700">
+                  <span className="text-xs font-semibold text-[#374011]">
                     Active (Authorized to place customer orders)
                   </span>
                 </label>
@@ -817,25 +817,25 @@ export default function PromoterManagement({ token }) {
 
               {/* If editing, show unique shareable dashboard link */}
               {editingPromoter && editingPromoter.access_token && (
-                <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2">
+                <div className="p-3.5 bg-[#d8dec2]/35 border border-[#a9b48a]/60 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
-                      <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-xs font-bold text-[#374011] flex items-center gap-1.5">
+                      <Link2 className="w-3.5 h-3.5 text-[#7f8f55]" />
                       <span>Promoter Dashboard Link</span>
                     </span>
-                    <span className="text-[10px] text-blue-600 font-medium">No login required</span>
+                    <span className="text-[10px] text-[#7f8f55] font-semibold">No login required</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <input
                       type="text"
                       readOnly
                       value={getDashboardUrl(editingPromoter.access_token)}
-                      className="w-full text-xs font-mono bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 text-slate-700 select-all"
+                      className="w-full text-xs font-mono bg-white border border-[#d8dec2] rounded-lg px-2.5 py-1.5 text-[#374011] select-all"
                     />
                     <button
                       type="button"
                       onClick={() => handleCopyLink(editingPromoter)}
-                      className="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 flex items-center gap-1 flex-shrink-0 transition"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] flex items-center gap-1 flex-shrink-0 transition shadow-xs"
                     >
                       {copiedLinkId === editingPromoter.id ? (
                         <>
@@ -853,7 +853,7 @@ export default function PromoterManagement({ token }) {
                       type="button"
                       onClick={() => handleShareWhatsApp(editingPromoter)}
                       title="Share on WhatsApp"
-                      className="p-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 flex-shrink-0 transition"
+                      className="p-1.5 rounded-lg bg-[#7f8f55] text-white hover:bg-[#6f7e49] flex-shrink-0 transition shadow-xs"
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
@@ -862,12 +862,12 @@ export default function PromoterManagement({ token }) {
               )}
 
               {/* Submit & Cancel */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#d8dec2]/60 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                  className="px-4 py-2 rounded-xl border border-[#d8dec2] text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition"
                 >
                   Cancel
                 </button>
@@ -875,7 +875,7 @@ export default function PromoterManagement({ token }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] transition disabled:opacity-50 shadow-xs"
                 >
                   {saving ? (
                     <>
@@ -896,16 +896,16 @@ export default function PromoterManagement({ token }) {
       {/* DELETE CONFIRMATION MODAL                                */}
       {/* ======================================================== */}
       {deletingPromoter && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm max-h-[90vh] overflow-y-auto p-5 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-sm max-h-[90vh] overflow-y-auto p-5 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-3">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-base font-bold text-[#374011]">
               Delete Promoter ID?
             </h3>
-            <p className="text-xs text-slate-500 mt-1.5">
-              Are you sure you want to delete Promoter ID <strong className="font-mono text-slate-800">"{deletingPromoter.promoter_code}"</strong>? Customers using this ID will no longer be able to place orders.
+            <p className="text-xs text-[#374011]/70 mt-1.5">
+              Are you sure you want to delete Promoter ID <strong className="font-mono text-[#374011]">"{deletingPromoter.promoter_code}"</strong>? Customers using this ID will no longer be able to place orders.
             </p>
 
             <div className="mt-5 flex items-center justify-center gap-2.5">
@@ -913,7 +913,7 @@ export default function PromoterManagement({ token }) {
                 type="button"
                 onClick={() => setDeletingPromoter(null)}
                 disabled={deleting}
-                className="flex-1 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="flex-1 py-2 rounded-xl border border-[#d8dec2] text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 Cancel
               </button>
@@ -921,7 +921,7 @@ export default function PromoterManagement({ token }) {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="flex-1 py-2 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition disabled:opacity-50"
+                className="flex-1 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition disabled:opacity-50 shadow-xs"
               >
                 {deleting ? 'Deleting...' : 'Yes, Delete'}
               </button>
@@ -934,40 +934,40 @@ export default function PromoterManagement({ token }) {
       {/* NEW PROMOTER CREATED SUCCESS MODAL                       */}
       {/* ======================================================== */}
       {createdPromoterInfo && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-6 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-full bg-[#d8dec2]/50 text-[#7f8f55] mx-auto flex items-center justify-center mb-3">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-[#374011]">
                 Promoter ID Created Successfully!
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-[#374011]/70 mt-1">
                 Share this unique link with the promoter. They can access their dashboard directly without any login.
               </p>
 
               {/* Promoter Code & Link Box */}
-              <div className="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left space-y-2">
+              <div className="mt-4 p-3.5 bg-[#f4f6ee] rounded-xl border border-[#d8dec2] text-left space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-700">Promoter ID:</span>
-                  <span className="font-mono font-bold text-blue-700">{createdPromoterInfo.promoter_code}</span>
+                  <span className="font-semibold text-[#374011]">Promoter ID:</span>
+                  <span className="font-mono font-bold text-[#7f8f55]">{createdPromoterInfo.promoter_code}</span>
                 </div>
                 {createdPromoterInfo.name && (
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Name:</span>
-                    <span className="font-medium text-slate-800">{createdPromoterInfo.name}</span>
+                    <span className="text-[#374011]/60">Name:</span>
+                    <span className="font-medium text-[#374011]">{createdPromoterInfo.name}</span>
                   </div>
                 )}
-                <div className="pt-2 border-t border-slate-200/80">
-                  <span className="text-[11px] font-semibold text-slate-600 block mb-1">
+                <div className="pt-2 border-t border-[#d8dec2]">
+                  <span className="text-[11px] font-semibold text-[#374011] block mb-1">
                     Unique Shareable Dashboard Link:
                   </span>
                   <input
                     type="text"
                     readOnly
                     value={getDashboardUrl(createdPromoterInfo.access_token)}
-                    className="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-800 select-all"
+                    className="w-full text-xs font-mono bg-white border border-[#d8dec2] rounded-lg px-2.5 py-2 text-[#374011] select-all"
                   />
                 </div>
               </div>
@@ -979,18 +979,18 @@ export default function PromoterManagement({ token }) {
                   onClick={() => handleCopyLink(createdPromoterInfo)}
                   className={`w-full sm:flex-1 py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
                     copiedLinkId === createdPromoterInfo.id
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      ? 'bg-[#d8dec2] text-[#374011] border-[#a9b48a]'
+                      : 'bg-white text-[#374011] border-[#d8dec2] hover:bg-[#d8dec2]/30'
                   }`}
                 >
                   {copiedLinkId === createdPromoterInfo.id ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-600" />
+                      <Check className="w-4 h-4 text-[#7f8f55]" />
                       <span>Link Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-slate-500" />
+                      <Copy className="w-4 h-4 text-[#7f8f55]" />
                       <span>Copy Link</span>
                     </>
                   )}
@@ -999,7 +999,7 @@ export default function PromoterManagement({ token }) {
                 <button
                   type="button"
                   onClick={() => handleShareWhatsApp(createdPromoterInfo)}
-                  className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                  className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-[#7f8f55] text-white hover:bg-[#6f7e49] text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>Share via WhatsApp</span>
@@ -1009,7 +1009,7 @@ export default function PromoterManagement({ token }) {
               <button
                 type="button"
                 onClick={() => setCreatedPromoterInfo(null)}
-                className="mt-3 w-full py-2 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+                className="mt-3 w-full py-2 rounded-xl text-xs font-medium text-[#374011]/60 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 Close & Continue
               </button>

@@ -8,8 +8,8 @@ import {
   ArrowLeft, 
   Eye, 
   EyeOff, 
-  ShieldCheck, 
-  ShieldAlert 
+  ShieldCheck,
+  Leaf
 } from 'lucide-react';
 
 export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
@@ -54,20 +54,27 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md mx-auto">
         {/* Brand / Security Badge Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-900 text-white mb-3.5 shadow-md ring-4 ring-slate-100">
-            <ShieldCheck className="w-7 h-7 text-blue-400" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#7f8f55] text-white mb-3.5 shadow-md ring-4 ring-[#d8dec2]">
+            <ShieldCheck className="w-7 h-7 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Admin Portal Login
+          <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#7f8f55] tracking-wider uppercase mb-1">
+            <Leaf className="w-3.5 h-3.5 fill-current" />
+            <span>Dhaara Herbal Admin</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#374011] tracking-tight">
+            Administrator Portal
           </h2>
+          <p className="text-xs text-[#374011]/70 mt-1">
+            Sign in to manage products, orders, and promoters
+          </p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#d8dec2] p-6 sm:p-8 space-y-5">
           {error && (
             <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs animate-in fade-in duration-150">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
@@ -80,12 +87,12 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
             <div>
               <label 
                 htmlFor="admin-username"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-[#374011] mb-1.5"
               >
                 Administrator Username
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -99,7 +106,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                   }}
                   placeholder="Enter admin username"
                   required
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
               </div>
             </div>
@@ -108,12 +115,12 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
             <div>
               <label 
                 htmlFor="admin-password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-[#374011] mb-1.5"
               >
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -127,13 +134,13 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                   }}
                   placeholder="Enter admin password"
                   required
-                  className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition"
+                  className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   title={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#374011]/50 hover:text-[#374011] focus:outline-none"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -144,7 +151,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 active:bg-slate-950 transition focus:outline-none focus:ring-4 focus:ring-slate-200 disabled:opacity-50 shadow-xs"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#7f8f55] text-white text-sm font-semibold hover:bg-[#6f7e49] active:bg-[#5c6a38] transition focus:outline-none focus:ring-4 focus:ring-[#7f8f55]/20 disabled:opacity-50 shadow-sm"
             >
               {loading ? (
                 <>
@@ -165,7 +172,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
             <button
               type="button"
               onClick={onBackToOrderForm}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 transition"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[#374011]/70 hover:text-[#7f8f55] transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Return to Customer Order Form</span>

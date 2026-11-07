@@ -13,14 +13,15 @@ import {
   User, 
   Phone, 
   MapPin, 
-  Hash,
-  Plus,
-  Minus,
-  Trash2,
-  ShieldCheck,
-  Printer,
-  ChevronUp,
-  X
+  Hash, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  ShieldCheck, 
+  Printer, 
+  ChevronUp, 
+  X,
+  Leaf
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -469,66 +470,71 @@ export default function CustomerOrderForm() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col font-sans relative pb-28 sm:pb-32">
+    <div className="w-full min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col font-sans relative pb-28 sm:pb-32">
       
       {/* Toast Feedback Notification (Positioned safe above floating widget) */}
       {toast && (
-        <div className="fixed bottom-24 right-5 sm:bottom-24 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-2xl border border-slate-800 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-24 right-5 sm:bottom-24 sm:right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#374011] text-white text-xs sm:text-sm font-medium shadow-2xl border border-[#7f8f55]/40 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toast.type === 'error' ? (
             <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-[#a9b48a] flex-shrink-0" />
           )}
           <span>{toast.message}</span>
         </div>
       )}
 
       {/* Header Bar */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-14 flex items-center justify-between">
+      <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-15 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-              <ShoppingBag className="w-4.5 h-4.5" />
+            <div className="w-9 h-9 rounded-xl bg-[#7f8f55] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+              <Leaf className="w-5 h-5 fill-white/20" />
             </div>
-            <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
-              Product Ordering System
-            </span>
+            <div>
+              <span className="font-black text-[#374011] text-base sm:text-lg tracking-tight block leading-tight">
+                Dhaara Herbal
+              </span>
+              <span className="text-[11px] font-semibold text-[#7f8f55] tracking-wide block leading-none">
+                Hair Oil Ordering Portal
+              </span>
+            </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-medium">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Verified & Secure</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#7f8f55]" />
+            <span>100% Ayurvedic & Verified</span>
           </div>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-[940px] w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-6">
+      <main className="flex-1 max-w-[940px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-7">
         
         {/* Step Progress Indicator (Two-Step Checkout) */}
         {step < 3 && (
-          <div className="mb-5 sm:mb-6 max-w-sm mx-auto px-2">
+          <div className="mb-6 max-w-sm mx-auto px-2">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
               {/* Step 1 Node */}
               <div className="flex items-center gap-2">
                 <div 
                   className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${
                     step === 1 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
-                      : 'bg-emerald-600 text-white'
+                      ? 'bg-[#7f8f55] text-white ring-4 ring-[#7f8f55]/20 shadow-xs' 
+                      : 'bg-[#7f8f55] text-white'
                   }`}
                 >
                   {step > 1 ? <Check className="w-4 h-4 stroke-[2.5]" /> : '1'}
                 </div>
-                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 1 ? 'text-blue-700' : 'text-slate-700'}`}>
+                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 1 ? 'text-[#374011]' : 'text-[#374011]/60'}`}>
                   1. Product Details
                 </span>
               </div>
 
               {/* Connecting Line */}
-              <div className="w-10 sm:w-16 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-10 sm:w-16 h-0.5 bg-[#d8dec2] rounded-full overflow-hidden">
                 <div 
-                  className={`h-full bg-blue-600 transition-all duration-300 ${
+                  className={`h-full bg-[#7f8f55] transition-all duration-300 ${
                     step > 1 ? 'w-full' : 'w-0'
                   }`}
                 />
@@ -539,13 +545,13 @@ export default function CustomerOrderForm() {
                 <div 
                   className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all ${
                     step === 2 
-                      ? 'bg-blue-600 text-white ring-4 ring-blue-100 shadow-xs' 
-                      : 'bg-white border-2 border-slate-300 text-slate-400'
+                      ? 'bg-[#7f8f55] text-white ring-4 ring-[#7f8f55]/20 shadow-xs' 
+                      : 'bg-white border-2 border-[#d8dec2] text-[#374011]/40'
                   }`}
                 >
                   2
                 </div>
-                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 2 ? 'text-blue-700' : 'text-slate-400'}`}>
+                <span className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap ${step === 2 ? 'text-[#374011]' : 'text-[#374011]/40'}`}>
                   2. Address Details
                 </span>
               </div>
@@ -577,15 +583,15 @@ export default function CustomerOrderForm() {
           <form onSubmit={handleNext} className="space-y-4 sm:space-y-5">
             
             {/* Promoter ID Section */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5">
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5">
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="promoter-id" className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-blue-600" />
+                <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-[#7f8f55]" />
                   <span>Promoter ID <span className="text-red-500">*</span></span>
                 </label>
                 {promoterVerified && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#374011] bg-[#d8dec2]/50 px-2.5 py-0.5 rounded-full border border-[#a9b48a]">
+                    <Check className="w-3 h-3 text-[#7f8f55]" />
                     Verified: {promoterVerified.name || promoterVerified.promoter_id}
                   </span>
                 )}
@@ -594,7 +600,7 @@ export default function CustomerOrderForm() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <Hash className="w-4 h-4" />
+                    <Hash className="w-4 h-4 text-[#7f8f55]/70" />
                   </div>
                   <input
                     id="promoter-id"
@@ -611,12 +617,12 @@ export default function CustomerOrderForm() {
                       }
                     }}
                     placeholder="Enter your Promoter ID (e.g. PR-1001)"
-                    className={`h-11 w-full pl-10 pr-3.5 rounded-lg border text-sm text-slate-900 bg-slate-50/50 hover:bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
+                    className={`h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
                       errors.promoterId 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
                         : promoterVerified
-                        ? 'border-emerald-300 focus:ring-emerald-100 focus:border-emerald-500'
-                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                        ? 'border-[#7f8f55] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
+                        : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                     }`}
                   />
                 </div>
@@ -625,12 +631,12 @@ export default function CustomerOrderForm() {
                   type="button"
                   onClick={() => validatePromoterAsync(promoterId)}
                   disabled={validatingPromoter || !promoterId.trim()}
-                  className="px-4 h-11 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 font-semibold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  className="px-4 h-11 rounded-xl border border-[#a9b48a] bg-[#d8dec2]/40 hover:bg-[#d8dec2] active:bg-[#c5ccaf] text-[#374011] font-semibold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-2xs"
                 >
                   {validatingPromoter ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#7f8f55]" />
                   ) : promoterVerified ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
                   ) : (
                     <span>Verify</span>
                   )}
@@ -643,7 +649,7 @@ export default function CustomerOrderForm() {
                   <span>{errors.promoterId}</span>
                 </p>
               ) : (
-                <p className="text-[11px] text-slate-400 mt-1.5">
+                <p className="text-[11px] text-[#374011]/60 mt-1.5 font-medium">
                   Authorized promoter ID is required to place your order.
                 </p>
               )}
@@ -652,11 +658,11 @@ export default function CustomerOrderForm() {
             {/* Product Selection Section */}
             <div className="space-y-3.5">
               <div className="flex items-center justify-between px-0.5">
-                <h2 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Package className="w-4 h-4 text-blue-600" />
+                <h2 className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
+                  <Package className="w-4 h-4 text-[#7f8f55]" />
                   <span>Select Products <span className="text-red-500">*</span></span>
                 </h2>
-                <span className="text-xs text-slate-500 font-medium">
+                <span className="text-xs text-[#374011]/70 font-semibold">
                   {products.length} {products.length === 1 ? 'product' : 'products'} available
                 </span>
               </div>
@@ -664,16 +670,16 @@ export default function CustomerOrderForm() {
               {loadingProducts ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                   {[1, 2].map((n) => (
-                    <div key={n} className="h-64 rounded-xl bg-white border border-slate-200/80 p-3.5 animate-pulse space-y-3">
-                      <div className="w-full h-32 bg-slate-100 rounded-lg" />
-                      <div className="h-4 bg-slate-100 rounded w-3/4" />
-                      <div className="h-5 bg-slate-100 rounded w-1/3" />
-                      <div className="h-10 bg-slate-100 rounded" />
+                    <div key={n} className="h-64 rounded-2xl bg-white border border-[#d8dec2] p-3.5 animate-pulse space-y-3">
+                      <div className="w-full h-32 bg-[#f4f6ee] rounded-xl" />
+                      <div className="h-4 bg-[#f4f6ee] rounded w-3/4" />
+                      <div className="h-5 bg-[#f4f6ee] rounded w-1/3" />
+                      <div className="h-10 bg-[#f4f6ee] rounded" />
                     </div>
                   ))}
                 </div>
               ) : products.length === 0 ? (
-                <div className="p-8 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-sm">
+                <div className="p-8 text-center bg-white rounded-2xl border border-[#d8dec2] text-[#374011]/70 text-sm">
                   No active products are available right now.
                 </div>
               ) : (
@@ -685,22 +691,22 @@ export default function CustomerOrderForm() {
                     return (
                       <div 
                         key={prod.id} 
-                        className={`flex flex-col justify-between h-full rounded-xl border transition-all duration-200 p-3.5 sm:p-4 bg-white ${
+                        className={`flex flex-col justify-between h-full rounded-2xl border transition-all duration-200 p-3.5 sm:p-4 bg-white ${
                           isSelected 
-                            ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/10 shadow-xs' 
-                            : 'border-slate-200/90 hover:border-slate-300 hover:shadow-md'
+                            ? 'border-[#7f8f55] ring-2 ring-[#7f8f55]/25 bg-[#f4f6ee]/40 shadow-xs' 
+                            : 'border-[#d8dec2] hover:border-[#a9b48a] hover:shadow-md'
                         }`}
                       >
                         <div>
                           {/* Product Image Container (Compact height, clear display) */}
-                          <div className="w-full h-32 sm:h-36 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-center p-2 mb-2.5 overflow-hidden group">
+                          <div className="w-full h-32 sm:h-36 rounded-xl bg-[#f4f6ee] border border-[#d8dec2]/60 flex items-center justify-center p-2 mb-2.5 overflow-hidden group">
                             <img
                               src={getImageUrl(prod.image_url)}
                               alt={prod.name}
                               className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                               onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%237f8f55" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
                               }}
                             />
                           </div>
@@ -708,7 +714,7 @@ export default function CustomerOrderForm() {
                           {/* Product Name */}
                           <div className="h-10 mb-1 flex items-start">
                             <h3 
-                              className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2" 
+                              className="text-sm font-bold text-[#374011] leading-snug line-clamp-2" 
                               title={prod.name}
                             >
                               {prod.name}
@@ -717,42 +723,42 @@ export default function CustomerOrderForm() {
 
                           {/* Price in INR */}
                           <div className="h-6 flex items-baseline gap-1 mb-2.5">
-                            <span className="text-base sm:text-lg font-bold text-slate-900 font-mono">
+                            <span className="text-base sm:text-lg font-black text-[#374011] font-mono">
                               {formatINR(prod.price)}
                             </span>
-                            <span className="text-xs text-slate-400 font-normal">/ unit</span>
+                            <span className="text-xs text-[#374011]/60 font-medium">/ unit</span>
                           </div>
                         </div>
 
                         {/* Action Slot & Subtotal */}
-                        <div className="pt-2.5 border-t border-slate-100 mt-auto">
+                        <div className="pt-2.5 border-t border-[#d8dec2]/70 mt-auto">
                           {isSelected ? (
                             <div className="space-y-1.5">
                               {/* Subtotal calculation for each selected product */}
-                              <div className="flex items-center justify-between text-xs px-0.5 text-slate-600">
-                                <span className="font-medium">Subtotal:</span>
-                                <span className="font-mono font-bold text-blue-700">
+                              <div className="flex items-center justify-between text-xs px-0.5 text-[#374011]">
+                                <span className="font-semibold">Subtotal:</span>
+                                <span className="font-mono font-bold text-[#7f8f55]">
                                   {formatINR(prod.price * existing.quantity)}
                                 </span>
                               </div>
 
                               {/* Stepper with plus and minus buttons */}
-                              <div className="w-full h-9.5 flex items-center justify-between border border-blue-500/40 rounded-lg overflow-hidden bg-blue-50/40 shadow-2xs">
+                              <div className="w-full h-9.5 flex items-center justify-between border border-[#7f8f55]/40 rounded-xl overflow-hidden bg-[#d8dec2]/25 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                  className="w-9 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
+                                  className="w-9 h-full flex items-center justify-center bg-[#d8dec2]/60 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Decrease quantity"
                                 >
                                   <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 </button>
-                                <span className="flex-1 text-center font-bold font-mono text-xs text-slate-900">
+                                <span className="flex-1 text-center font-bold font-mono text-xs text-[#374011]">
                                   {existing.quantity} in order
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                  className="w-9 h-full flex items-center justify-center bg-blue-100/60 hover:bg-blue-200/80 text-blue-700 transition active:scale-90"
+                                  className="w-9 h-full flex items-center justify-center bg-[#d8dec2]/60 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Increase quantity"
                                 >
                                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -763,7 +769,7 @@ export default function CustomerOrderForm() {
                             <button
                               type="button"
                               onClick={() => handleAddItem(prod.id)}
-                              className="w-full h-9.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
+                              className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-2xs hover:shadow active:scale-[0.99]"
                             >
                               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                               <span>Add to Order</span>
@@ -786,18 +792,18 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Bottom Checkout Navigation Card */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3.5 mt-6">
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3.5 mt-6">
               <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
                   Current Selection
                 </span>
-                <p className="text-xs sm:text-sm font-semibold text-slate-800 mt-0.5">
+                <p className="text-xs sm:text-sm font-semibold text-[#374011] mt-0.5">
                   {totalQuantity > 0 ? (
                     <span>
-                      <span className="font-bold text-blue-600">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-bold text-slate-900">{formatINR(totalAmount)}</span>
+                      <span className="font-bold text-[#7f8f55]">{totalQuantity}</span> {totalQuantity === 1 ? 'item' : 'items'} selected • <span className="font-mono font-black text-[#374011]">{formatINR(totalAmount)}</span>
                     </span>
                   ) : (
-                    <span className="text-slate-400">No products added yet. Select products above to proceed.</span>
+                    <span className="text-[#374011]/50">No products added yet. Select products above to proceed.</span>
                   )}
                 </p>
               </div>
@@ -807,8 +813,8 @@ export default function CustomerOrderForm() {
                 disabled={loadingProducts || products.length === 0 || validatingPromoter}
                 className={`w-full sm:w-auto h-11 px-5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
                   totalQuantity === 0 || !promoterId.trim()
-                    ? 'bg-blue-600/70 hover:bg-blue-600 text-white cursor-pointer'
-                    : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white hover:shadow active:scale-[0.99]'
+                    ? 'bg-[#7f8f55]/70 hover:bg-[#7f8f55] text-white cursor-pointer'
+                    : 'bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white hover:shadow active:scale-[0.99]'
                 }`}
               >
                 {validatingPromoter ? (
@@ -835,24 +841,24 @@ export default function CustomerOrderForm() {
           <form onSubmit={handleSubmitOrder} className="w-full space-y-4 sm:space-y-5">
             
             {/* Order Review Card */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-              <div className="bg-slate-50/80 px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs overflow-hidden">
+              <div className="bg-[#d8dec2]/35 px-4 sm:px-5 py-3 border-b border-[#d8dec2] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-[#7f8f55] text-white flex items-center justify-center">
                     <ShoppingBag className="w-4 h-4" />
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm tracking-tight">
+                  <h3 className="font-bold text-[#374011] text-sm tracking-tight">
                     Order Review
                   </h3>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#7f8f55] text-white shadow-2xs">
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#7f8f55] hover:text-[#374011] transition"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Edit Products</span>
@@ -861,31 +867,31 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Items List */}
-              <div className="p-3.5 sm:p-4 divide-y divide-slate-100 max-h-72 overflow-y-auto">
+              <div className="p-3.5 sm:p-4 divide-y divide-[#d8dec2]/50 max-h-72 overflow-y-auto">
                 {itemsWithDetails.map((it) => (
                   <div key={it.product_id} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs sm:text-sm">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                      <div className="w-10 h-10 rounded-xl bg-[#f4f6ee] border border-[#d8dec2]/70 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
                         <img
                           src={getImageUrl(it.image_url)}
                           alt={it.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                            e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%237f8f55"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
                           }}
                         />
                       </div>
                       <div className="min-w-0">
-                        <span className="font-semibold text-slate-800 truncate block" title={it.name}>
+                        <span className="font-bold text-[#374011] truncate block" title={it.name}>
                           {it.name}
                         </span>
-                        <span className="text-[11px] text-slate-400 font-mono">
+                        <span className="text-[11px] text-[#374011]/60 font-mono font-medium">
                           Qty: {it.quantity} × {formatINR(it.price)}
                         </span>
                       </div>
                     </div>
-                    <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                    <span className="font-mono font-bold text-[#374011] whitespace-nowrap">
                       {formatINR(it.subtotal)}
                     </span>
                   </div>
@@ -893,16 +899,16 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Review Footer with Promoter and Total */}
-              <div className="bg-slate-50/70 p-3.5 sm:px-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <span className="font-medium">Authorized Promoter:</span>
-                  <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
+              <div className="bg-[#f4f6ee] p-3.5 sm:px-5 border-t border-[#d8dec2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
+                <div className="flex items-center gap-2 text-[#374011]">
+                  <span className="font-semibold text-[#374011]/70">Authorized Promoter:</span>
+                  <span className="font-mono font-bold text-[#374011] bg-white px-2.5 py-0.5 rounded-lg border border-[#d8dec2]">
                     {promoterId}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-slate-600">Total Payable:</span>
-                  <span className="text-xl sm:text-2xl font-black font-mono text-blue-900">
+                  <span className="font-semibold text-[#374011]/70">Total Payable:</span>
+                  <span className="text-xl sm:text-2xl font-black font-mono text-[#374011]">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
@@ -910,16 +916,16 @@ export default function CustomerOrderForm() {
             </div>
 
             {/* Customer Address Form Card */}
-            <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-5 space-y-4 sm:space-y-5">
-              <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-600" />
-                  <span>Customer Address</span>
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5 space-y-4 sm:space-y-5">
+              <div className="border-b border-[#d8dec2]/70 pb-2.5 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-[#374011] uppercase tracking-wider flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#7f8f55]" />
+                  <span>Customer Delivery Address</span>
                 </h2>
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#7f8f55] hover:text-[#374011] transition"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back to Products</span>
@@ -927,7 +933,7 @@ export default function CustomerOrderForm() {
               </div>
 
               {submitError && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-red-700 text-xs">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
                   <div className="flex-1">
                     <p className="font-semibold">{submitError}</p>
@@ -937,18 +943,18 @@ export default function CustomerOrderForm() {
 
               {/* Contact Information Group */}
               <div className="space-y-3.5">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
                   Contact Information
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Full Name */}
                   <div>
-                    <label htmlFor="full-name" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label htmlFor="full-name" className="block text-xs font-bold text-[#374011] mb-1">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <User className="w-4 h-4" />
+                        <User className="w-4 h-4 text-[#7f8f55]/70" />
                       </div>
                       <input
                         id="full-name"
@@ -959,10 +965,10 @@ export default function CustomerOrderForm() {
                           if (errors.fullName) setErrors({ ...errors, fullName: null });
                         }}
                         placeholder="e.g. Ananya Sharma"
-                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        className={`h-11 w-full pl-9 pr-3 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                           errors.fullName 
                             ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                            : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                         }`}
                       />
                     </div>
@@ -973,12 +979,12 @@ export default function CustomerOrderForm() {
 
                   {/* Phone Number */}
                   <div>
-                    <label htmlFor="phone-number" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label htmlFor="phone-number" className="block text-xs font-bold text-[#374011] mb-1">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <Phone className="w-4 h-4" />
+                        <Phone className="w-4 h-4 text-[#7f8f55]/70" />
                       </div>
                       <input
                         id="phone-number"
@@ -989,10 +995,10 @@ export default function CustomerOrderForm() {
                           if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: null });
                         }}
                         placeholder="e.g. 9876543210"
-                        className={`h-11 w-full pl-9 pr-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                        className={`h-11 w-full pl-9 pr-3 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                           errors.phoneNumber 
                             ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                            : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                            : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                         }`}
                       />
                     </div>
@@ -1004,15 +1010,15 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Delivery Address Group */}
-              <div className="space-y-3.5 pt-2 border-t border-slate-100">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                  Delivery Address
+              <div className="space-y-3.5 pt-2 border-t border-[#d8dec2]/70">
+                <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
+                  Delivery Address Details
                 </span>
 
                 {/* Complete Address */}
                 <div>
-                  <label htmlFor="complete-address" className="block text-xs font-medium text-slate-700 mb-1">
-                    Complete Address <span className="text-red-500">*</span>
+                  <label htmlFor="complete-address" className="block text-xs font-bold text-[#374011] mb-1">
+                    Complete Address (House No, Building, Road, Area, Landmark) <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     id="complete-address"
@@ -1022,11 +1028,11 @@ export default function CustomerOrderForm() {
                       setCompleteAddress(e.target.value);
                       if (errors.completeAddress) setErrors({ ...errors, completeAddress: null });
                     }}
-                    placeholder="House/Flat number, Street name, Area, Landmark"
-                    className={`w-full p-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-none ${
+                    placeholder="House/Flat number, Building name, Street name, Area, Landmark"
+                    className={`w-full p-3 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition resize-none ${
                       errors.completeAddress 
                         ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                        : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                        : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                     }`}
                   />
                   {errors.completeAddress && (
@@ -1039,11 +1045,11 @@ export default function CustomerOrderForm() {
                   {/* Pincode */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label htmlFor="pincode" className="block text-xs font-medium text-slate-700">
+                      <label htmlFor="pincode" className="block text-xs font-bold text-[#374011]">
                         Pincode <span className="text-red-500">*</span>
                       </label>
                       {loadingPincode && (
-                        <span className="text-[10px] text-blue-600 flex items-center gap-1 font-semibold">
+                        <span className="text-[10px] text-[#7f8f55] flex items-center gap-1 font-semibold">
                           <RefreshCw className="w-2.5 h-2.5 animate-spin" />
                           <span>Detecting...</span>
                         </span>
@@ -1070,10 +1076,10 @@ export default function CustomerOrderForm() {
                         }
                       }}
                       placeholder="6 Digits"
-                      className={`h-11 w-full px-3 rounded-lg border text-sm font-mono text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                      className={`h-11 w-full px-3 rounded-xl border text-sm font-mono text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                         errors.pincode 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                          : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                       }`}
                     />
                     {errors.pincode && (
@@ -1083,7 +1089,7 @@ export default function CustomerOrderForm() {
 
                   {/* City */}
                   <div>
-                    <label htmlFor="city" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label htmlFor="city" className="block text-xs font-bold text-[#374011] mb-1">
                       City / District <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1095,10 +1101,10 @@ export default function CustomerOrderForm() {
                         if (errors.city) setErrors({ ...errors, city: null });
                       }}
                       placeholder="e.g. Bengaluru"
-                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                      className={`h-11 w-full px-3 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                         errors.city 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                          : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                       }`}
                     />
                     {errors.city && (
@@ -1108,7 +1114,7 @@ export default function CustomerOrderForm() {
 
                   {/* State Dropdown */}
                   <div>
-                    <label htmlFor="state-name" className="block text-xs font-medium text-slate-700 mb-1">
+                    <label htmlFor="state-name" className="block text-xs font-bold text-[#374011] mb-1">
                       State <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -1118,10 +1124,10 @@ export default function CustomerOrderForm() {
                         setStateName(e.target.value);
                         if (errors.stateName) setErrors({ ...errors, stateName: null });
                       }}
-                      className={`h-11 w-full px-3 rounded-lg border text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 transition ${
+                      className={`h-11 w-full px-3 rounded-xl border text-sm text-[#374011] bg-white focus:outline-none focus:ring-2 transition ${
                         errors.stateName 
                           ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                          : 'border-slate-300 focus:ring-blue-100 focus:border-blue-600'
+                          : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
                       }`}
                     >
                       <option value="">Select State</option>
@@ -1140,11 +1146,11 @@ export default function CustomerOrderForm() {
               </div>
 
               {/* Form Actions (Back + Place Order) */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+              <div className="pt-3 border-t border-[#d8dec2]/70 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="h-11 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition flex items-center gap-1.5"
+                  className="h-11 px-4 rounded-xl border border-[#d8dec2] bg-white hover:bg-[#d8dec2]/30 text-[#374011] font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back</span>
@@ -1153,7 +1159,7 @@ export default function CustomerOrderForm() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="h-11 flex-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                  className="h-11 flex-1 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
@@ -1162,7 +1168,7 @@ export default function CustomerOrderForm() {
                     </>
                   ) : (
                     <>
-                      <span>Place Order ({formatINR(totalAmount)})</span>
+                      <span>Confirm & Place Order ({formatINR(totalAmount)})</span>
                       <CheckCircle2 className="w-4 h-4" />
                     </>
                   )}
@@ -1179,58 +1185,58 @@ export default function CustomerOrderForm() {
         {/* ======================================================== */}
         {step === 3 && orderResult && (
           <div className="max-w-md mx-auto space-y-4">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-2xs p-5 sm:p-7 text-center space-y-4">
+            <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-sm p-5 sm:p-7 text-center space-y-4">
               
-              {/* Emerald Success Checkmark Icon */}
-              <div className="w-13 h-13 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center border border-emerald-200 shadow-2xs">
+              {/* Herbal Green Success Checkmark Icon */}
+              <div className="w-14 h-14 rounded-full bg-[#d8dec2]/50 text-[#7f8f55] mx-auto flex items-center justify-center border border-[#a9b48a] shadow-2xs">
                 <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                <h2 className="text-xl font-bold text-[#374011] tracking-tight">
                   Order Placed Successfully!
                 </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Thank you for your order. A confirmation has been recorded.
+                <p className="text-xs text-[#374011]/70 mt-1 font-medium">
+                  Thank you for ordering Dhaara Herbal Hair Oil. Your order has been recorded.
                 </p>
               </div>
 
               {/* Order ID Banner with Copy Option */}
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 max-w-xs mx-auto">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+              <div className="p-3 rounded-xl bg-[#f4f6ee] border border-[#d8dec2] max-w-xs mx-auto">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#374011]/60 block mb-1">
                   Generated Order ID
                 </span>
                 <div className="flex items-center justify-center gap-1.5">
-                  <span className="font-mono text-lg font-bold text-slate-900 tracking-wider">
+                  <span className="font-mono text-lg font-bold text-[#374011] tracking-wider">
                     {orderResult.orderId}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyOrderId}
                     title="Copy Order ID"
-                    className="p-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-blue-600 transition"
+                    className="p-1.5 rounded-lg bg-white border border-[#d8dec2] text-[#374011] hover:text-[#7f8f55] transition shadow-2xs"
                   >
                     {copied ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
                     ) : (
                       <Copy className="w-3.5 h-3.5" />
                     )}
                   </button>
                 </div>
                 {copied && (
-                  <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                  <p className="text-[11px] text-[#7f8f55] font-bold mt-1">
                     Order ID copied to clipboard!
                   </p>
                 )}
               </div>
 
               {/* Order Receipt Details */}
-              <div className="text-left bg-slate-50 rounded-lg p-3.5 sm:p-4 border border-slate-200 space-y-3 text-xs">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <span className="font-semibold text-slate-700 uppercase tracking-wider text-[11px]">
+              <div className="text-left bg-[#f4f6ee] rounded-xl p-3.5 sm:p-4 border border-[#d8dec2] space-y-3 text-xs">
+                <div className="flex items-center justify-between border-b border-[#d8dec2]/80 pb-2">
+                  <span className="font-bold text-[#374011] uppercase tracking-wider text-[11px]">
                     Order Receipt
                   </span>
-                  <span className="text-slate-500 font-mono text-[11px]">
+                  <span className="text-[#374011]/70 font-mono text-[11px] font-semibold">
                     {orderResult.orderDate ? new Date(orderResult.orderDate).toLocaleString('en-IN') : 'Just now'}
                   </span>
                 </div>
@@ -1238,38 +1244,38 @@ export default function CustomerOrderForm() {
                 {/* Customer Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Customer Name:</span>
-                    <span className="font-medium text-slate-900">{orderResult.customerName}</span>
+                    <span className="text-[#374011]/60 block mb-0.5 font-medium">Customer Name:</span>
+                    <span className="font-bold text-[#374011]">{orderResult.customerName}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Phone Number:</span>
-                    <span className="font-medium text-slate-900">{orderResult.phoneNumber}</span>
+                    <span className="text-[#374011]/60 block mb-0.5 font-medium">Phone Number:</span>
+                    <span className="font-bold text-[#374011]">{orderResult.phoneNumber}</span>
                   </div>
                   <div className="sm:col-span-2">
-                    <span className="text-slate-400 block mb-0.5">Address:</span>
-                    <span className="font-normal text-slate-800">
+                    <span className="text-[#374011]/60 block mb-0.5 font-medium">Delivery Address:</span>
+                    <span className="font-medium text-[#374011]">
                       {orderResult.completeAddress}, {orderResult.city}, {orderResult.state} - {orderResult.pincode}
                     </span>
                   </div>
                 </div>
 
                 {/* Itemized List */}
-                <div className="border-t border-slate-200 pt-2">
-                  <span className="font-semibold text-slate-700 uppercase tracking-wider text-[11px] block mb-1.5">
+                <div className="border-t border-[#d8dec2]/80 pt-2">
+                  <span className="font-bold text-[#374011] uppercase tracking-wider text-[11px] block mb-1.5">
                     Ordered Products ({orderResult.items?.length || 0})
                   </span>
                   <div className="space-y-1">
                     {(orderResult.items || []).map((it, idx) => (
-                      <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border border-slate-100">
+                      <div key={idx} className="flex justify-between items-center bg-white p-2 rounded-lg border border-[#d8dec2]/70">
                         <div className="min-w-0 pr-2">
-                          <span className="font-medium text-slate-800 block truncate">
+                          <span className="font-bold text-[#374011] block truncate">
                             {it.name || it.product_name}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-[#374011]/60 font-mono">
                             Qty: {it.quantity} × {formatINR(it.price || it.product_price)}
                           </span>
                         </div>
-                        <span className="font-mono font-semibold text-slate-900 whitespace-nowrap">
+                        <span className="font-mono font-bold text-[#374011] whitespace-nowrap">
                           {formatINR(it.subtotal !== undefined ? it.subtotal : (it.price || it.product_price) * it.quantity)}
                         </span>
                       </div>
@@ -1278,9 +1284,9 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Total */}
-                <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
-                  <span className="font-semibold text-slate-700">Total Amount:</span>
-                  <span className="text-base font-bold text-slate-900 font-mono">
+                <div className="border-t border-[#d8dec2]/80 pt-2 flex items-center justify-between">
+                  <span className="font-bold text-[#374011]">Total Amount:</span>
+                  <span className="text-base font-black text-[#374011] font-mono">
                     {formatINR(orderResult.totalAmount)}
                   </span>
                 </div>
@@ -1291,7 +1297,7 @@ export default function CustomerOrderForm() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="w-full sm:w-auto h-9 px-4 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium text-xs hover:bg-slate-50 transition inline-flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto h-10 px-4 rounded-xl border border-[#d8dec2] bg-white text-[#374011] font-bold text-xs hover:bg-[#d8dec2]/30 transition inline-flex items-center justify-center gap-1.5 shadow-2xs"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Receipt</span>
@@ -1300,7 +1306,7 @@ export default function CustomerOrderForm() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="w-full sm:w-auto h-9 px-4 rounded-lg bg-blue-600 text-white font-medium text-xs hover:bg-blue-700 transition shadow-2xs inline-flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto h-10 px-4 rounded-xl bg-[#7f8f55] text-white font-bold text-xs hover:bg-[#6d7d45] active:bg-[#5c6a38] transition shadow-xs inline-flex items-center justify-center gap-1.5"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Place Another Order</span>
@@ -1321,7 +1327,7 @@ export default function CustomerOrderForm() {
           {/* Subtle Mobile Backdrop when summary is expanded */}
           {isSummaryExpanded && (
             <div 
-              className="fixed inset-0 bg-slate-900/30 backdrop-blur-[2px] z-35 sm:hidden transition-opacity duration-200"
+              className="fixed inset-0 bg-[#374011]/30 backdrop-blur-[2px] z-35 sm:hidden transition-opacity duration-200"
               onClick={() => setIsSummaryExpanded(false)}
             />
           )}
@@ -1335,18 +1341,18 @@ export default function CustomerOrderForm() {
             {/* Expanded Popover (Above the Widget, 280–320px width) */}
             {isSummaryExpanded && (
               <div 
-                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-1.75rem)] sm:w-[310px] max-w-[320px] bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-slate-800"
+                className="absolute bottom-full right-0 mb-3 w-[calc(100vw-1.75rem)] sm:w-[310px] max-w-[320px] bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right z-50 text-[#374011]"
               >
                 {/* Popover Header */}
-                <div className="bg-slate-50/90 px-3.5 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                <div className="bg-[#d8dec2]/35 px-3.5 py-2.5 border-b border-[#d8dec2] flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-md bg-[#7f8f55] text-white flex items-center justify-center">
                       <ShoppingBag className="w-3.5 h-3.5" />
                     </div>
-                    <span className="font-bold text-slate-900 text-xs sm:text-sm">
+                    <span className="font-bold text-[#374011] text-xs sm:text-sm">
                       Your Order
                     </span>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-2xs">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#7f8f55] text-white shadow-2xs">
                       {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                     </span>
                   </div>
@@ -1357,7 +1363,7 @@ export default function CustomerOrderForm() {
                       e.stopPropagation();
                       setIsSummaryExpanded(false);
                     }}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                    className="p-1 rounded-md text-slate-400 hover:text-[#374011] hover:bg-[#d8dec2]/50 transition"
                     title="Close summary"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -1365,27 +1371,27 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Scrollable Items List (Compact 280-320px width without cutting off text) */}
-                <div className="p-2.5 sm:p-3 max-h-56 sm:max-h-64 overflow-y-auto divide-y divide-slate-100">
+                <div className="p-2.5 sm:p-3 max-h-56 sm:max-h-64 overflow-y-auto divide-y divide-[#d8dec2]/60">
                   {itemsWithDetails.map((it) => (
                     <div key={it.product_id} className="py-2 first:pt-0 last:pb-0 flex items-center justify-between gap-2">
                       {/* Product Thumbnail & Name */}
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-9 h-9 rounded-md bg-slate-50 border border-slate-200/80 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        <div className="w-9 h-9 rounded-lg bg-[#f4f6ee] border border-[#d8dec2]/80 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
                           <img
                             src={getImageUrl(it.image_url)}
                             alt={it.name}
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%237f8f55"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
                             }}
                           />
                         </div>
                         <div className="min-w-0">
-                          <span className="font-semibold text-slate-800 text-xs truncate block" title={it.name}>
+                          <span className="font-bold text-[#374011] text-xs truncate block" title={it.name}>
                             {it.name}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
+                          <span className="text-[10px] text-[#374011]/60 font-mono">
                             {formatINR(it.price)} each
                           </span>
                         </div>
@@ -1394,22 +1400,22 @@ export default function CustomerOrderForm() {
                       {/* Quantity Controls, Subtotal, Remove */}
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         {/* Stepper */}
-                        <div className="inline-flex items-center border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs h-6">
+                        <div className="inline-flex items-center border border-[#d8dec2] rounded-lg bg-white overflow-hidden shadow-2xs h-6">
                           <button
                             type="button"
                             onClick={() => handleUpdateQuantity(it.product_id, it.quantity - 1)}
-                            className="w-5.5 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            className="w-5.5 h-full flex items-center justify-center text-[#374011]/70 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
                             title="Decrease quantity"
                           >
                             <Minus className="w-2.5 h-2.5" />
                           </button>
-                          <span className="px-1 text-[11px] font-bold font-mono text-slate-800 min-w-[16px] text-center">
+                          <span className="px-1 text-[11px] font-bold font-mono text-[#374011] min-w-[16px] text-center">
                             {it.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleUpdateQuantity(it.product_id, it.quantity + 1)}
-                            className="w-5.5 h-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-slate-50 transition"
+                            className="w-5.5 h-full flex items-center justify-center text-[#374011]/70 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
                             title="Increase quantity"
                           >
                             <Plus className="w-2.5 h-2.5" />
@@ -1417,7 +1423,7 @@ export default function CustomerOrderForm() {
                         </div>
 
                         {/* Individual Subtotal */}
-                        <span className="font-mono font-bold text-slate-900 text-xs min-w-[48px] text-right">
+                        <span className="font-mono font-bold text-[#374011] text-xs min-w-[48px] text-right">
                           {formatINR(it.subtotal)}
                         </span>
 
@@ -1426,7 +1432,7 @@ export default function CustomerOrderForm() {
                           type="button"
                           onClick={() => handleRemoveItem(it.product_id)}
                           title="Remove item"
-                          className="p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition"
+                          className="p-0.5 rounded text-slate-300 hover:text-red-600 hover:bg-red-50 transition"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1436,17 +1442,17 @@ export default function CustomerOrderForm() {
                 </div>
 
                 {/* Popover Footer with Grand Total & Action */}
-                <div className="bg-slate-50/80 p-2.5 sm:p-3 border-t border-slate-100 space-y-2.5">
-                  <div className="p-2 rounded-lg bg-blue-50/80 border border-blue-100 flex items-center justify-between">
+                <div className="bg-[#f4f6ee] p-2.5 sm:p-3 border-t border-[#d8dec2] space-y-2.5">
+                  <div className="p-2 rounded-xl bg-white border border-[#d8dec2] flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block leading-tight">
+                      <span className="text-[10px] font-bold text-[#374011]/70 uppercase tracking-wider block leading-tight">
                         Grand Total
                       </span>
-                      <span className="text-[9px] text-blue-600 font-medium">
+                      <span className="text-[9px] text-[#7f8f55] font-semibold">
                         {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                       </span>
                     </div>
-                    <span className="text-base font-black font-mono text-blue-900">
+                    <span className="text-base font-black font-mono text-[#374011]">
                       {formatINR(totalAmount)}
                     </span>
                   </div>
@@ -1460,7 +1466,7 @@ export default function CustomerOrderForm() {
                         handleNext();
                       }}
                       disabled={validatingPromoter}
-                      className="w-full h-9.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
+                      className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
                     >
                       <span>Continue to Address Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1474,27 +1480,27 @@ export default function CustomerOrderForm() {
             <button
               type="button"
               onClick={handleFloatingClick}
-              className="flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-lg hover:shadow-xl shadow-blue-600/25 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/30 active:scale-95 group text-xs sm:text-sm"
+              className="flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-lg hover:shadow-xl shadow-[#7f8f55]/30 transition-all duration-200 cursor-pointer select-none ring-2 ring-white/50 active:scale-95 group text-xs sm:text-sm"
               aria-expanded={isSummaryExpanded}
               title="View order summary"
             >
               <div className="relative flex items-center justify-center">
                 <ShoppingBag className="w-4 h-4 text-white transition-transform group-hover:scale-110" />
-                <span className="absolute -top-1.5 -right-2 bg-amber-400 text-slate-900 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-blue-600 shadow-2xs">
+                <span className="absolute -top-1.5 -right-2 bg-[#d8dec2] text-[#374011] text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#7f8f55] shadow-2xs">
                   {totalQuantity}
                 </span>
               </div>
 
               <div className="flex items-center gap-1.5 font-bold tracking-tight">
                 <span>{totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'}</span>
-                <span className="text-blue-300 font-light">|</span>
+                <span className="text-[#d8dec2] font-light">|</span>
                 <span className="font-mono font-black tracking-tight">
                   {formatINR(totalAmount)}
                 </span>
               </div>
 
               <ChevronUp 
-                className={`w-3.5 h-3.5 text-blue-200 transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
+                className={`w-3.5 h-3.5 text-[#d8dec2] transition-transform duration-200 ${isSummaryExpanded ? 'rotate-180' : ''}`} 
               />
             </button>
           </div>

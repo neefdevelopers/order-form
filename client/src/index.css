@@ -1,9 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --color-herbal-sage: #d8dec2;
+  --color-herbal-sage-light: #f4f6ee;
+  --color-herbal-sage-dark: #c5ccaf;
+  --color-herbal-secondary: #a9b48a;
+  --color-herbal-secondary-hover: #96a276;
+  --color-herbal-primary: #7f8f55;
+  --color-herbal-primary-hover: #6d7d45;
+  --color-herbal-primary-active: #5c6a38;
+  --color-herbal-forest: #374011;
+  --color-herbal-forest-muted: #576522;
+  --color-herbal-forest-light: #708035;
+  --color-herbal-surface: #ffffff;
+}
+
 @layer base {
   body {
-    background-color: #f8fafc;
-    color: #1e293b;
+    background-color: #f4f6ee;
+    color: #374011;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
