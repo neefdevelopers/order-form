@@ -707,7 +707,7 @@ export default function CustomerOrderForm() {
         {/* SCREEN 2: ADDRESS DETAILS                                */}
         {/* ======================================================== */}
         {step === 2 && (
-          <form onSubmit={handleSubmitOrder} className="w-full space-y-4 sm:space-y-5">
+          <form id="address-order-form" onSubmit={handleSubmitOrder} className="w-full space-y-4 sm:space-y-5">
             {/* Customer Address Form Card */}
             <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5 space-y-4 sm:space-y-5">
               <div className="border-b border-[#d8dec2]/70 pb-2.5 flex items-center justify-between">
@@ -938,36 +938,6 @@ export default function CustomerOrderForm() {
                 </div>
               </div>
 
-              {/* Form Actions (Back + Place Order) */}
-              <div className="pt-3 border-t border-[#d8dec2]/70 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="h-11 px-4 rounded-xl border border-[#d8dec2] bg-white hover:bg-[#d8dec2]/30 text-[#374011] font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back</span>
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="h-11 flex-1 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm transition shadow-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
-                >
-                  {submitting ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Placing Order...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Confirm & Place Order ({formatINR(totalAmount)})</span>
-                      <CheckCircle2 className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-
             </div>
 
           </form>
@@ -1135,20 +1105,12 @@ export default function CustomerOrderForm() {
 
           <div
             id="floating-order-summary-container"
-            className={
-              step === 1
-                ? "fixed bottom-0 inset-x-0 w-full sm:bottom-6 sm:right-6 sm:inset-x-auto sm:w-auto z-40 select-none bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-0 border-[#d8dec2] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:shadow-none px-3.5 sm:px-0 py-2.5 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
-                : "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 select-none"
-            }
+            className="fixed bottom-0 inset-x-0 w-full sm:bottom-6 sm:right-6 sm:inset-x-auto sm:w-auto z-40 select-none bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-0 border-[#d8dec2] shadow-[0_-4px_24px_rgba(0,0,0,0.08)] sm:shadow-none px-3.5 sm:px-0 py-2.5 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0"
           >
             {/* Expanded Popover (Above the Widget, 280–320px width on desktop, full-card drawer on mobile) */}
             {isSummaryExpanded && (
               <div 
-                className={`absolute bottom-full mb-2.5 sm:mb-3 bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50 text-[#374011] ${
-                  step === 1 
-                    ? 'left-3 right-3 sm:left-auto sm:right-0 w-auto sm:w-[310px] max-w-none sm:max-w-[320px]' 
-                    : 'right-0 w-[calc(100vw-2rem)] sm:w-[310px] max-w-[320px]'
-                }`}
+                className="absolute bottom-full mb-2.5 sm:mb-3 bg-white rounded-2xl border border-[#d8dec2] shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50 text-[#374011] left-3 right-3 sm:left-auto sm:right-0 w-auto sm:w-[320px] max-w-none sm:max-w-[340px]"
               >
                 {/* Popover Header */}
                 <div className="bg-[#d8dec2]/35 px-3.5 py-2.5 border-b border-[#d8dec2] flex items-center justify-between">
@@ -1278,23 +1240,56 @@ export default function CustomerOrderForm() {
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}
+
+                  {step === 2 && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsSummaryExpanded(false);
+                          handleBack();
+                        }}
+                        className="h-9.5 px-3 rounded-xl border border-[#d8dec2] bg-white hover:bg-[#d8dec2]/30 text-[#374011] font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>Back</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsSummaryExpanded(false);
+                          handleSubmitOrder();
+                        }}
+                        className="flex-1 h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99] cursor-pointer disabled:opacity-60"
+                      >
+                        {submitting ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>Placing Order...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Confirm & Place Order</span>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Action Bar: Order Items & Total Button + Attached Continue Button */}
-            <div 
-              className={
-                step === 1
-                  ? "flex items-center justify-between gap-2.5 max-w-[940px] mx-auto w-full sm:bg-white/95 sm:backdrop-blur-md sm:rounded-full sm:border sm:border-[#d8dec2] sm:shadow-xl sm:p-1.5 sm:gap-1.5 sm:ring-2 sm:ring-[#7f8f55]/20 sm:w-auto"
-                  : "flex items-center bg-white/95 backdrop-blur-md rounded-full border border-[#d8dec2] shadow-xl p-1 sm:p-1.5 gap-1.5 ring-2 ring-[#7f8f55]/20 select-none"
-              }
-            >
+            {/* Action Bar: Order Items & Total Button + Attached Action Buttons */}
+            <div className="flex items-center justify-between gap-2 sm:gap-2.5 max-w-[940px] mx-auto w-full sm:bg-white/95 sm:backdrop-blur-md sm:rounded-full sm:border sm:border-[#d8dec2] sm:shadow-xl sm:p-1.5 sm:ring-2 sm:ring-[#7f8f55]/20 sm:w-auto">
               {/* Your Order Items & Total Button (Click to toggle summary popover) */}
               <button
                 type="button"
                 onClick={handleFloatingClick}
-                className="flex items-center gap-2 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold flex-shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl sm:rounded-full hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] transition cursor-pointer text-xs sm:text-sm font-bold flex-shrink-0"
                 aria-expanded={isSummaryExpanded}
                 title="Click to view order items breakdown"
               >
@@ -1310,7 +1305,7 @@ export default function CustomerOrderForm() {
                     {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
                   </span>
                   <span className="hidden sm:inline text-[#d8dec2]">|</span>
-                  <span className="font-mono font-black text-[#374011] text-sm">
+                  <span className="font-mono font-black text-[#374011] text-xs sm:text-sm">
                     {formatINR(totalAmount)}
                   </span>
                 </div>
@@ -1320,7 +1315,7 @@ export default function CustomerOrderForm() {
                 />
               </button>
 
-              {/* Continue to Address Button directly attached - Click without scrolling! */}
+              {/* Step 1: Continue to Address Button directly attached */}
               {step === 1 && (
                 <button
                   type="button"
@@ -1334,6 +1329,51 @@ export default function CustomerOrderForm() {
                   <span>Continue to Address</span>
                   <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
                 </button>
+              )}
+
+              {/* Step 2: Back Button & Confirm Order Button directly attached to item button */}
+              {step === 2 && (
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial justify-end">
+                  {/* Attached Back Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSummaryExpanded(false);
+                      handleBack();
+                    }}
+                    className="flex items-center justify-center gap-1 h-10 sm:h-auto px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl sm:rounded-full border border-[#d8dec2] bg-white hover:bg-[#f4f6ee] active:bg-[#d8dec2]/40 text-[#374011] font-bold text-xs sm:text-sm transition shadow-2xs cursor-pointer active:scale-95 whitespace-nowrap flex-shrink-0"
+                    title="Return to select products"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Back</span>
+                  </button>
+
+                  {/* Attached Confirm Order Button */}
+                  <button
+                    type="submit"
+                    form="address-order-form"
+                    disabled={submitting}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSummaryExpanded(false);
+                      handleSubmitOrder();
+                    }}
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-10 sm:h-auto px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-full bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white shadow-md hover:shadow-lg shadow-[#7f8f55]/25 font-bold text-xs sm:text-sm transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap disabled:opacity-60"
+                  >
+                    {submitting ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Placing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Confirm Order</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
           </div>
