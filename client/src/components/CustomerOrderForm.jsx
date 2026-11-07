@@ -50,8 +50,6 @@ export default function CustomerOrderForm() {
     }
     return '';
   });
-  const [validatingPromoter, setValidatingPromoter] = useState(false);
-  const [promoterVerified, setPromoterVerified] = useState(null);
 
   // Selected products for the order: array of { product_id, quantity }
   const [selectedItems, setSelectedItems] = useState([]);
@@ -220,54 +218,19 @@ export default function CustomerOrderForm() {
     return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
 
-  // Validate Promoter ID against backend
-  const validatePromoterAsync = async (idToValidate) => {
-    const cleanId = (idToValidate || promoterId).trim();
-    if (!cleanId) {
-      setErrors((prev) => ({ ...prev, promoterId: 'Promoter ID is required' }));
-      return false;
-    }
-    setValidatingPromoter(true);
-    try {
-      const res = await fetch(apiUrl(`/api/promoters/validate/${encodeURIComponent(cleanId)}`));
-      const data = await res.json();
-      if (!res.ok || !data.valid) {
-        setErrors((prev) => ({
-          ...prev,
-          promoterId: data.error || 'Invalid Promoter ID. Only authorized promoters can place orders.'
-        }));
-        setPromoterVerified(null);
-        return false;
-      }
-      setPromoterVerified(data.promoter);
-      setErrors((prev) => ({ ...prev, promoterId: null }));
-      showToast(`Promoter verified: ${data.promoter.name || data.promoter.promoter_id}`, 'success');
-      return true;
-    } catch (err) {
-      console.error(err);
-      setErrors((prev) => ({
-        ...prev,
-        promoterId: 'Unable to verify Promoter ID. Please check your connection.'
-      }));
-      return false;
-    } finally {
-      setValidatingPromoter(false);
-    }
-  };
-
-  // If promoter ID is present in URL params, auto-verify it on mount
+  // If promoter ID is present in URL params, auto-fill on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search);
       const urlPromoter = sp.get('promoter');
       if (urlPromoter && urlPromoter.trim()) {
-        validatePromoterAsync(urlPromoter.trim());
+        setPromoterId(urlPromoter.trim());
       }
     }
   }, []);
 
   // Step 1 Validation -> Proceed to Step 2
-  const handleNext = async (e) => {
+  const handleNext = (e) => {
     if (e) e.preventDefault();
     const newErrors = {};
 
@@ -284,12 +247,6 @@ export default function CustomerOrderForm() {
       if (newErrors.promoterId) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      return;
-    }
-
-    const isValid = await validatePromoterAsync(promoterId);
-    if (!isValid) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -444,7 +401,6 @@ export default function CustomerOrderForm() {
   const handleReset = () => {
     setStep(1);
     setPromoterId('');
-    setPromoterVerified(null);
     setSelectedItems([]);
     setFullName('');
     setPhoneNumber('');
@@ -582,63 +538,30 @@ export default function CustomerOrderForm() {
             
             {/* Promoter ID Section */}
             <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-[#7f8f55]" />
-                  <span>Promoter ID <span className="text-red-500">*</span></span>
-                </label>
-                {promoterVerified && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#374011] bg-[#d8dec2]/50 px-2.5 py-0.5 rounded-full border border-[#a9b48a]">
-                    <Check className="w-3 h-3 text-[#7f8f55]" />
-                    Verified: {promoterVerified.name || promoterVerified.promoter_id}
-                  </span>
-                )}
-              </div>
+              <label htmlFor="promoter-id" className="block text-xs font-bold text-[#374011] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <User className="w-4 h-4 text-[#7f8f55]" />
+                <span>Promoter ID <span className="text-red-500">*</span></span>
+              </label>
 
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <Hash className="w-4 h-4 text-[#7f8f55]/70" />
-                  </div>
-                  <input
-                    id="promoter-id"
-                    type="text"
-                    value={promoterId}
-                    onChange={(e) => {
-                      setPromoterId(e.target.value);
-                      if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
-                      setPromoterVerified(null);
-                    }}
-                    onBlur={() => {
-                      if (promoterId.trim() && !promoterVerified && !validatingPromoter) {
-                        validatePromoterAsync(promoterId);
-                      }
-                    }}
-                    placeholder="Enter your Promoter ID (e.g. PR-1001)"
-                    className={`h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
-                      errors.promoterId 
-                        ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                        : promoterVerified
-                        ? 'border-[#7f8f55] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
-                        : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
-                    }`}
-                  />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Hash className="w-4 h-4 text-[#7f8f55]/70" />
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => validatePromoterAsync(promoterId)}
-                  disabled={validatingPromoter || !promoterId.trim()}
-                  className="px-4 h-11 rounded-xl border border-[#a9b48a] bg-[#d8dec2]/40 hover:bg-[#d8dec2] active:bg-[#c5ccaf] text-[#374011] font-semibold text-xs transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-2xs"
-                >
-                  {validatingPromoter ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#7f8f55]" />
-                  ) : promoterVerified ? (
-                    <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
-                  ) : (
-                    <span>Verify</span>
-                  )}
-                </button>
+                <input
+                  id="promoter-id"
+                  type="text"
+                  value={promoterId}
+                  onChange={(e) => {
+                    setPromoterId(e.target.value);
+                    if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
+                  }}
+                  placeholder="Enter your Promoter ID (e.g. PR-1001)"
+                  className={`h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
+                    errors.promoterId 
+                      ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                      : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
+                  }`}
+                />
               </div>
 
               {errors.promoterId ? (
@@ -808,24 +731,15 @@ export default function CustomerOrderForm() {
 
               <button
                 type="submit"
-                disabled={loadingProducts || products.length === 0 || validatingPromoter}
+                disabled={loadingProducts || products.length === 0}
                 className={`w-full sm:w-auto h-11 px-5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs ${
                   totalQuantity === 0 || !promoterId.trim()
                     ? 'bg-[#7f8f55]/70 hover:bg-[#7f8f55] text-white cursor-pointer'
                     : 'bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white hover:shadow active:scale-[0.99]'
                 }`}
               >
-                {validatingPromoter ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Verifying Promoter...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Continue to Address Details</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
+                <span>Continue to Address Details</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -1471,7 +1385,6 @@ export default function CustomerOrderForm() {
                         setIsSummaryExpanded(false);
                         handleNext();
                       }}
-                      disabled={validatingPromoter}
                       className="w-full h-9.5 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.99]"
                     >
                       <span>Continue to Address Details</span>
