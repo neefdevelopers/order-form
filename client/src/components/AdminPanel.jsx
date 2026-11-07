@@ -21,22 +21,15 @@ export default function AdminPanel({ token, admin, onLogout, onNavigateToCustome
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Left Brand & Title */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex flex-col justify-center">
               <img 
-                src="/dhaara-logo.png" 
-                alt="Dhaara Wellness" 
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover bg-black flex-shrink-0 shadow-xs ring-1 ring-black/10" 
+                src="/dhaara-logo-dark.png" 
+                alt="dhaara wellness" 
+                className="h-5 sm:h-6 w-auto object-contain object-left" 
               />
-              <div className="flex flex-col justify-center">
-                <img 
-                  src="/dhaara-logo-dark.png" 
-                  alt="dhaara wellness" 
-                  className="h-4.5 sm:h-5 w-auto object-contain object-left" 
-                />
-                <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
-                  Admin Panel
-                </span>
-              </div>
+              <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
+                Admin Panel
+              </span>
             </div>
 
             {/* Middle Desktop Tabs (hidden on mobile, visible on sm and up) */}

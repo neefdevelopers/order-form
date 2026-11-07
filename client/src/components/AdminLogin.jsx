@@ -56,20 +56,13 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
   return (
     <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md mx-auto">
-        {/* Brand / Security Badge Header */}
+        {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-3">
-            <img 
-              src="/dhaara-logo.png" 
-              alt="Dhaara Wellness" 
-              className="w-16 h-16 rounded-2xl object-cover bg-black shadow-md ring-4 ring-[#d8dec2]" 
-            />
-          </div>
-          <div className="flex items-center justify-center mb-1.5">
+          <div className="flex items-center justify-center mb-3">
             <img 
               src="/dhaara-logo-dark.png" 
               alt="dhaara wellness" 
-              className="h-6 w-auto object-contain" 
+              className="h-10 sm:h-12 w-auto object-contain" 
             />
           </div>
           <h2 className="text-xl font-bold text-[#374011] tracking-tight">

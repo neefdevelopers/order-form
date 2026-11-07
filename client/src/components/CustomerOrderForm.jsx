@@ -487,22 +487,15 @@ export default function CustomerOrderForm() {
       {/* Header Bar */}
       <header className="bg-white border-b border-[#d8dec2] sticky top-0 z-30 shadow-2xs">
         <div className="max-w-[940px] mx-auto px-3.5 sm:px-6 h-15 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-col justify-center">
             <img 
-              src="/dhaara-logo.png" 
-              alt="Dhaara Wellness" 
-              className="w-10 h-10 rounded-xl object-cover bg-black flex-shrink-0 shadow-xs ring-1 ring-black/10" 
+              src="/dhaara-logo-dark.png" 
+              alt="dhaara wellness" 
+              className="h-6 sm:h-7 w-auto object-contain object-left" 
             />
-            <div className="flex flex-col justify-center">
-              <img 
-                src="/dhaara-logo-dark.png" 
-                alt="dhaara wellness" 
-                className="h-5 sm:h-5.5 w-auto object-contain object-left" 
-              />
-              <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
-                Product Ordering Portal
-              </span>
-            </div>
+            <span className="text-[10px] font-semibold text-[#7f8f55] tracking-wide block leading-none mt-0.5">
+              Product Ordering Portal
+            </span>
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d8dec2]/40 border border-[#a9b48a]/50 text-[#374011] text-xs font-semibold">
@@ -1191,17 +1184,12 @@ export default function CustomerOrderForm() {
           <div className="max-w-md mx-auto space-y-4">
             <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-sm p-5 sm:p-7 text-center space-y-4">
               
-              {/* Brand Logo & Herbal Green Success Checkmark */}
-              <div className="flex flex-col items-center gap-2.5">
-                <img 
-                  src="/dhaara-logo.png" 
-                  alt="Dhaara Wellness" 
-                  className="w-14 h-14 rounded-2xl object-cover bg-black shadow-sm ring-4 ring-[#d8dec2]" 
-                />
+              {/* Brand Logo */}
+              <div className="flex flex-col items-center">
                 <img 
                   src="/dhaara-logo-dark.png" 
                   alt="dhaara wellness" 
-                  className="h-5.5 w-auto object-contain" 
+                  className="h-8 w-auto object-contain mb-1" 
                 />
               </div>
 
