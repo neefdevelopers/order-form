@@ -538,42 +538,46 @@ export default function CustomerOrderForm() {
             
             {/* Promoter ID Section */}
             <div className="bg-white rounded-2xl border border-[#d8dec2] shadow-xs p-4 sm:p-5">
-              <label htmlFor="promoter-id" className="block text-xs font-bold text-[#374011] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <User className="w-4 h-4 text-[#7f8f55]" />
-                <span>Promoter ID <span className="text-red-500">*</span></span>
-              </label>
-
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Hash className="w-4 h-4 text-[#7f8f55]/70" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6">
+                <div>
+                  <label htmlFor="promoter-id" className="text-xs font-bold text-[#374011] uppercase tracking-wider flex items-center gap-1.5">
+                    <User className="w-4 h-4 text-[#7f8f55]" />
+                    <span>Promoter ID <span className="text-red-500">*</span></span>
+                  </label>
+                  <p className="text-[11px] text-[#374011]/60 mt-0.5 font-medium">
+                    Authorized promoter ID is required to place your order.
+                  </p>
                 </div>
-                <input
-                  id="promoter-id"
-                  type="text"
-                  value={promoterId}
-                  onChange={(e) => {
-                    setPromoterId(e.target.value);
-                    if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
-                  }}
-                  placeholder="Enter your Promoter ID (e.g. PR-1001)"
-                  className={`h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
-                    errors.promoterId 
-                      ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
-                      : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
-                  }`}
-                />
-              </div>
 
-              {errors.promoterId ? (
-                <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-medium">
-                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>{errors.promoterId}</span>
-                </p>
-              ) : (
-                <p className="text-[11px] text-[#374011]/60 mt-1.5 font-medium">
-                  Authorized promoter ID is required to place your order.
-                </p>
-              )}
+                <div className="w-full sm:w-72 md:w-80 flex-shrink-0">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Hash className="w-4 h-4 text-[#7f8f55]/70" />
+                    </div>
+                    <input
+                      id="promoter-id"
+                      type="text"
+                      value={promoterId}
+                      onChange={(e) => {
+                        setPromoterId(e.target.value);
+                        if (errors.promoterId) setErrors((prev) => ({ ...prev, promoterId: null }));
+                      }}
+                      placeholder="e.g. PR-1001"
+                      className={`h-10 sm:h-11 w-full pl-10 pr-3.5 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 transition ${
+                        errors.promoterId 
+                          ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                          : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
+                      }`}
+                    />
+                  </div>
+                  {errors.promoterId && (
+                    <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1 font-medium">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.promoterId}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Product Selection Section */}
