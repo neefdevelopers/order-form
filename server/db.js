@@ -22,6 +22,10 @@ db.exec(`
     price REAL NOT NULL DEFAULT 0,
     image_url TEXT NOT NULL,
     is_active INTEGER NOT NULL DEFAULT 1,
+    shipping_type TEXT NOT NULL DEFAULT 'standard',
+    prepaid_shipping_fee REAL NOT NULL DEFAULT 40,
+    cod_shipping_fee REAL NOT NULL DEFAULT 60,
+    allowed_payment_types TEXT NOT NULL DEFAULT 'both',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
@@ -34,10 +38,17 @@ db.exec(`
     product_price REAL NOT NULL DEFAULT 0,
     quantity INTEGER NOT NULL,
     total_amount REAL NOT NULL DEFAULT 0,
+    items_amount REAL NOT NULL DEFAULT 0,
+    shipping_amount REAL NOT NULL DEFAULT 0,
+    payment_method TEXT NOT NULL DEFAULT 'cod',
+    payment_screenshot_url TEXT,
+    transaction_id TEXT,
+    payment_status TEXT NOT NULL DEFAULT 'pending',
     customer_name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
     complete_address TEXT NOT NULL,
     pincode TEXT NOT NULL,
+    post_office TEXT,
     city TEXT NOT NULL,
     state TEXT NOT NULL,
     created_at TEXT NOT NULL
@@ -70,6 +81,18 @@ const productCols = db.prepare('PRAGMA table_info(products)').all();
 if (!productCols.some(c => c.name === 'price')) {
   db.exec('ALTER TABLE products ADD COLUMN price REAL NOT NULL DEFAULT 500;');
 }
+if (!productCols.some(c => c.name === 'shipping_type')) {
+  db.exec("ALTER TABLE products ADD COLUMN shipping_type TEXT NOT NULL DEFAULT 'standard';");
+}
+if (!productCols.some(c => c.name === 'prepaid_shipping_fee')) {
+  db.exec("ALTER TABLE products ADD COLUMN prepaid_shipping_fee REAL NOT NULL DEFAULT 40;");
+}
+if (!productCols.some(c => c.name === 'cod_shipping_fee')) {
+  db.exec("ALTER TABLE products ADD COLUMN cod_shipping_fee REAL NOT NULL DEFAULT 60;");
+}
+if (!productCols.some(c => c.name === 'allowed_payment_types')) {
+  db.exec("ALTER TABLE products ADD COLUMN allowed_payment_types TEXT NOT NULL DEFAULT 'both';");
+}
 
 const orderCols = db.prepare('PRAGMA table_info(orders)').all();
 if (!orderCols.some(c => c.name === 'product_price')) {
@@ -80,6 +103,27 @@ if (!orderCols.some(c => c.name === 'total_amount')) {
 }
 if (!orderCols.some(c => c.name === 'items_json')) {
   db.exec('ALTER TABLE orders ADD COLUMN items_json TEXT;');
+}
+if (!orderCols.some(c => c.name === 'items_amount')) {
+  db.exec('ALTER TABLE orders ADD COLUMN items_amount REAL NOT NULL DEFAULT 0;');
+}
+if (!orderCols.some(c => c.name === 'shipping_amount')) {
+  db.exec('ALTER TABLE orders ADD COLUMN shipping_amount REAL NOT NULL DEFAULT 0;');
+}
+if (!orderCols.some(c => c.name === 'payment_method')) {
+  db.exec("ALTER TABLE orders ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'cod';");
+}
+if (!orderCols.some(c => c.name === 'payment_screenshot_url')) {
+  db.exec('ALTER TABLE orders ADD COLUMN payment_screenshot_url TEXT;');
+}
+if (!orderCols.some(c => c.name === 'transaction_id')) {
+  db.exec('ALTER TABLE orders ADD COLUMN transaction_id TEXT;');
+}
+if (!orderCols.some(c => c.name === 'payment_status')) {
+  db.exec("ALTER TABLE orders ADD COLUMN payment_status TEXT NOT NULL DEFAULT 'pending';");
+}
+if (!orderCols.some(c => c.name === 'post_office')) {
+  db.exec('ALTER TABLE orders ADD COLUMN post_office TEXT;');
 }
 
 const promoterCols = db.prepare('PRAGMA table_info(promoters)').all();

@@ -1,8 +1,25 @@
 import React from 'react';
-import { X, User, Phone, MapPin, Package, Calendar, Hash, Copy, Check } from 'lucide-react';
+import { apiUrl, getImageUrl } from '../config';
+import { 
+  X, 
+  User, 
+  Phone, 
+  MapPin, 
+  Package, 
+  Calendar, 
+  Hash, 
+  Copy, 
+  Check, 
+  Camera, 
+  ExternalLink, 
+  CreditCard, 
+  Truck 
+} from 'lucide-react';
 
 export default function OrderDetailsModal({ order, onClose }) {
   const [copied, setCopied] = React.useState(false);
+  const [fullscreenImage, setFullscreenImage] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
 
   if (!order) return null;
 
@@ -132,18 +149,31 @@ export default function OrderDetailsModal({ order, onClose }) {
                 </tbody>
               </table>
             </div>
-            <div className="p-3 bg-[#d8dec2]/35 border-t border-[#d8dec2] flex items-center justify-between">
-              <div className="flex flex-col">
+            <div className="p-3 bg-[#d8dec2]/35 border-t border-[#d8dec2] space-y-1.5 text-xs">
+              <div className="flex justify-between items-center text-[#374011]/80">
+                <span>Items Subtotal ({order.quantity} items):</span>
+                <span className="font-mono font-semibold">
+                  {formatINR(order.items_amount !== undefined ? order.items_amount : (total - (order.shipping_amount || 0)))}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-[#374011]/80">
+                <span>Shipping Fee:</span>
+                <span className="font-mono font-semibold">
+                  {(order.shipping_amount || 0) === 0 ? (
+                    <span className="text-[#7f8f55] font-bold uppercase text-[10px]">Free Delivery</span>
+                  ) : (
+                    `+${formatINR(order.shipping_amount)}`
+                  )}
+                </span>
+              </div>
+              <div className="pt-1.5 border-t border-[#d8dec2] flex items-center justify-between">
                 <span className="text-[11px] font-bold text-[#374011] uppercase tracking-wider">
                   Total Order Amount
                 </span>
-                <span className="text-[11px] text-[#7f8f55] font-semibold">
-                  ({order.quantity} total items)
+                <span className="text-base font-bold font-mono text-[#374011]">
+                  {formatINR(total)}
                 </span>
               </div>
-              <span className="text-base font-bold font-mono text-[#374011]">
-                {formatINR(total)}
-              </span>
             </div>
           </div>
 
@@ -175,10 +205,14 @@ export default function OrderDetailsModal({ order, onClose }) {
               {order.complete_address}
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-xs pt-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs pt-1">
               <div>
                 <span className="text-[#374011]/60 block text-[11px]">Pincode:</span>
                 <span className="font-semibold text-[#374011]">{order.pincode}</span>
+              </div>
+              <div>
+                <span className="text-[#374011]/60 block text-[11px]">Post Office:</span>
+                <span className="font-semibold text-[#374011]">{order.post_office || '—'}</span>
               </div>
               <div>
                 <span className="text-[#374011]/60 block text-[11px]">City:</span>
@@ -189,6 +223,94 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <span className="font-semibold text-[#374011]">{order.state}</span>
               </div>
             </div>
+          </div>
+
+          {/* Payment & Verification Details */}
+          <div className="p-4 bg-[#f4f6ee] rounded-xl border border-[#d8dec2] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-[#7f8f55] uppercase tracking-wider block">
+                Payment Details
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                order.payment_method === 'prepaid'
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-800 border border-amber-300'
+              }`}>
+                {order.payment_method === 'prepaid' ? 'Prepaid (UPI / QR)' : 'Cash on Delivery (COD)'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-[#374011]/60 block text-[11px]">Payment Method:</span>
+                <span className="font-semibold text-[#374011]">
+                  {order.payment_method === 'prepaid' ? 'Prepaid UPI' : 'Cash on Delivery'}
+                </span>
+              </div>
+
+              {order.transaction_id && (
+                <div>
+                  <span className="text-[#374011]/60 block text-[11px]">Transaction / UTR ID:</span>
+                  <span className="font-mono font-bold text-[#374011]">{order.transaction_id}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Payment Screenshot Section for prepaid orders */}
+            {order.payment_method === 'prepaid' && (
+              <div className="mt-2 pt-2 border-t border-[#d8dec2]/70 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#374011] flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-[#7f8f55]" />
+                    <span>Payment Screenshot</span>
+                  </span>
+                  {order.payment_screenshot_url && !imageError && (
+                    <a
+                      href={getImageUrl(order.payment_screenshot_url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-[#7f8f55] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Open Full Size</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+
+                {order.payment_screenshot_url ? (
+                  imageError ? (
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center text-xs text-amber-800 space-y-1">
+                      <p className="font-bold">Screenshot file could not be loaded</p>
+                      <p className="text-[11px] text-[#374011]/60 font-mono">
+                        Path: {order.payment_screenshot_url}
+                      </p>
+                    </div>
+                  ) : (
+                    <div 
+                      onClick={() => setFullscreenImage(true)}
+                      className="group relative w-full rounded-xl overflow-hidden bg-white border border-[#d8dec2] hover:border-[#7f8f55] flex items-center justify-center p-2 cursor-pointer transition shadow-2xs hover:shadow-sm"
+                      title="Click to view full size"
+                    >
+                      <img
+                        src={getImageUrl(order.payment_screenshot_url)}
+                        alt="Payment Screenshot"
+                        onError={() => setImageError(true)}
+                        className="max-h-60 max-w-full object-contain rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-[#374011]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#374011] text-xs font-bold shadow-md">
+                          Click to Enlarge
+                        </span>
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
+                    No payment screenshot was uploaded with this order.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -202,6 +324,30 @@ export default function OrderDetailsModal({ order, onClose }) {
           </button>
         </div>
       </div>
+
+      {/* Fullscreen Screenshot Overlay */}
+      {fullscreenImage && order.payment_screenshot_url && (
+        <div 
+          className="fixed inset-0 z-60 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setFullscreenImage(false)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setFullscreenImage(false)}
+              className="absolute -top-10 right-0 p-1.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-black transition cursor-pointer"
+              title="Close full view"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={getImageUrl(order.payment_screenshot_url)}
+              alt="Payment Screenshot Fullscreen"
+              className="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

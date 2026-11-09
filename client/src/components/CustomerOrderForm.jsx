@@ -20,7 +20,12 @@ import {
   ShieldCheck, 
   Printer, 
   ChevronUp, 
-  X
+  X,
+  Truck,
+  CreditCard,
+  QrCode,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 
 const INDIAN_STATES = [
@@ -61,9 +66,19 @@ export default function CustomerOrderForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [completeAddress, setCompleteAddress] = useState('');
   const [pincode, setPincode] = useState('');
+  const [postOffice, setPostOffice] = useState('');
+  const [postOffices, setPostOffices] = useState([]);
   const [loadingPincode, setLoadingPincode] = useState(false);
   const [city, setCity] = useState('');
   const [stateName, setStateName] = useState('');
+
+  // Payment & Shipping state (Prepaid: +₹40, COD: +₹60, or Free)
+  const [paymentMethod, setPaymentMethod] = useState('prepaid'); // 'prepaid' | 'cod'
+  const [paymentScreenshotFile, setPaymentScreenshotFile] = useState(null);
+  const [paymentScreenshotPreview, setPaymentScreenshotPreview] = useState('');
+  const [transactionId, setTransactionId] = useState('');
+  const [copiedUpi, setCopiedUpi] = useState(false);
+  const fileInputPaymentRef = useRef(null);
 
   // Validation errors
   const [errors, setErrors] = useState({});
@@ -167,13 +182,73 @@ export default function CustomerOrderForm() {
         price: unitPrice,
         image_url: prod.image_url,
         quantity: qty,
-        subtotal
+        subtotal,
+        shipping_type: prod.shipping_type || 'standard',
+        prepaid_shipping_fee: prod.prepaid_shipping_fee !== undefined ? Number(prod.prepaid_shipping_fee) : 40,
+        cod_shipping_fee: prod.cod_shipping_fee !== undefined ? Number(prod.cod_shipping_fee) : 60,
+        allowed_payment_types: prod.allowed_payment_types || 'both'
       };
     })
     .filter(Boolean);
 
   const totalAmount = itemsWithDetails.reduce((sum, item) => sum + item.subtotal, 0);
   const totalQuantity = itemsWithDetails.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Check if any product restricts payment method
+  const hasPrepaidOnly = itemsWithDetails.some((it) => it.allowed_payment_types === 'prepaid');
+  const hasCodOnly = itemsWithDetails.some((it) => it.allowed_payment_types === 'cod');
+
+  // Auto-switch paymentMethod if restricted by products
+  useEffect(() => {
+    if (hasPrepaidOnly && paymentMethod !== 'prepaid') {
+      setPaymentMethod('prepaid');
+    } else if (hasCodOnly && paymentMethod !== 'cod') {
+      setPaymentMethod('cod');
+    }
+  }, [hasPrepaidOnly, hasCodOnly, paymentMethod]);
+
+  // Shipping Fee calculation (Free if all items are free, else max of prepaid/cod fee)
+  const isAllFreeShipping = itemsWithDetails.length > 0 && itemsWithDetails.every(
+    (it) => it.shipping_type === 'free' || (it.prepaid_shipping_fee === 0 && it.cod_shipping_fee === 0)
+  );
+
+  const prepaidShippingFee = isAllFreeShipping ? 0 : Math.max(
+    ...itemsWithDetails.map((it) => (it.shipping_type === 'free' ? 0 : it.prepaid_shipping_fee)),
+    40
+  );
+
+  const codShippingFee = isAllFreeShipping ? 0 : Math.max(
+    ...itemsWithDetails.map((it) => (it.shipping_type === 'free' ? 0 : it.cod_shipping_fee)),
+    60
+  );
+
+  const currentShippingFee = paymentMethod === 'prepaid' ? prepaidShippingFee : codShippingFee;
+  const grandTotal = totalAmount + currentShippingFee;
+
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText('vyapar.174975680862@hdfcbank');
+    setCopiedUpi(true);
+    showToast('UPI ID copied to clipboard!');
+    setTimeout(() => setCopiedUpi(false), 2500);
+  };
+
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setErrors((prev) => ({ ...prev, paymentScreenshot: 'Please select an image file (PNG, JPG, WEBP)' }));
+        return;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        setErrors((prev) => ({ ...prev, paymentScreenshot: 'Screenshot image size must be under 15MB' }));
+        return;
+      }
+      setPaymentScreenshotFile(file);
+      setPaymentScreenshotPreview(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, paymentScreenshot: null }));
+      showToast('Payment screenshot attached successfully');
+    }
+  };
 
   // Format currency in Indian Rupees (₹)
   const formatINR = (val) => {
@@ -236,7 +311,7 @@ export default function CustomerOrderForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Lookup India Post API to auto-fill City and State from 6-digit Pincode
+  // Lookup India Post API to auto-fill City, State, and Post Offices from 6-digit Pincode
   const handlePincodeLookup = async (pinValue) => {
     const cleanPin = (pinValue || '').replace(/\D/g, '');
     if (cleanPin.length !== 6) {
@@ -255,10 +330,12 @@ export default function CustomerOrderForm() {
           const directData = await directRes.json();
           if (Array.isArray(directData) && directData[0]?.Status === 'Success' && directData[0]?.PostOffice?.length > 0) {
             const po = directData[0].PostOffice[0];
+            const offices = directData[0].PostOffice.map((p) => (p.Name || '').trim()).filter(Boolean);
             data = {
               success: true,
               city: po.District || po.Block || po.Name,
-              state: po.State
+              state: po.State,
+              postOffices: offices
             };
           }
         } catch (e) {
@@ -269,8 +346,19 @@ export default function CustomerOrderForm() {
       if (data && data.success) {
         if (data.city) setCity(data.city);
         if (data.state) setStateName(data.state);
-        setErrors((prev) => ({ ...prev, city: null, stateName: null, pincode: null }));
-        showToast(`Auto-detected ${data.city || 'City'}, ${data.state || 'State'}`);
+        if (Array.isArray(data.postOffices) && data.postOffices.length > 0) {
+          setPostOffices(data.postOffices);
+          // If 1 post office, auto-select it; if current postOffice not in new list, reset it so user picks from dropdown
+          if (data.postOffices.length === 1) {
+            setPostOffice(data.postOffices[0]);
+          } else if (!data.postOffices.includes(postOffice)) {
+            setPostOffice('');
+          }
+        } else {
+          setPostOffices([]);
+        }
+        setErrors((prev) => ({ ...prev, city: null, stateName: null, pincode: null, postOffice: null }));
+        showToast(`Auto-detected ${data.city || 'City'}, ${data.state || 'State'}${data.postOffices?.length ? ` (${data.postOffices.length} Post Offices loaded)` : ''}`);
       }
     } catch (err) {
       console.error('Error in pincode lookup:', err);
@@ -308,15 +396,25 @@ export default function CustomerOrderForm() {
     if (!pincode.trim()) {
       newErrors.pincode = 'Pincode is required';
     }
+    if (!postOffice.trim()) {
+      newErrors.postOffice = postOffices.length > 0 ? 'Please select your Post Office' : 'Post Office is required';
+    }
     if (!city.trim()) {
       newErrors.city = 'City is required';
     }
     if (!stateName.trim()) {
       newErrors.stateName = 'State is required';
     }
+    if (paymentMethod === 'prepaid' && !paymentScreenshotFile) {
+      newErrors.paymentScreenshot = 'Please upload your payment screenshot to confirm your Prepaid order';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      if (newErrors.paymentScreenshot && !newErrors.fullName && !newErrors.phoneNumber && !newErrors.completeAddress && !newErrors.pincode && !newErrors.postOffice && !newErrors.city && !newErrors.stateName) {
+        const payEl = document.getElementById('payment-section');
+        if (payEl) payEl.scrollIntoView({ behavior: 'smooth' });
+      }
       return;
     }
 
@@ -325,24 +423,31 @@ export default function CustomerOrderForm() {
     setSubmitting(true);
 
     try {
-      const payload = {
-        promoter_id: promoterId.trim(),
-        items: itemsWithDetails.map((it) => ({
-          product_id: it.product_id,
-          quantity: it.quantity
-        })),
-        customer_name: fullName.trim(),
-        phone_number: phoneNumber.trim(),
-        complete_address: completeAddress.trim(),
-        pincode: pincode.trim(),
-        city: city.trim(),
-        state: stateName.trim()
-      };
+      const formData = new FormData();
+      formData.append('promoter_id', promoterId.trim());
+      formData.append('customer_name', fullName.trim());
+      formData.append('phone_number', phoneNumber.trim());
+      formData.append('complete_address', completeAddress.trim());
+      formData.append('pincode', pincode.trim());
+      formData.append('post_office', postOffice.trim());
+      formData.append('city', city.trim());
+      formData.append('state', stateName.trim());
+      formData.append('items', JSON.stringify(itemsWithDetails.map((it) => ({
+        product_id: it.product_id,
+        quantity: it.quantity
+      }))));
+      formData.append('payment_method', paymentMethod);
+      formData.append('shipping_amount', currentShippingFee);
+      if (transactionId.trim()) {
+        formData.append('transaction_id', transactionId.trim());
+      }
+      if (paymentScreenshotFile) {
+        formData.append('payment_screenshot', paymentScreenshotFile);
+      }
 
       const res = await fetch(apiUrl('/api/orders'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: formData
       });
 
       const data = await res.json();
@@ -355,15 +460,21 @@ export default function CustomerOrderForm() {
         orderId: data.orderId,
         orderDate: data.orderDate,
         items: itemsWithDetails,
-        totalAmount: data.totalAmount !== undefined ? data.totalAmount : totalAmount,
+        itemsAmount: data.itemsAmount !== undefined ? data.itemsAmount : totalAmount,
+        shippingAmount: data.shippingAmount !== undefined ? data.shippingAmount : currentShippingFee,
+        totalAmount: data.totalAmount !== undefined ? data.totalAmount : grandTotal,
+        paymentMethod: data.paymentMethod || paymentMethod,
+        paymentScreenshotUrl: data.paymentScreenshotUrl || paymentScreenshotPreview,
+        transactionId: transactionId.trim(),
         totalQuantity: data.quantity !== undefined ? data.quantity : totalQuantity,
-        customerName: payload.customer_name,
-        phoneNumber: payload.phone_number,
-        completeAddress: payload.complete_address,
-        pincode: payload.pincode,
-        city: payload.city,
-        state: payload.state,
-        promoterId: payload.promoter_id
+        customerName: fullName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        completeAddress: completeAddress.trim(),
+        pincode: pincode.trim(),
+        postOffice: postOffice.trim(),
+        city: city.trim(),
+        state: stateName.trim(),
+        promoterId: promoterId.trim()
       });
 
       setIsSummaryExpanded(false);
@@ -386,8 +497,15 @@ export default function CustomerOrderForm() {
     setPhoneNumber('');
     setCompleteAddress('');
     setPincode('');
+    setPostOffice('');
+    setPostOffices([]);
     setCity('');
     setStateName('');
+    setPaymentMethod('prepaid');
+    setPaymentScreenshotFile(null);
+    setPaymentScreenshotPreview('');
+    setTransactionId('');
+    setCopiedUpi(false);
     setErrors({});
     setSubmitError('');
     setOrderResult(null);
@@ -621,12 +739,26 @@ export default function CustomerOrderForm() {
                             </h3>
                           </div>
 
-                          {/* Price in INR */}
-                          <div className="flex items-baseline gap-1.5 mb-3">
-                            <span className="text-lg sm:text-xl font-black text-[#374011] font-mono tracking-tight">
-                              {formatINR(prod.price)}
-                            </span>
-                            <span className="text-xs text-[#374011]/60 font-semibold">/ unit</span>
+                          {/* Price in INR & Delivery Badge */}
+                          <div className="flex flex-wrap items-baseline justify-between gap-1.5 mb-3">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-lg sm:text-xl font-black text-[#374011] font-mono tracking-tight">
+                                {formatINR(prod.price)}
+                              </span>
+                              <span className="text-xs text-[#374011]/60 font-semibold">/ unit</span>
+                            </div>
+
+                            {prod.shipping_type === 'free' ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7f8f55]/15 text-[#374011] border border-[#7f8f55]/30">
+                                <Truck className="w-3 h-3 text-[#7f8f55]" />
+                                <span>Free Delivery</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#f4f6ee] text-[#374011]/70 border border-[#d8dec2]" title="Prepaid: +₹40 | COD: +₹60">
+                                <Truck className="w-3 h-3 text-[#7f8f55]" />
+                                <span>Prepaid +₹40 | COD +₹60</span>
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -826,8 +958,8 @@ export default function CustomerOrderForm() {
                   )}
                 </div>
 
-                {/* Pincode, City, State Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Pincode, Post Office, City, State Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Pincode */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
@@ -853,11 +985,14 @@ export default function CustomerOrderForm() {
                         const clean = val.replace(/\D/g, '');
                         if (clean.length === 6) {
                           handlePincodeLookup(clean);
+                        } else {
+                          setPostOffices([]);
+                          setPostOffice('');
                         }
                       }}
                       onBlur={(e) => {
                         const clean = e.target.value.replace(/\D/g, '');
-                        if (clean.length === 6 && (!city || !stateName)) {
+                        if (clean.length === 6 && (!city || !stateName || postOffices.length === 0)) {
                           handlePincodeLookup(clean);
                         }
                       }}
@@ -870,6 +1005,61 @@ export default function CustomerOrderForm() {
                     />
                     {errors.pincode && (
                       <p className="text-xs text-red-600 mt-1 font-medium">{errors.pincode}</p>
+                    )}
+                  </div>
+
+                  {/* Post Office Dropdown / Selection */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="post-office" className="block text-xs font-bold text-[#374011]">
+                        Post Office <span className="text-red-500">*</span>
+                      </label>
+                      {postOffices.length > 0 && (
+                        <span className="text-[10px] text-[#7f8f55] font-semibold">
+                          {postOffices.length} options
+                        </span>
+                      )}
+                    </div>
+                    {postOffices.length > 0 ? (
+                      <select
+                        id="post-office"
+                        value={postOffice}
+                        onChange={(e) => {
+                          setPostOffice(e.target.value);
+                          if (errors.postOffice) setErrors((prev) => ({ ...prev, postOffice: null }));
+                        }}
+                        className={`h-11 w-full px-3 rounded-xl border text-sm text-[#374011] bg-white focus:outline-none focus:ring-2 transition ${
+                          errors.postOffice 
+                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                            : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
+                        }`}
+                      >
+                        <option value="">Select Post Office</option>
+                        {postOffices.map((po) => (
+                          <option key={po} value={po}>
+                            {po}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        id="post-office"
+                        type="text"
+                        value={postOffice}
+                        onChange={(e) => {
+                          setPostOffice(e.target.value);
+                          if (errors.postOffice) setErrors((prev) => ({ ...prev, postOffice: null }));
+                        }}
+                        placeholder={pincode.length === 6 ? "Enter Post Office" : "Enter Pincode first"}
+                        className={`h-11 w-full px-3 rounded-xl border text-sm text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
+                          errors.postOffice 
+                            ? 'border-red-300 focus:ring-red-100 focus:border-red-500' 
+                            : 'border-[#d8dec2] focus:ring-[#7f8f55]/20 focus:border-[#7f8f55]'
+                        }`}
+                      />
+                    )}
+                    {errors.postOffice && (
+                      <p className="text-xs text-red-600 mt-1 font-medium">{errors.postOffice}</p>
                     )}
                   </div>
 
@@ -929,6 +1119,249 @@ export default function CustomerOrderForm() {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Payment & Shipping Method Selection */}
+              <div id="payment-section" className="space-y-3.5 pt-3 border-t border-[#d8dec2]/70">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#374011]/60 uppercase tracking-wider block">
+                    Payment & Delivery Method <span className="text-red-500">*</span>
+                  </span>
+                  {currentShippingFee === 0 && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#7f8f55] bg-[#7f8f55]/15 px-2 py-0.5 rounded-full border border-[#7f8f55]/30">
+                      <Truck className="w-3 h-3" />
+                      <span>Free Delivery Applied</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Method Selection Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Option 1: Prepaid UPI / QR */}
+                  <div
+                    onClick={() => {
+                      if (!hasCodOnly) setPaymentMethod('prepaid');
+                    }}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                      paymentMethod === 'prepaid'
+                        ? 'border-[#7f8f55] bg-[#7f8f55]/10 ring-2 ring-[#7f8f55]/30 shadow-xs'
+                        : 'border-[#d8dec2] bg-white hover:border-[#a9b48a]'
+                    } ${hasCodOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="pay-prepaid"
+                        name="payment_method"
+                        value="prepaid"
+                        disabled={hasCodOnly}
+                        checked={paymentMethod === 'prepaid'}
+                        onChange={() => setPaymentMethod('prepaid')}
+                        className="text-[#7f8f55] focus:ring-[#7f8f55] w-4 h-4 cursor-pointer"
+                      />
+                      <label htmlFor="pay-prepaid" className="text-xs sm:text-sm font-bold text-[#374011] cursor-pointer flex items-center gap-1.5">
+                        <QrCode className="w-4 h-4 text-[#7f8f55]" />
+                        <span>Prepaid (UPI / QR)</span>
+                      </label>
+                    </div>
+
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${
+                      prepaidShippingFee === 0
+                        ? 'bg-[#7f8f55]/20 text-[#374011] border border-[#7f8f55]/40'
+                        : 'bg-[#7f8f55] text-white'
+                    }`}>
+                      {prepaidShippingFee === 0 ? 'FREE Delivery' : '+₹40 Delivery'}
+                    </span>
+                  </div>
+
+                  {/* Option 2: Cash on Delivery */}
+                  <div
+                    onClick={() => {
+                      if (!hasPrepaidOnly) setPaymentMethod('cod');
+                    }}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                      paymentMethod === 'cod'
+                        ? 'border-[#7f8f55] bg-[#7f8f55]/10 ring-2 ring-[#7f8f55]/30 shadow-xs'
+                        : 'border-[#d8dec2] bg-white hover:border-[#a9b48a]'
+                    } ${hasPrepaidOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="pay-cod"
+                        name="payment_method"
+                        value="cod"
+                        disabled={hasPrepaidOnly}
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
+                        className="text-[#7f8f55] focus:ring-[#7f8f55] w-4 h-4 cursor-pointer"
+                      />
+                      <label htmlFor="pay-cod" className="text-xs sm:text-sm font-bold text-[#374011] cursor-pointer flex items-center gap-1.5">
+                        <Truck className="w-4 h-4 text-[#7f8f55]" />
+                        <span>Cash on Delivery</span>
+                      </label>
+                    </div>
+
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${
+                      codShippingFee === 0
+                        ? 'bg-[#7f8f55]/20 text-[#374011] border border-[#7f8f55]/40'
+                        : 'bg-[#d8dec2]/70 text-[#374011] border border-[#a9b48a]'
+                    }`}>
+                      {codShippingFee === 0 ? 'FREE Delivery' : '+₹60 Delivery'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Expanded Prepaid UPI QR & Payment Screenshot Box */}
+                {paymentMethod === 'prepaid' && (
+                  <div className="rounded-2xl border border-[#7f8f55]/40 bg-gradient-to-b from-[#f8f9f4] via-[#f4f6ee] to-white p-4 sm:p-5 text-center shadow-xs space-y-4">
+                    {/* Header banner */}
+                    <div>
+                      <span className="text-[11px] font-bold text-[#7f8f55] uppercase tracking-wider block">
+                        Scan & Pay
+                      </span>
+                      <div className="mt-1 flex items-baseline justify-center gap-1.5">
+                        <span className="text-xs text-[#374011]/70 font-medium">Total Payable:</span>
+                        <span className="font-mono text-2xl sm:text-3xl font-black text-[#374011] tracking-tight">
+                          {formatINR(grandTotal)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* QR Code Container */}
+                    <div className="relative mx-auto max-w-[250px] sm:max-w-[270px] bg-white rounded-2xl p-2.5 shadow-sm border border-[#d8dec2]">
+                      <img
+                        src="/dhaara-payment-qr.jpg"
+                        alt="DHAARA WELLNESS UPI Payment QR Code"
+                        className="w-full h-auto rounded-xl object-contain"
+                      />
+                    </div>
+
+                    {/* UPI ID Row with Copy button */}
+                    <div className="max-w-sm mx-auto bg-white border border-[#d8dec2] rounded-xl p-2 flex items-center justify-between shadow-2xs">
+                      <div className="text-left px-2 min-w-0">
+                        <span className="text-[9px] uppercase font-bold text-[#374011]/50 block">UPI ID</span>
+                        <span className="font-mono text-xs sm:text-sm font-bold text-[#374011] truncate block">
+                          vyapar.174975680862@hdfcbank
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCopyUpi}
+                        className="px-2.5 py-1.5 rounded-lg bg-[#f4f6ee] hover:bg-[#d8dec2]/50 border border-[#d8dec2] text-[#374011] text-xs font-bold inline-flex items-center gap-1 transition cursor-pointer active:scale-95 flex-shrink-0"
+                        title="Copy UPI ID"
+                      >
+                        {copiedUpi ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-[#7f8f55]" />
+                            <span className="text-[#7f8f55]">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-[#7f8f55]" />
+                            <span>Copy UPI</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Payment Screenshot Upload Section */}
+                    <div className="pt-3 border-t border-[#d8dec2]/70 text-left max-w-md mx-auto space-y-2">
+                      <label className="block text-xs font-bold text-[#374011]">
+                        Upload Payment Screenshot <span className="text-red-500">*</span>
+                      </label>
+
+                      {paymentScreenshotPreview ? (
+                        <div className="relative rounded-xl border border-[#7f8f55] bg-white p-3 flex items-center gap-3 shadow-xs">
+                          <div className="w-14 h-14 rounded-lg bg-[#f4f6ee] border border-[#d8dec2] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={paymentScreenshotPreview}
+                              alt="Payment Screenshot Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1 text-xs font-bold text-[#7f8f55]">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Screenshot Attached</span>
+                            </div>
+                            <p className="text-[11px] text-[#374011]/70 truncate font-mono mt-0.5">
+                              {paymentScreenshotFile?.name || 'payment_screenshot.jpg'}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => fileInputPaymentRef.current?.click()}
+                              className="text-[11px] text-[#7f8f55] font-bold hover:underline mt-0.5 cursor-pointer block"
+                            >
+                              Change Screenshot
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPaymentScreenshotFile(null);
+                              setPaymentScreenshotPreview('');
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title="Remove screenshot"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => fileInputPaymentRef.current?.click()}
+                          className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition bg-white hover:bg-[#f4f6ee]/60 ${
+                            errors.paymentScreenshot
+                              ? 'border-red-400 bg-red-50/40'
+                              : 'border-[#a9b48a] hover:border-[#7f8f55]'
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-[#f4f6ee] text-[#7f8f55] flex items-center justify-center mx-auto mb-2 border border-[#d8dec2]">
+                            <Upload className="w-5 h-5" />
+                          </div>
+                          <span className="text-xs font-bold text-[#374011] block">
+                            Click to upload Payment Screenshot
+                          </span>
+                          <span className="text-[11px] text-[#374011]/60 block mt-0.5">
+                            JPG, PNG, or WEBP (Max 15MB)
+                          </span>
+                        </div>
+                      )}
+
+                      <input
+                        type="file"
+                        ref={fileInputPaymentRef}
+                        onChange={handleScreenshotChange}
+                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                        className="hidden"
+                      />
+
+                      {errors.paymentScreenshot && (
+                        <p className="text-xs text-red-600 flex items-center gap-1 font-semibold pt-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{errors.paymentScreenshot}</span>
+                        </p>
+                      )}
+
+                      {/* Optional UTR / Transaction ID */}
+                      <div className="pt-2">
+                        <label htmlFor="transaction-id" className="block text-[11px] font-bold text-[#374011] mb-1">
+                          UPI / UTR Transaction ID <span className="text-[#374011]/50 font-normal">(Optional)</span>
+                        </label>
+                        <input
+                          id="transaction-id"
+                          type="text"
+                          value={transactionId}
+                          onChange={(e) => setTransactionId(e.target.value)}
+                          placeholder="e.g. 12-digit UTR from payment receipt"
+                          className="h-10 w-full px-3 rounded-xl border border-[#d8dec2] text-xs font-mono text-[#374011] bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
 
             </div>
@@ -1018,7 +1451,7 @@ export default function CustomerOrderForm() {
                   <div className="sm:col-span-2">
                     <span className="text-[#374011]/60 block mb-0.5 font-medium">Delivery Address:</span>
                     <span className="font-medium text-[#374011]">
-                      {orderResult.completeAddress}, {orderResult.city}, {orderResult.state} - {orderResult.pincode}
+                      {orderResult.completeAddress}{orderResult.postOffice ? `, PO: ${orderResult.postOffice}` : ''}, {orderResult.city}, {orderResult.state} - {orderResult.pincode}
                     </span>
                   </div>
                 </div>
@@ -1047,13 +1480,56 @@ export default function CustomerOrderForm() {
                   </div>
                 </div>
 
-                {/* Total */}
-                <div className="border-t border-[#d8dec2]/80 pt-2 flex items-center justify-between">
-                  <span className="font-bold text-[#374011]">Total Amount:</span>
-                  <span className="text-base font-black text-[#374011] font-mono">
-                    {formatINR(orderResult.totalAmount)}
-                  </span>
+                {/* Cost Breakdown */}
+                <div className="border-t border-[#d8dec2]/80 pt-2 space-y-1 text-xs">
+                  <div className="flex justify-between items-center text-[#374011]/80">
+                    <span>Payment Method:</span>
+                    <span className="font-semibold text-[#374011]">
+                      {orderResult.paymentMethod === 'prepaid' ? 'Prepaid (UPI / QR)' : 'Cash on Delivery (COD)'}
+                    </span>
+                  </div>
+
+                  {orderResult.transactionId && (
+                    <div className="flex justify-between items-center text-[#374011]/80">
+                      <span>Transaction / UTR:</span>
+                      <span className="font-mono font-semibold text-[#374011]">
+                        {orderResult.transactionId}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-[#374011]/80">
+                    <span>Items Subtotal:</span>
+                    <span className="font-mono font-semibold">
+                      {formatINR(orderResult.itemsAmount !== undefined ? orderResult.itemsAmount : (orderResult.totalAmount - (orderResult.shippingAmount || 0)))}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-[#374011]/80">
+                    <span>Delivery Fee:</span>
+                    <span className="font-mono font-semibold">
+                      {(orderResult.shippingAmount || 0) === 0 ? (
+                        <span className="text-[#7f8f55] font-bold uppercase text-[10px]">Free Delivery</span>
+                      ) : (
+                        `+${formatINR(orderResult.shippingAmount)}`
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="border-t border-[#d8dec2]/80 pt-1.5 flex items-center justify-between">
+                    <span className="font-bold text-[#374011]">Total Amount:</span>
+                    <span className="text-base font-black text-[#374011] font-mono">
+                      {formatINR(orderResult.totalAmount)}
+                    </span>
+                  </div>
                 </div>
+
+                {orderResult.paymentMethod === 'prepaid' && (
+                  <div className="p-2.5 rounded-xl bg-white border border-[#7f8f55]/40 flex items-center gap-2 text-[11px] text-[#374011]">
+                    <CheckCircle2 className="w-4 h-4 text-[#7f8f55] flex-shrink-0" />
+                    <span>Payment screenshot uploaded. Verification in progress.</span>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -1205,18 +1681,32 @@ export default function CustomerOrderForm() {
 
                 {/* Popover Footer with Grand Total & Action */}
                 <div className="bg-[#f4f6ee] p-2.5 sm:p-3 border-t border-[#d8dec2] space-y-2.5">
-                  <div className="p-2 rounded-xl bg-white border border-[#d8dec2] flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold text-[#374011]/70 uppercase tracking-wider block leading-tight">
-                        Grand Total
-                      </span>
-                      <span className="text-[9px] text-[#7f8f55] font-semibold">
-                        {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                  <div className="p-2.5 rounded-xl bg-white border border-[#d8dec2] space-y-1">
+                    <div className="flex items-center justify-between text-xs text-[#374011]/80">
+                      <span>Items Subtotal:</span>
+                      <span className="font-mono font-bold text-[#374011]">{formatINR(totalAmount)}</span>
+                    </div>
+                    {step === 2 && (
+                      <div className="flex items-center justify-between text-xs text-[#374011]/80">
+                        <span>Delivery ({paymentMethod === 'prepaid' ? 'Prepaid UPI' : 'COD'}):</span>
+                        <span className="font-mono font-bold text-[#374011]">
+                          {currentShippingFee === 0 ? 'FREE' : `+${formatINR(currentShippingFee)}`}
+                        </span>
+                      </div>
+                    )}
+                    <div className="pt-1.5 border-t border-[#d8dec2] flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#374011]/70 uppercase tracking-wider block leading-tight">
+                          Total Amount
+                        </span>
+                        <span className="text-[9px] text-[#7f8f55] font-semibold">
+                          {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+                        </span>
+                      </div>
+                      <span className="text-base font-black font-mono text-[#374011]">
+                        {formatINR(step === 2 ? grandTotal : totalAmount)}
                       </span>
                     </div>
-                    <span className="text-base font-black font-mono text-[#374011]">
-                      {formatINR(totalAmount)}
-                    </span>
                   </div>
 
                   {step === 1 && (
@@ -1299,7 +1789,7 @@ export default function CustomerOrderForm() {
                   </span>
                   <span className="hidden sm:inline text-[#d8dec2]">|</span>
                   <span className="font-mono font-black text-[#374011] text-xs sm:text-sm">
-                    {formatINR(totalAmount)}
+                    {formatINR(step === 2 ? grandTotal : totalAmount)}
                   </span>
                 </div>
 

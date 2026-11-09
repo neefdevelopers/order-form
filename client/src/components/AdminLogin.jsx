@@ -57,20 +57,14 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
     <div className="min-h-screen bg-[#f4f6ee] text-[#374011] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md mx-auto">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-3">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center">
             <img 
               src="/dhaara-logo-dark.png" 
               alt="dhaara wellness" 
               className="h-10 sm:h-12 w-auto object-contain" 
             />
           </div>
-          <h2 className="text-xl font-bold text-[#374011] tracking-tight">
-            Administrator Portal
-          </h2>
-          <p className="text-xs text-[#374011]/70 mt-1">
-            Sign in to manage products, orders, and promoters
-          </p>
         </div>
 
         {/* Login Card */}
@@ -89,7 +83,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                 htmlFor="admin-username"
                 className="block text-xs font-semibold uppercase tracking-wider text-[#374011] mb-1.5"
               >
-                Administrator Username
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
@@ -104,7 +98,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                     setUsername(e.target.value);
                     if (error) setError('');
                   }}
-                  placeholder="Enter admin username"
+                  placeholder="Enter username"
                   required
                   className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
@@ -132,7 +126,7 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
                     setPassword(e.target.value);
                     if (error) setError('');
                   }}
-                  placeholder="Enter admin password"
+                  placeholder="Enter password"
                   required
                   className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
@@ -156,12 +150,12 @@ export default function AdminLogin({ onLoginSuccess, onBackToOrderForm }) {
               {loading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Authenticating...</span>
+                  <span>Signing In...</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-4 h-4" />
-                  <span>Sign In to Admin Panel</span>
+                  <span>Sign In</span>
                 </>
               )}
             </button>

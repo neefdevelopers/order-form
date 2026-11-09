@@ -45,7 +45,7 @@ const upload = multer({
 // Only active products appear in the customer order form, with their saved price
 router.get('/products', (req, res) => {
   try {
-    const stmt = db.prepare('SELECT id, name, price, image_url FROM products WHERE is_active = 1 ORDER BY name ASC');
+    const stmt = db.prepare('SELECT id, name, price, image_url, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE is_active = 1 ORDER BY name ASC');
     const products = stmt.all();
     res.json(products);
   } catch (err) {
@@ -89,14 +89,36 @@ router.post('/admin/products', requireAdminAuth, upload.single('image'), (req, r
 
     const imageUrl = `/uploads/products/${req.file.filename}`;
     const isActive = req.body.is_active !== undefined ? (req.body.is_active === '0' || req.body.is_active === 0 || req.body.is_active === false ? 0 : 1) : 1;
+    
+    // Shipping and payment types configuration
+    const shippingType = (req.body.shipping_type || 'standard').trim().toLowerCase();
+    let prepaidFee = 40;
+    let codFee = 60;
+    if (shippingType === 'free') {
+      prepaidFee = 0;
+      codFee = 0;
+    } else if (shippingType === 'custom') {
+      prepaidFee = req.body.prepaid_shipping_fee !== undefined ? Math.max(0, parseFloat(req.body.prepaid_shipping_fee) || 0) : 40;
+      codFee = req.body.cod_shipping_fee !== undefined ? Math.max(0, parseFloat(req.body.cod_shipping_fee) || 0) : 60;
+    }
+    const allowedPaymentTypes = (req.body.allowed_payment_types || 'both').trim().toLowerCase();
+
     const now = new Date().toISOString();
 
     const stmt = db.prepare(`
-      INSERT INTO products (name, price, image_url, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO products (
+        name, price, image_url, is_active,
+        shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types,
+        created_at, updated_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(name, price, imageUrl, isActive, now, now);
+    const result = stmt.run(
+      name, price, imageUrl, isActive,
+      shippingType, prepaidFee, codFee, allowedPaymentTypes,
+      now, now
+    );
     const newProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
 
     res.status(201).json({
@@ -153,14 +175,45 @@ router.put('/admin/products/:id', requireAdminAuth, upload.single('image'), (req
       isActive = (req.body.is_active === '1' || req.body.is_active === 1 || req.body.is_active === true || req.body.is_active === 'true') ? 1 : 0;
     }
 
+    // Shipping and payment types update
+    let shippingType = existing.shipping_type || 'standard';
+    if (req.body.shipping_type !== undefined) {
+      shippingType = req.body.shipping_type.trim().toLowerCase();
+    }
+
+    let prepaidFee = existing.prepaid_shipping_fee !== undefined ? existing.prepaid_shipping_fee : 40;
+    let codFee = existing.cod_shipping_fee !== undefined ? existing.cod_shipping_fee : 60;
+
+    if (shippingType === 'free') {
+      prepaidFee = 0;
+      codFee = 0;
+    } else if (shippingType === 'standard') {
+      prepaidFee = 40;
+      codFee = 60;
+    } else if (shippingType === 'custom') {
+      if (req.body.prepaid_shipping_fee !== undefined) {
+        prepaidFee = Math.max(0, parseFloat(req.body.prepaid_shipping_fee) || 0);
+      }
+      if (req.body.cod_shipping_fee !== undefined) {
+        codFee = Math.max(0, parseFloat(req.body.cod_shipping_fee) || 0);
+      }
+    }
+
+    let allowedPaymentTypes = existing.allowed_payment_types || 'both';
+    if (req.body.allowed_payment_types !== undefined) {
+      allowedPaymentTypes = req.body.allowed_payment_types.trim().toLowerCase();
+    }
+
     const now = new Date().toISOString();
     const updateStmt = db.prepare(`
       UPDATE products
-      SET name = ?, price = ?, image_url = ?, is_active = ?, updated_at = ?
+      SET name = ?, price = ?, image_url = ?, is_active = ?,
+          shipping_type = ?, prepaid_shipping_fee = ?, cod_shipping_fee = ?, allowed_payment_types = ?,
+          updated_at = ?
       WHERE id = ?
     `);
 
-    updateStmt.run(name, price, imageUrl, isActive, now, id);
+    updateStmt.run(name, price, imageUrl, isActive, shippingType, prepaidFee, codFee, allowedPaymentTypes, now, id);
     const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
 
     res.json({

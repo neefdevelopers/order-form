@@ -1,8 +1,59 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const db = require('../db');
 const { requireAdminAuth } = require('../auth');
+
+// Configure multer storage for payment screenshots
+const uploadsPaymentsDir = path.join(__dirname, '../../uploads/payments');
+if (!fs.existsSync(uploadsPaymentsDir)) {
+  fs.mkdirSync(uploadsPaymentsDir, { recursive: true });
+}
+
+const paymentStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsPaymentsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `pay_${uniqueSuffix}${ext || '.png'}`);
+  }
+});
+
+const uploadPaymentScreenshot = multer({
+  storage: paymentStorage,
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.toLowerCase().startsWith('image/')) {
+      cb(null, true);
+    } else {
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif'].includes(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files (JPEG, PNG, WEBP, GIF, etc.) are allowed for payment screenshots.'));
+      }
+    }
+  }
+});
+
+// Conditionally handle multipart/form-data for payment screenshot upload
+function handleOrderUpload(req, res, next) {
+  if (req.is('multipart/form-data')) {
+    uploadPaymentScreenshot.single('payment_screenshot')(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ error: err.message || 'Error uploading payment screenshot' });
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+}
 
 // Helper to generate a unique readable Order ID: ORD-YYYYMMDD-XXXX
 function generateOrderId() {
@@ -20,20 +71,30 @@ const recentSubmissions = new Map();
 // ==========================================
 // CUSTOMER ORDER SUBMISSION ENDPOINT (Multiple Products Support)
 // ==========================================
-router.post('/orders', (req, res) => {
+router.post('/orders', handleOrderUpload, (req, res) => {
   try {
+    const body = req.body || {};
     const {
       promoter_id,
       product_id,
       quantity,
-      items,
       customer_name,
       phone_number,
       complete_address,
       pincode,
       city,
       state
-    } = req.body || {};
+    } = body;
+
+    // Parse items if passed as string in FormData
+    let items = body.items;
+    if (typeof items === 'string') {
+      try {
+        items = JSON.parse(items);
+      } catch (e) {
+        items = [];
+      }
+    }
 
     // Field validations
     const errors = [];
@@ -58,6 +119,17 @@ router.post('/orders', (req, res) => {
 
     if (errors.length > 0) {
       return res.status(400).json({ error: errors.join(', ') });
+    }
+
+    // Payment method and screenshot handling
+    const postOffice = (body.post_office || '').trim();
+    const rawPaymentMethod = (body.payment_method || '').trim().toLowerCase();
+    const paymentMethod = rawPaymentMethod === 'prepaid' ? 'prepaid' : 'cod';
+    const transactionId = (body.transaction_id || '').trim();
+    const paymentScreenshotUrl = req.file ? `/uploads/payments/${req.file.filename}` : (body.payment_screenshot_url || null);
+
+    if (paymentMethod === 'prepaid' && !paymentScreenshotUrl) {
+      return res.status(400).json({ error: 'Payment screenshot is required for Prepaid orders. Please upload your payment receipt.' });
     }
 
     // Verify promoter ID is authorized and active
@@ -87,13 +159,16 @@ router.post('/orders', (req, res) => {
       return res.status(400).json({ error: 'At least one product must be selected' });
     }
 
-    // Verify each product exists, is active, and fetch its verified DB price
+    // Verify each product exists, is active, and fetch its verified DB price & shipping settings
     const validatedItems = [];
-    let overallTotal = 0;
+    let overallItemsSubtotal = 0;
     let overallQuantity = 0;
+    let allFreeShipping = true;
+    let maxPrepaidFee = 0;
+    let maxCodFee = 0;
 
     for (const [pid, qty] of itemMap.entries()) {
-      const product = db.prepare('SELECT id, name, price, is_active FROM products WHERE id = ?').get(pid);
+      const product = db.prepare('SELECT id, name, price, is_active, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE id = ?').get(pid);
       if (!product) {
         return res.status(404).json({ error: `Selected product ID ${pid} not found` });
       }
@@ -101,9 +176,24 @@ router.post('/orders', (req, res) => {
         return res.status(400).json({ error: `Selected product "${product.name}" is no longer active` });
       }
 
+      // Check allowed payment type
+      if (product.allowed_payment_types === 'prepaid' && paymentMethod === 'cod') {
+        return res.status(400).json({ error: `Product "${product.name}" only supports Prepaid orders.` });
+      }
+      if (product.allowed_payment_types === 'cod' && paymentMethod === 'prepaid') {
+        return res.status(400).json({ error: `Product "${product.name}" only supports Cash on Delivery (COD) orders.` });
+      }
+
+      const isFree = product.shipping_type === 'free' || (product.prepaid_shipping_fee === 0 && product.cod_shipping_fee === 0);
+      if (!isFree) {
+        allFreeShipping = false;
+        maxPrepaidFee = Math.max(maxPrepaidFee, product.prepaid_shipping_fee !== undefined ? product.prepaid_shipping_fee : 40);
+        maxCodFee = Math.max(maxCodFee, product.cod_shipping_fee !== undefined ? product.cod_shipping_fee : 60);
+      }
+
       const unitPrice = Number(product.price) || 0;
       const subtotal = unitPrice * qty;
-      overallTotal += subtotal;
+      overallItemsSubtotal += subtotal;
       overallQuantity += qty;
 
       validatedItems.push({
@@ -114,6 +204,22 @@ router.post('/orders', (req, res) => {
         subtotal
       });
     }
+
+    // Calculate shipping amount
+    let shippingAmount = 0;
+    if (body.shipping_amount !== undefined) {
+      shippingAmount = Math.max(0, parseFloat(body.shipping_amount) || 0);
+    } else if (body.payment_method) {
+      if (!allFreeShipping) {
+        shippingAmount = paymentMethod === 'prepaid' ? (maxPrepaidFee || 40) : (maxCodFee || 60);
+      }
+    } else {
+      // Legacy backwards-compatibility
+      shippingAmount = 0;
+    }
+
+    const totalAmount = overallItemsSubtotal + shippingAmount;
+    const paymentStatus = paymentMethod === 'prepaid' ? 'pending_verification' : 'cod_pending';
 
     // Duplicate submission prevention check
     const itemsKey = validatedItems.map(it => `${it.product_id}:${it.quantity}`).sort().join('|');
@@ -151,10 +257,12 @@ router.post('/orders', (req, res) => {
     const insertOrderStmt = db.prepare(`
       INSERT INTO orders (
         id, promoter_id, product_id, product_name, product_price,
-        quantity, total_amount, items_json, customer_name, phone_number,
-        complete_address, pincode, city, state, created_at
+        quantity, total_amount, items_amount, shipping_amount,
+        payment_method, payment_screenshot_url, transaction_id, payment_status,
+        items_json, customer_name, phone_number,
+        complete_address, pincode, post_office, city, state, created_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     insertOrderStmt.run(
@@ -164,12 +272,19 @@ router.post('/orders', (req, res) => {
       productSummary,
       primaryItem.product_price,
       overallQuantity,
-      overallTotal,
+      totalAmount,
+      overallItemsSubtotal,
+      shippingAmount,
+      paymentMethod,
+      paymentScreenshotUrl,
+      transactionId,
+      paymentStatus,
       JSON.stringify(validatedItems),
       customer_name.trim(),
       phone_number.trim(),
       complete_address.trim(),
       pincode.trim(),
+      postOffice,
       city.trim(),
       state.trim(),
       createdAt
@@ -201,8 +316,14 @@ router.post('/orders', (req, res) => {
       orderId,
       orderDate: createdAt,
       productPrice: primaryItem.product_price,
-      totalAmount: overallTotal,
+      itemsAmount: overallItemsSubtotal,
+      shippingAmount,
+      totalAmount,
+      paymentMethod,
+      paymentScreenshotUrl,
+      paymentStatus,
       quantity: overallQuantity,
+      postOffice,
       items: validatedItems,
       message: 'Order placed successfully'
     });

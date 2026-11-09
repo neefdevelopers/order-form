@@ -13,7 +13,9 @@ import {
   Eye, 
   EyeOff,
   Image as ImageIcon,
-  IndianRupee
+  IndianRupee,
+  Truck,
+  CreditCard
 } from 'lucide-react';
 
 export default function ProductManagement({ token }) {
@@ -29,6 +31,10 @@ export default function ProductManagement({ token }) {
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('500');
   const [isActive, setIsActive] = useState(true);
+  const [shippingType, setShippingType] = useState('standard'); // 'standard' | 'free' | 'custom'
+  const [prepaidFee, setPrepaidFee] = useState('40');
+  const [codFee, setCodFee] = useState('60');
+  const [allowedPaymentTypes, setAllowedPaymentTypes] = useState('both'); // 'both' | 'prepaid' | 'cod'
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [formError, setFormError] = useState('');
@@ -67,6 +73,10 @@ export default function ProductManagement({ token }) {
     setProductName('');
     setProductPrice('500');
     setIsActive(true);
+    setShippingType('standard');
+    setPrepaidFee('40');
+    setCodFee('60');
+    setAllowedPaymentTypes('both');
     setSelectedFile(null);
     setPreviewUrl('');
     setFormError('');
@@ -78,6 +88,10 @@ export default function ProductManagement({ token }) {
     setProductName(product.name);
     setProductPrice(product.price !== undefined ? product.price.toString() : '0');
     setIsActive(product.is_active === 1);
+    setShippingType(product.shipping_type || 'standard');
+    setPrepaidFee((product.prepaid_shipping_fee !== undefined ? product.prepaid_shipping_fee : 40).toString());
+    setCodFee((product.cod_shipping_fee !== undefined ? product.cod_shipping_fee : 60).toString());
+    setAllowedPaymentTypes(product.allowed_payment_types || 'both');
     setSelectedFile(null);
     setPreviewUrl(product.image_url);
     setFormError('');
@@ -131,6 +145,10 @@ export default function ProductManagement({ token }) {
       formData.append('name', productName.trim());
       formData.append('price', parsedPrice);
       formData.append('is_active', isActive ? '1' : '0');
+      formData.append('shipping_type', shippingType);
+      formData.append('prepaid_shipping_fee', shippingType === 'free' ? '0' : (shippingType === 'standard' ? '40' : prepaidFee));
+      formData.append('cod_shipping_fee', shippingType === 'free' ? '0' : (shippingType === 'standard' ? '60' : codFee));
+      formData.append('allowed_payment_types', allowedPaymentTypes);
       if (selectedFile) {
         formData.append('image', selectedFile);
       }
@@ -326,6 +344,28 @@ export default function ProductManagement({ token }) {
                     ID: #{product.id}
                   </span>
                 </div>
+
+                {/* Shipping & Payment Badges */}
+                <div className="mt-2.5 pt-2 border-t border-[#d8dec2]/40 flex flex-wrap items-center gap-1.5 text-[11px]">
+                  {product.shipping_type === 'free' ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-bold bg-[#7f8f55]/15 text-[#374011] border border-[#7f8f55]/30">
+                      <Truck className="w-3 h-3 text-[#7f8f55]" />
+                      <span>Free Delivery</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-medium bg-[#f4f6ee] text-[#374011] border border-[#d8dec2]">
+                      <Truck className="w-3 h-3 text-[#7f8f55]" />
+                      <span>Prepaid: +₹{product.prepaid_shipping_fee !== undefined ? product.prepaid_shipping_fee : 40} | COD: +₹{product.cod_shipping_fee !== undefined ? product.cod_shipping_fee : 60}</span>
+                    </span>
+                  )}
+
+                  {product.allowed_payment_types && product.allowed_payment_types !== 'both' && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      <CreditCard className="w-2.5 h-2.5" />
+                      <span>{product.allowed_payment_types === 'prepaid' ? 'Prepaid Only' : 'COD Only'}</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Actions Footer */}
@@ -493,6 +533,132 @@ export default function ProductManagement({ token }) {
                   <Upload className="w-4 h-4 text-[#7f8f55]" />
                   <span>{previewUrl ? 'Change image file' : 'Upload product image (PNG, JPG, SVG)'}</span>
                 </button>
+              </div>
+
+              {/* Shipping & Delivery Options */}
+              <div className="pt-2 border-t border-[#d8dec2]/60 space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#374011] uppercase tracking-wider">
+                  <Truck className="w-4 h-4 text-[#7f8f55]" />
+                  <span>Shipping & Delivery Options</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {/* Standard Option */}
+                  <label className={`p-2.5 rounded-xl border cursor-pointer flex flex-col justify-between transition ${
+                    shippingType === 'standard' 
+                      ? 'border-[#7f8f55] bg-[#7f8f55]/10 ring-1 ring-[#7f8f55]' 
+                      : 'border-[#d8dec2] bg-white hover:bg-[#f4f6ee]'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="shipping_type"
+                        value="standard"
+                        checked={shippingType === 'standard'}
+                        onChange={() => setShippingType('standard')}
+                        className="text-[#7f8f55] focus:ring-[#7f8f55]"
+                      />
+                      <span className="text-xs font-bold text-[#374011]">Standard</span>
+                    </div>
+                    <span className="text-[11px] text-[#374011]/70 mt-1 pl-5">
+                      Prepaid: +₹40<br/>COD: +₹60
+                    </span>
+                  </label>
+
+                  {/* Free Delivery Option */}
+                  <label className={`p-2.5 rounded-xl border cursor-pointer flex flex-col justify-between transition ${
+                    shippingType === 'free' 
+                      ? 'border-[#7f8f55] bg-[#7f8f55]/10 ring-1 ring-[#7f8f55]' 
+                      : 'border-[#d8dec2] bg-white hover:bg-[#f4f6ee]'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="shipping_type"
+                        value="free"
+                        checked={shippingType === 'free'}
+                        onChange={() => setShippingType('free')}
+                        className="text-[#7f8f55] focus:ring-[#7f8f55]"
+                      />
+                      <span className="text-xs font-bold text-[#374011]">Free Delivery</span>
+                    </div>
+                    <span className="text-[11px] text-[#7f8f55] font-semibold mt-1 pl-5">
+                      ₹0 Shipping on all orders
+                    </span>
+                  </label>
+
+                  {/* Custom Option */}
+                  <label className={`p-2.5 rounded-xl border cursor-pointer flex flex-col justify-between transition ${
+                    shippingType === 'custom' 
+                      ? 'border-[#7f8f55] bg-[#7f8f55]/10 ring-1 ring-[#7f8f55]' 
+                      : 'border-[#d8dec2] bg-white hover:bg-[#f4f6ee]'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="shipping_type"
+                        value="custom"
+                        checked={shippingType === 'custom'}
+                        onChange={() => setShippingType('custom')}
+                        className="text-[#7f8f55] focus:ring-[#7f8f55]"
+                      />
+                      <span className="text-xs font-bold text-[#374011]">Custom Rates</span>
+                    </div>
+                    <span className="text-[11px] text-[#374011]/70 mt-1 pl-5">
+                      Set custom extra charges
+                    </span>
+                  </label>
+                </div>
+
+                {/* Custom Fee Inputs */}
+                {shippingType === 'custom' && (
+                  <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[#f4f6ee] border border-[#d8dec2]">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#374011] mb-1">
+                        Prepaid Extra (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={prepaidFee}
+                        onChange={(e) => setPrepaidFee(e.target.value)}
+                        placeholder="40"
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-[#d8dec2] text-xs font-mono text-[#374011] bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#374011] mb-1">
+                        COD Extra (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={codFee}
+                        onChange={(e) => setCodFee(e.target.value)}
+                        placeholder="60"
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-[#d8dec2] text-xs font-mono text-[#374011] bg-white"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Allowed Payment Methods */}
+                <div>
+                  <label className="block text-xs font-semibold text-[#374011] mb-1">
+                    Allowed Payment Methods
+                  </label>
+                  <select
+                    value={allowedPaymentTypes}
+                    onChange={(e) => setAllowedPaymentTypes(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+                  >
+                    <option value="both">Both (Prepaid & Cash on Delivery)</option>
+                    <option value="prepaid">Prepaid Only (UPI)</option>
+                    <option value="cod">Cash on Delivery (COD) Only</option>
+                  </select>
+                </div>
               </div>
 
               {/* Active Toggle Checkbox */}

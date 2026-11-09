@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiUrl } from '../config';
+import { apiUrl, getImageUrl } from '../config';
 import { 
   Download, 
   Search, 
@@ -16,7 +16,10 @@ import {
   Filter,
   Hash,
   X,
-  UserCheck
+  UserCheck,
+  Camera,
+  CreditCard,
+  ExternalLink
 } from 'lucide-react';
 import OrderDetailsModal from './OrderDetailsModal';
 
@@ -35,6 +38,7 @@ export default function OrderManagement({
   const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [viewingScreenshot, setViewingScreenshot] = useState(null); // { url, orderId, customerName }
   const [exporting, setExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
 
@@ -100,6 +104,7 @@ export default function OrderManagement({
         (o.promoter_id && o.promoter_id.toLowerCase().includes(q)) ||
         (o.product_name && o.product_name.toLowerCase().includes(q)) ||
         (o.phone_number && o.phone_number.toLowerCase().includes(q)) ||
+        (o.post_office && o.post_office.toLowerCase().includes(q)) ||
         (o.city && o.city.toLowerCase().includes(q)) ||
         (o.state && o.state.toLowerCase().includes(q))
       );
@@ -440,10 +445,12 @@ export default function OrderManagement({
                     <th className="py-3.5 px-3 text-right">Price</th>
                     <th className="py-3.5 px-2 text-center">Qty</th>
                     <th className="py-3.5 px-3 text-right">Total Amount</th>
+                    <th className="py-3.5 px-3">Payment</th>
                     <th className="py-3.5 px-3">Customer Name</th>
                     <th className="py-3.5 px-3">Phone</th>
                     <th className="py-3.5 px-3 min-w-[180px]">Complete Address</th>
                     <th className="py-3.5 px-2">Pincode</th>
+                    <th className="py-3.5 px-3">Post Office</th>
                     <th className="py-3.5 px-3">City</th>
                     <th className="py-3.5 px-3">State</th>
                     <th className="py-3.5 px-3 text-center">Action</th>
@@ -504,6 +511,37 @@ export default function OrderManagement({
                         <td className="py-3 px-3 text-right font-mono font-bold text-[#374011] whitespace-nowrap">
                           {formatINR(totalVal)}
                         </td>
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              order.payment_method === 'prepaid'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-amber-100 text-amber-800 border border-amber-300'
+                            }`}>
+                              {order.payment_method === 'prepaid' ? 'Prepaid' : 'COD'}
+                            </span>
+                            {order.payment_screenshot_url && (
+                              <button
+                                type="button"
+                                onClick={() => setViewingScreenshot({
+                                  url: getImageUrl(order.payment_screenshot_url),
+                                  orderId: order.id,
+                                  customerName: order.customer_name
+                                })}
+                                title="Click to view payment screenshot"
+                                className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#7f8f55] text-white hover:bg-[#6f7e49] transition shadow-2xs inline-flex items-center gap-1 cursor-pointer"
+                              >
+                                <Camera className="w-3 h-3" />
+                                <span>SS</span>
+                              </button>
+                            )}
+                          </div>
+                          {order.shipping_amount !== undefined && order.shipping_amount > 0 && (
+                            <span className="text-[10px] text-[#374011]/60 block mt-0.5">
+                              (incl. ₹{order.shipping_amount} ship)
+                            </span>
+                          )}
+                        </td>
                         <td className="py-3 px-3 font-medium text-[#374011] whitespace-nowrap">
                           {order.customer_name}
                         </td>
@@ -517,6 +555,9 @@ export default function OrderManagement({
                         </td>
                         <td className="py-3 px-2 text-[#374011]/80 whitespace-nowrap font-mono">
                           {order.pincode}
+                        </td>
+                        <td className="py-3 px-3 text-[#374011] whitespace-nowrap font-medium">
+                          {order.post_office || '—'}
                         </td>
                         <td className="py-3 px-3 text-[#374011] whitespace-nowrap">
                           {order.city}
@@ -593,9 +634,44 @@ export default function OrderManagement({
                     )}
                     <div className="flex items-center justify-between pt-1 border-t border-[#d8dec2] font-semibold">
                       <span className="text-[#374011]">Total Amount:</span>
-                      <span className="text-[#374011] font-bold font-mono text-sm">
-                        {formatINR(totalVal)}
-                      </span>
+                      <div className="text-right">
+                        <span className="text-[#374011] font-bold font-mono text-sm block">
+                          {formatINR(totalVal)}
+                        </span>
+                        {order.shipping_amount !== undefined && order.shipping_amount > 0 && (
+                          <span className="text-[10px] text-[#374011]/60 block font-normal">
+                            (incl. ₹{order.shipping_amount} ship)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Payment Method & SS */}
+                    <div className="flex items-center justify-between pt-1 border-t border-[#d8dec2]/60 text-xs">
+                      <span className="text-[#374011]/70 font-medium">Payment:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          order.payment_method === 'prepaid'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-amber-100 text-amber-800 border border-amber-300'
+                        }`}>
+                          {order.payment_method === 'prepaid' ? 'Prepaid' : 'COD'}
+                        </span>
+                        {order.payment_screenshot_url && (
+                          <button
+                            type="button"
+                            onClick={() => setViewingScreenshot({
+                              url: getImageUrl(order.payment_screenshot_url),
+                              orderId: order.id,
+                              customerName: order.customer_name
+                            })}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-[#7f8f55] text-white hover:bg-[#6f7e49] transition cursor-pointer"
+                          >
+                            <Camera className="w-3 h-3" />
+                            <span>View SS</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -651,6 +727,74 @@ export default function OrderManagement({
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
         />
+      )}
+
+      {/* Dedicated Screenshot Viewer Modal */}
+      {viewingScreenshot && (
+        <div 
+          className="fixed inset-0 z-50 bg-[#374011]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+          onClick={() => setViewingScreenshot(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl border border-[#d8dec2] w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-4 py-3 bg-[#f4f6ee] border-b border-[#d8dec2] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#d8dec2]/50 text-[#7f8f55] flex items-center justify-center border border-[#a9b48a]">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#374011]">
+                    Payment Screenshot • {viewingScreenshot.orderId}
+                  </h4>
+                  <p className="text-[11px] text-[#374011]/70">
+                    Customer: {viewingScreenshot.customerName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewingScreenshot.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1.5 rounded-lg border border-[#d8dec2] bg-white hover:bg-[#f4f6ee] text-[#374011] text-xs font-semibold inline-flex items-center gap-1 shadow-2xs transition"
+                  title="Open full resolution in new tab"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#7f8f55]" />
+                  <span className="hidden sm:inline">Open in New Tab</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setViewingScreenshot(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition cursor-pointer"
+                  title="Close preview"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Screenshot Display Area */}
+            <div className="p-3 sm:p-4 bg-slate-900/5 flex items-center justify-center overflow-auto max-h-[75vh]">
+              <img
+                src={viewingScreenshot.url}
+                alt="Payment Screenshot"
+                className="max-h-[70vh] max-w-full object-contain rounded-xl shadow-md border border-[#d8dec2]"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                  const errDiv = document.createElement('div');
+                  errDiv.className = 'p-8 text-center text-xs text-red-600 space-y-2';
+                  errDiv.innerHTML = '<p class="font-bold">Screenshot image could not be loaded</p><p class="text-[11px] text-[#374011]/60">The image file may have been moved or removed from the server.</p>';
+                  e.target.parentNode.appendChild(errDiv);
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

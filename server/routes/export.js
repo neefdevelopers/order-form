@@ -75,8 +75,14 @@ async function handleOrdersExport(req, res) {
       { header: 'Phone Number', key: 'phone_number', width: 18 },
       { header: 'Complete Address', key: 'complete_address', width: 45 },
       { header: 'Pincode', key: 'pincode', width: 14 },
+      { header: 'Post Office', key: 'post_office', width: 22 },
       { header: 'City', key: 'city', width: 18 },
-      { header: 'State', key: 'state', width: 18 }
+      { header: 'State', key: 'state', width: 18 },
+      { header: 'Payment Method', key: 'payment_method', width: 16 },
+      { header: 'Items Amount (₹)', key: 'items_amount', width: 18 },
+      { header: 'Shipping Fee (₹)', key: 'shipping_amount', width: 16 },
+      { header: 'Payment Screenshot', key: 'payment_screenshot_url', width: 28 },
+      { header: 'Transaction / UTR ID', key: 'transaction_id', width: 22 }
     ];
 
     // Style the header row
@@ -141,19 +147,28 @@ async function handleOrdersExport(req, res) {
       }
 
       const totalVal = order.total_amount !== undefined && order.total_amount !== null ? order.total_amount : order.quantity * (order.product_price || 0);
+      const itemsVal = order.items_amount !== undefined && order.items_amount !== null ? order.items_amount : (items.reduce((acc, it) => acc + (it.subtotal || (it.product_price * it.quantity)), 0));
+      const shippingVal = order.shipping_amount !== undefined && order.shipping_amount !== null ? order.shipping_amount : (totalVal > itemsVal ? totalVal - itemsVal : 0);
+      const paymentMethodDisplay = (order.payment_method || 'cod').toUpperCase();
 
       const row = worksheet.addRow({
         id: order.id,
         created_at: formattedDate,
         promoter_id: order.promoter_id,
+        payment_method: paymentMethodDisplay,
         product_name: productDisplay,
         product_price: priceDisplay,
         quantity: order.quantity,
+        items_amount: itemsVal,
+        shipping_amount: shippingVal,
         total_amount: totalVal,
+        payment_screenshot_url: order.payment_screenshot_url || 'N/A',
+        transaction_id: order.transaction_id || 'N/A',
         customer_name: order.customer_name,
         phone_number: order.phone_number,
         complete_address: order.complete_address,
         pincode: order.pincode,
+        post_office: order.post_office || 'N/A',
         city: order.city,
         state: order.state
       });
