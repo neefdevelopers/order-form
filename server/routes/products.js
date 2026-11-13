@@ -43,10 +43,9 @@ const upload = multer({
 // PUBLIC CUSTOMER ENDPOINT
 // ==========================================
 // Only active products appear in the customer order form, with their saved price
-router.get('/products', (req, res) => {
+router.get('/products', async (req, res) => {
   try {
-    const stmt = db.prepare('SELECT id, name, price, image_url, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE is_active = 1 ORDER BY name ASC');
-    const products = stmt.all();
+    const products = await db.all('SELECT id, name, price, image_url, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE is_active = 1 ORDER BY name ASC');
     res.json(products);
   } catch (err) {
     console.error('Error fetching customer products:', err);
@@ -59,10 +58,9 @@ router.get('/products', (req, res) => {
 // ==========================================
 
 // 1. List all products (both active and inactive)
-router.get('/admin/products', requireAdminAuth, (req, res) => {
+router.get('/admin/products', requireAdminAuth, async (req, res) => {
   try {
-    const stmt = db.prepare('SELECT * FROM products ORDER BY id DESC');
-    const products = stmt.all();
+    const products = await db.all('SELECT * FROM products ORDER BY id DESC');
     res.json(products);
   } catch (err) {
     console.error('Error fetching admin products:', err);
@@ -71,7 +69,7 @@ router.get('/admin/products', requireAdminAuth, (req, res) => {
 });
 
 // 2. Add a new product
-router.post('/admin/products', requireAdminAuth, upload.single('image'), (req, res) => {
+router.post('/admin/products', requireAdminAuth, upload.single('image'), async (req, res) => {
   try {
     const name = (req.body.name || '').trim();
     if (!name) {
@@ -105,21 +103,20 @@ router.post('/admin/products', requireAdminAuth, upload.single('image'), (req, r
 
     const now = new Date().toISOString();
 
-    const stmt = db.prepare(`
+    const result = await db.run(`
       INSERT INTO products (
         name, price, image_url, is_active,
         shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types,
         created_at, updated_at
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const result = stmt.run(
+    `, [
       name, price, imageUrl, isActive,
       shippingType, prepaidFee, codFee, allowedPaymentTypes,
       now, now
-    );
-    const newProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
+    ]);
+
+    const newProduct = await db.get('SELECT * FROM products WHERE id = ?', [result.lastInsertRowid]);
 
     res.status(201).json({
       message: 'Product added successfully',
@@ -132,14 +129,14 @@ router.post('/admin/products', requireAdminAuth, upload.single('image'), (req, r
 });
 
 // 3. Edit product details
-router.put('/admin/products/:id', requireAdminAuth, upload.single('image'), (req, res) => {
+router.put('/admin/products/:id', requireAdminAuth, upload.single('image'), async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid product ID' });
     }
 
-    const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const existing = await db.get('SELECT * FROM products WHERE id = ?', [id]);
     if (!existing) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -205,16 +202,15 @@ router.put('/admin/products/:id', requireAdminAuth, upload.single('image'), (req
     }
 
     const now = new Date().toISOString();
-    const updateStmt = db.prepare(`
+    await db.run(`
       UPDATE products
       SET name = ?, price = ?, image_url = ?, is_active = ?,
           shipping_type = ?, prepaid_shipping_fee = ?, cod_shipping_fee = ?, allowed_payment_types = ?,
           updated_at = ?
       WHERE id = ?
-    `);
+    `, [name, price, imageUrl, isActive, shippingType, prepaidFee, codFee, allowedPaymentTypes, now, id]);
 
-    updateStmt.run(name, price, imageUrl, isActive, shippingType, prepaidFee, codFee, allowedPaymentTypes, now, id);
-    const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const updated = await db.get('SELECT * FROM products WHERE id = ?', [id]);
 
     res.json({
       message: 'Product updated successfully',
@@ -227,14 +223,14 @@ router.put('/admin/products/:id', requireAdminAuth, upload.single('image'), (req
 });
 
 // 4. Delete product
-router.delete('/admin/products/:id', requireAdminAuth, (req, res) => {
+router.delete('/admin/products/:id', requireAdminAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid product ID' });
     }
 
-    const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const existing = await db.get('SELECT * FROM products WHERE id = ?', [id]);
     if (!existing) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -247,7 +243,7 @@ router.delete('/admin/products/:id', requireAdminAuth, (req, res) => {
       }
     }
 
-    db.prepare('DELETE FROM products WHERE id = ?').run(id);
+    await db.run('DELETE FROM products WHERE id = ?', [id]);
 
     res.json({
       message: 'Product deleted successfully',

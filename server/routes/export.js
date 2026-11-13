@@ -20,8 +20,7 @@ async function handleOrdersExport(req, res) {
     if (requestedIds.length > 0) {
       isFiltered = true;
       const placeholders = requestedIds.map(() => '?').join(',');
-      const stmt = db.prepare(`SELECT * FROM orders WHERE id IN (${placeholders}) ORDER BY created_at DESC`);
-      orders = stmt.all(...requestedIds);
+      orders = await db.all(`SELECT * FROM orders WHERE id IN (${placeholders}) ORDER BY created_at DESC`, requestedIds);
     } else {
       // Check query filters
       const conditions = [];
@@ -52,8 +51,7 @@ async function handleOrdersExport(req, res) {
       }
       sql += ' ORDER BY created_at DESC';
 
-      const stmt = db.prepare(sql);
-      orders = stmt.all(...params);
+      orders = await db.all(sql, params);
     }
 
     const workbook = new ExcelJS.Workbook();

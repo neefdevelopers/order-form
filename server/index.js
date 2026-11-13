@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
+const db = require('./db');
 const { ADMIN_USERNAME, ADMIN_PASSWORD, generateToken, requireAdminAuth } = require('./auth');
 
 const app = express();
@@ -172,7 +174,18 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  console.log(`Admin default credentials: username="${ADMIN_USERNAME}", password="${ADMIN_PASSWORD}"`);
-});
+async function startServer() {
+  try {
+    await db.init();
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Database Engine: ${db.isPostgres ? 'Neon PostgreSQL (Cloud)' : 'SQLite (Local)'}`);
+      console.log(`Admin default credentials: username="${ADMIN_USERNAME}", password="${ADMIN_PASSWORD}"`);
+    });
+  } catch (err) {
+    console.error('Fatal: Failed to initialize database:', err);
+    process.exit(1);
+  }
+}
+
+startServer();

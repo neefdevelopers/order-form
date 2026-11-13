@@ -71,7 +71,7 @@ const recentSubmissions = new Map();
 // ==========================================
 // CUSTOMER ORDER SUBMISSION ENDPOINT (Multiple Products Support)
 // ==========================================
-router.post('/orders', handleOrderUpload, (req, res) => {
+router.post('/orders', handleOrderUpload, async (req, res) => {
   try {
     const body = req.body || {};
     const {
@@ -133,7 +133,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
     }
 
     // Verify promoter ID is authorized and active
-    const promoter = db.prepare('SELECT id, promoter_code, is_active FROM promoters WHERE LOWER(promoter_code) = LOWER(?)').get(promoter_id.trim());
+    const promoter = await db.get('SELECT id, promoter_code, is_active FROM promoters WHERE LOWER(promoter_code) = LOWER(?)', [promoter_id.trim()]);
     if (!promoter) {
       return res.status(400).json({ error: 'Invalid Promoter ID. Only authorized promoters can place orders.' });
     }
@@ -168,7 +168,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
     let maxCodFee = 0;
 
     for (const [pid, qty] of itemMap.entries()) {
-      const product = db.prepare('SELECT id, name, price, is_active, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE id = ?').get(pid);
+      const product = await db.get('SELECT id, name, price, is_active, shipping_type, prepaid_shipping_fee, cod_shipping_fee, allowed_payment_types FROM products WHERE id = ?', [pid]);
       if (!product) {
         return res.status(404).json({ error: `Selected product ID ${pid} not found` });
       }
@@ -244,7 +244,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
 
     // Generate unique order ID
     let orderId = generateOrderId();
-    while (db.prepare('SELECT id FROM orders WHERE id = ?').get(orderId)) {
+    while (await db.get('SELECT id FROM orders WHERE id = ?', [orderId])) {
       orderId = generateOrderId();
     }
 
@@ -254,7 +254,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
       ? primaryItem.product_name
       : validatedItems.map(it => `${it.product_name} (x${it.quantity})`).join(', ');
 
-    const insertOrderStmt = db.prepare(`
+    await db.run(`
       INSERT INTO orders (
         id, promoter_id, product_id, product_name, product_price,
         quantity, total_amount, items_amount, shipping_amount,
@@ -263,9 +263,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
         complete_address, pincode, post_office, city, state, created_at
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    insertOrderStmt.run(
+    `, [
       orderId,
       promoter_id.trim(),
       primaryItem.product_id,
@@ -288,19 +286,17 @@ router.post('/orders', handleOrderUpload, (req, res) => {
       city.trim(),
       state.trim(),
       createdAt
-    );
+    ]);
 
     // Insert normalized individual records into order_items
-    const insertOrderItemStmt = db.prepare(`
-      INSERT INTO order_items (
-        order_id, product_id, product_name, product_price,
-        quantity, subtotal, created_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-
     for (const it of validatedItems) {
-      insertOrderItemStmt.run(
+      await db.run(`
+        INSERT INTO order_items (
+          order_id, product_id, product_name, product_price,
+          quantity, subtotal, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [
         orderId,
         it.product_id,
         it.product_name,
@@ -308,7 +304,7 @@ router.post('/orders', handleOrderUpload, (req, res) => {
         it.quantity,
         it.subtotal,
         createdAt
-      );
+      ]);
     }
 
     return res.status(201).json({
@@ -363,7 +359,7 @@ function attachItemsToOrder(order) {
 // ==========================================
 
 // List all submitted orders (optionally filtered by promoter_id)
-router.get('/admin/orders', requireAdminAuth, (req, res) => {
+router.get('/admin/orders', requireAdminAuth, async (req, res) => {
   try {
     let sql = 'SELECT * FROM orders';
     const params = [];
@@ -372,8 +368,8 @@ router.get('/admin/orders', requireAdminAuth, (req, res) => {
       params.push(req.query.promoter_id.trim());
     }
     sql += ' ORDER BY created_at DESC';
-    const stmt = db.prepare(sql);
-    const orders = stmt.all(...params).map(attachItemsToOrder);
+    const rawOrders = await db.all(sql, params);
+    const orders = rawOrders.map(attachItemsToOrder);
     res.json(orders);
   } catch (err) {
     console.error('Error fetching admin orders:', err);
@@ -382,9 +378,9 @@ router.get('/admin/orders', requireAdminAuth, (req, res) => {
 });
 
 // View single order details
-router.get('/admin/orders/:id', requireAdminAuth, (req, res) => {
+router.get('/admin/orders/:id', requireAdminAuth, async (req, res) => {
   try {
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id);
+    const order = await db.get('SELECT * FROM orders WHERE id = ?', [req.params.id]);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }

@@ -8,15 +8,14 @@ const { requireAdminAuth } = require('../auth');
 // PUBLIC PROMOTER VALIDATION ENDPOINT
 // ==========================================
 // Customer Order Form validates if promoter ID is authorized before proceeding
-router.get('/promoters/validate/:code', (req, res) => {
+router.get('/promoters/validate/:code', async (req, res) => {
   try {
     const code = (req.params.code || '').trim();
     if (!code) {
       return res.status(400).json({ valid: false, error: 'Promoter ID is required' });
     }
 
-    const stmt = db.prepare('SELECT id, promoter_code, name, is_active FROM promoters WHERE LOWER(promoter_code) = LOWER(?)');
-    const promoter = stmt.get(code);
+    const promoter = await db.get('SELECT id, promoter_code, name, is_active FROM promoters WHERE LOWER(promoter_code) = LOWER(?)', [code]);
 
     if (!promoter) {
       return res.status(404).json({
@@ -50,9 +49,9 @@ router.get('/promoters/validate/:code', (req, res) => {
 // ==========================================
 
 // 1. List all promoters with order count
-router.get('/admin/promoters', requireAdminAuth, (req, res) => {
+router.get('/admin/promoters', requireAdminAuth, async (req, res) => {
   try {
-    const stmt = db.prepare(`
+    const promoters = await db.all(`
       SELECT 
         p.*, 
         COUNT(o.id) AS order_count
@@ -61,14 +60,12 @@ router.get('/admin/promoters', requireAdminAuth, (req, res) => {
       GROUP BY p.id
       ORDER BY p.id DESC
     `);
-    const promoters = stmt.all();
 
     // Ensure all promoters have an access_token populated
-    const updateTokenStmt = db.prepare('UPDATE promoters SET access_token = ? WHERE id = ?');
     for (const p of promoters) {
       if (!p.access_token) {
         p.access_token = crypto.randomBytes(16).toString('hex');
-        updateTokenStmt.run(p.access_token, p.id);
+        await db.run('UPDATE promoters SET access_token = ? WHERE id = ?', [p.access_token, p.id]);
       }
     }
 
@@ -80,7 +77,7 @@ router.get('/admin/promoters', requireAdminAuth, (req, res) => {
 });
 
 // 2. Add a new promoter ID
-router.post('/admin/promoters', requireAdminAuth, (req, res) => {
+router.post('/admin/promoters', requireAdminAuth, async (req, res) => {
   try {
     const promoterCode = (req.body.promoter_code || '').trim();
     const name = (req.body.name || '').trim();
@@ -91,20 +88,19 @@ router.post('/admin/promoters', requireAdminAuth, (req, res) => {
     }
 
     // Check duplicate
-    const existing = db.prepare('SELECT id FROM promoters WHERE LOWER(promoter_code) = LOWER(?)').get(promoterCode);
+    const existing = await db.get('SELECT id FROM promoters WHERE LOWER(promoter_code) = LOWER(?)', [promoterCode]);
     if (existing) {
       return res.status(400).json({ error: `Promoter ID "${promoterCode}" already exists` });
     }
 
     const now = new Date().toISOString();
     const accessToken = crypto.randomBytes(16).toString('hex');
-    const insertStmt = db.prepare(`
+    const result = await db.run(`
       INSERT INTO promoters (promoter_code, name, access_token, is_active, created_at)
       VALUES (?, ?, ?, ?, ?)
-    `);
+    `, [promoterCode, name, accessToken, isActive, now]);
 
-    const result = insertStmt.run(promoterCode, name, accessToken, isActive, now);
-    const newPromoter = db.prepare('SELECT * FROM promoters WHERE id = ?').get(result.lastInsertRowid);
+    const newPromoter = await db.get('SELECT * FROM promoters WHERE id = ?', [result.lastInsertRowid]);
 
     res.status(201).json({
       message: 'Promoter ID added successfully',
@@ -117,14 +113,14 @@ router.post('/admin/promoters', requireAdminAuth, (req, res) => {
 });
 
 // 3. Edit promoter ID
-router.put('/admin/promoters/:id', requireAdminAuth, (req, res) => {
+router.put('/admin/promoters/:id', requireAdminAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid promoter ID' });
     }
 
-    const existing = db.prepare('SELECT * FROM promoters WHERE id = ?').get(id);
+    const existing = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
     if (!existing) {
       return res.status(404).json({ error: 'Promoter not found' });
     }
@@ -138,7 +134,7 @@ router.put('/admin/promoters/:id', requireAdminAuth, (req, res) => {
 
     // If changing code, ensure no collision
     if (promoterCode.toLowerCase() !== existing.promoter_code.toLowerCase()) {
-      const duplicate = db.prepare('SELECT id FROM promoters WHERE LOWER(promoter_code) = LOWER(?) AND id != ?').get(promoterCode, id);
+      const duplicate = await db.get('SELECT id FROM promoters WHERE LOWER(promoter_code) = LOWER(?) AND id != ?', [promoterCode, id]);
       if (duplicate) {
         return res.status(400).json({ error: `Promoter ID "${promoterCode}" already exists` });
       }
@@ -149,14 +145,13 @@ router.put('/admin/promoters/:id', requireAdminAuth, (req, res) => {
       isActive = (req.body.is_active === 1 || req.body.is_active === true || req.body.is_active === '1') ? 1 : 0;
     }
 
-    const updateStmt = db.prepare(`
+    await db.run(`
       UPDATE promoters
       SET promoter_code = ?, name = ?, is_active = ?
       WHERE id = ?
-    `);
+    `, [promoterCode, name, isActive, id]);
 
-    updateStmt.run(promoterCode, name, isActive, id);
-    const updated = db.prepare('SELECT * FROM promoters WHERE id = ?').get(id);
+    const updated = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
 
     res.json({
       message: 'Promoter updated successfully',
@@ -169,19 +164,19 @@ router.put('/admin/promoters/:id', requireAdminAuth, (req, res) => {
 });
 
 // 4. Delete promoter ID
-router.delete('/admin/promoters/:id', requireAdminAuth, (req, res) => {
+router.delete('/admin/promoters/:id', requireAdminAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid promoter ID' });
     }
 
-    const existing = db.prepare('SELECT * FROM promoters WHERE id = ?').get(id);
+    const existing = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
     if (!existing) {
       return res.status(404).json({ error: 'Promoter not found' });
     }
 
-    db.prepare('DELETE FROM promoters WHERE id = ?').run(id);
+    await db.run('DELETE FROM promoters WHERE id = ?', [id]);
 
     res.json({
       message: 'Promoter ID deleted successfully',
@@ -194,21 +189,21 @@ router.delete('/admin/promoters/:id', requireAdminAuth, (req, res) => {
 });
 
 // 5. Admin: Regenerate promoter access link token
-router.post('/admin/promoters/:id/regenerate-token', requireAdminAuth, (req, res) => {
+router.post('/admin/promoters/:id/regenerate-token', requireAdminAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid promoter ID' });
     }
 
-    const existing = db.prepare('SELECT * FROM promoters WHERE id = ?').get(id);
+    const existing = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
     if (!existing) {
       return res.status(404).json({ error: 'Promoter not found' });
     }
 
     const newToken = crypto.randomBytes(16).toString('hex');
-    db.prepare('UPDATE promoters SET access_token = ? WHERE id = ?').run(newToken, id);
-    const updated = db.prepare('SELECT * FROM promoters WHERE id = ?').get(id);
+    await db.run('UPDATE promoters SET access_token = ? WHERE id = ?', [newToken, id]);
+    const updated = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
 
     res.json({
       message: 'Access token regenerated successfully',
@@ -223,15 +218,14 @@ router.post('/admin/promoters/:id/regenerate-token', requireAdminAuth, (req, res
 // ==========================================
 // PROMOTER DASHBOARD (AUTHENTICATED VIA UNIQUE TOKEN)
 // ==========================================
-const handlePromoterDashboard = (req, res) => {
+const handlePromoterDashboard = async (req, res) => {
   try {
     const token = (req.params.token || '').trim();
     if (!token) {
       return res.status(400).json({ error: 'Access token is required' });
     }
 
-    const promoterStmt = db.prepare('SELECT id, promoter_code, name, is_active, created_at FROM promoters WHERE access_token = ?');
-    const promoter = promoterStmt.get(token);
+    const promoter = await db.get('SELECT id, promoter_code, name, is_active, created_at FROM promoters WHERE access_token = ?', [token]);
 
     if (!promoter) {
       return res.status(404).json({ error: 'Invalid or expired promoter access link.' });
@@ -242,7 +236,7 @@ const handlePromoterDashboard = (req, res) => {
     }
 
     // Fetch only this promoter's orders
-    const ordersStmt = db.prepare(`
+    const rawOrders = await db.all(`
       SELECT 
         id,
         promoter_id,
@@ -256,8 +250,7 @@ const handlePromoterDashboard = (req, res) => {
       FROM orders 
       WHERE LOWER(promoter_id) = LOWER(?)
       ORDER BY created_at DESC
-    `);
-    const rawOrders = ordersStmt.all(promoter.promoter_code);
+    `, [promoter.promoter_code]);
 
     let totalProductsSold = 0;
     let totalOrderAmount = 0;
