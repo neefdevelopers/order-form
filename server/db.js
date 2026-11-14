@@ -155,22 +155,6 @@ async function initPostgres() {
     `, [now]);
     console.log('[DB] Seeded Neon PostgreSQL with default Dhaara Herbal Hair Oil products.');
   }
-
-  // Ensure default demo promoters exist without overwriting user promoters
-  const now = new Date().toISOString();
-  await pool.query(`
-    INSERT INTO promoters (promoter_code, name, access_token, is_active, created_at)
-    VALUES 
-      ('PR-1001', 'North Zone Promoter', $1, 1, $4),
-      ('PR-1002', 'South Zone Promoter', $2, 1, $4),
-      ('PROM-9981', 'Field Sales Representative', $3, 1, $4)
-    ON CONFLICT (promoter_code) DO NOTHING;
-  `, [
-    crypto.randomBytes(16).toString('hex'),
-    crypto.randomBytes(16).toString('hex'),
-    crypto.randomBytes(16).toString('hex'),
-    now
-  ]);
 }
 
 async function initSqlite() {
@@ -335,30 +319,6 @@ async function initSqlite() {
     insertProduct.run('Dhaara Herbal Hair Oil (200ml)', 599, '/uploads/products/dhaara-oil-200ml.svg', now, now);
     insertProduct.run('Dhaara Herbal Hair Growth Combo (2x200ml)', 1099, '/uploads/products/dhaara-combo.svg', now, now);
     console.log('[DB] Seeded local SQLite with Dhaara Herbal Hair Oil products.');
-  }
-
-  const promoterCountStmt = sqliteDb.prepare('SELECT COUNT(*) as count FROM promoters');
-  const promoterCountRow = promoterCountStmt.get();
-  if (!promoterCountRow || promoterCountRow.count === 0) {
-    const insertPromoter = sqliteDb.prepare(`
-      INSERT OR IGNORE INTO promoters (promoter_code, name, access_token, is_active, created_at)
-      VALUES (?, ?, ?, 1, ?)
-    `);
-    const now = new Date().toISOString();
-    insertPromoter.run('PR-1001', 'North Zone Promoter', crypto.randomBytes(16).toString('hex'), now);
-    insertPromoter.run('PR-1002', 'South Zone Promoter', crypto.randomBytes(16).toString('hex'), now);
-    insertPromoter.run('PROM-9981', 'Field Sales Representative', crypto.randomBytes(16).toString('hex'), now);
-
-    try {
-      const existingOrderPromoters = sqliteDb.prepare('SELECT DISTINCT promoter_id FROM orders WHERE promoter_id IS NOT NULL AND promoter_id != ""').all();
-      for (const row of existingOrderPromoters) {
-        insertPromoter.run(row.promoter_id.trim(), 'Existing Promoter', crypto.randomBytes(16).toString('hex'), now);
-      }
-    } catch (e) {
-      // Ignore if orders table is empty
-    }
-
-    console.log('[DB] Seeded local SQLite with initial authorized promoter IDs.');
   }
 }
 

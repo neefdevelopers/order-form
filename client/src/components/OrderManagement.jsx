@@ -75,8 +75,11 @@ export default function OrderManagement({
 
   const fetchRegisteredPromoters = async () => {
     try {
-      const res = await fetch(apiUrl('/api/admin/promoters'), {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(apiUrl(`/api/admin/promoters?_t=${Date.now()}`), {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        }
       });
       if (res.ok) {
         const data = await res.json();

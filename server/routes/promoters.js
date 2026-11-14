@@ -51,6 +51,7 @@ router.get('/promoters/validate/:code', async (req, res) => {
 // 1. List all promoters with order count
 router.get('/admin/promoters', requireAdminAuth, async (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     const promoters = await db.all(`
       SELECT 
         p.*, 

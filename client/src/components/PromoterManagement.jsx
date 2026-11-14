@@ -129,8 +129,11 @@ export default function PromoterManagement({ token }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(apiUrl('/api/admin/promoters'), {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(apiUrl(`/api/admin/promoters?_t=${Date.now()}`), {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        }
       });
       if (!res.ok) throw new Error('Failed to load promoters');
       const data = await res.json();
@@ -295,8 +298,11 @@ export default function PromoterManagement({ token }) {
       });
 
       if (!res.ok) throw new Error('Failed to delete promoter');
+      if (viewingPromoterDetails && viewingPromoterDetails.id === deletingPromoter.id) {
+        setViewingPromoterDetails(null);
+      }
       setDeletingPromoter(null);
-      fetchPromoters();
+      await fetchPromoters();
     } catch (err) {
       console.error(err);
       alert('Failed to delete promoter');
