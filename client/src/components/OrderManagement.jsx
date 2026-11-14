@@ -19,7 +19,10 @@ import {
   UserCheck,
   Camera,
   CreditCard,
-  ExternalLink
+  ExternalLink,
+  Users,
+  ShoppingBag,
+  Truck
 } from 'lucide-react';
 import OrderDetailsModal from './OrderDetailsModal';
 
@@ -199,6 +202,44 @@ export default function OrderManagement({
       return isoString;
     }
   };
+
+  // Dynamic summary metrics calculated strictly from filteredOrders
+  // When filters (Order ID, Promoter ID, Search) change, these recalculate immediately!
+  const totalOrdersCount = filteredOrders.length;
+
+  const uniqueCustomersCount = new Set(
+    filteredOrders
+      .map((o) => (o.phone_number || o.customer_name || '').trim().toLowerCase())
+      .filter(Boolean)
+  ).size;
+
+  const totalProductsCount = filteredOrders.reduce((sum, o) => {
+    if (o.quantity !== undefined && o.quantity !== null && !isNaN(Number(o.quantity))) {
+      return sum + Number(o.quantity);
+    }
+    let items = [];
+    if (Array.isArray(o.items) && o.items.length > 0) {
+      items = o.items;
+    } else if (o.items_json) {
+      try {
+        items = JSON.parse(o.items_json);
+      } catch (e) {
+        items = [];
+      }
+    }
+    if (items.length > 0) {
+      return sum + items.reduce((iSum, it) => iSum + (Number(it.quantity) || 0), 0);
+    }
+    return sum + 1;
+  }, 0);
+
+  const totalCodOrdersCount = filteredOrders.filter(
+    (o) => (o.payment_method || 'cod').toLowerCase() === 'cod'
+  ).length;
+
+  const totalPrepaidOrdersCount = filteredOrders.filter(
+    (o) => (o.payment_method || '').toLowerCase() === 'prepaid'
+  ).length;
 
   return (
     <div className="space-y-5">
@@ -391,6 +432,102 @@ export default function OrderManagement({
             </button>
           </div>
         )}
+      </div>
+
+      {/* ======================================================== */}
+      {/* 5-METRIC DYNAMIC SUMMARY STATS CARDS                    */}
+      {/* Dynamically re-calculated based on filteredOrders       */}
+      {/* ======================================================== */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {/* 1. Total Customers */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Total Customer
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : uniqueCustomersCount}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              Unique buyers
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#7f8f55]/15 text-[#374011]">
+            <Users className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* 2. Total Orders */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Total Order
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : totalOrdersCount}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              {isFiltered ? 'Matching filter' : 'All orders'}
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#7f8f55]/20 text-[#7f8f55]">
+            <ShoppingBag className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* 3. Total Products */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Total Product
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : totalProductsCount}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              Units ordered
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-amber-100/70 text-amber-800">
+            <Package className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* 4. Total COD Orders */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Total COD Order
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : totalCodOrdersCount}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              Cash on delivery
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-orange-100/70 text-orange-800">
+            <Truck className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* 5. Prepaid Orders */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Prepaid Order
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : totalPrepaidOrdersCount}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              Online / UPI
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-100/80 text-emerald-800">
+            <CreditCard className="w-5 h-5" />
+          </div>
+        </div>
       </div>
 
       {error && (

@@ -9,6 +9,7 @@
     "client": "npm --prefix client run dev",
     "server": "node server/index.js",
     "migrate:neon": "node scripts/migrate-to-neon.js",
+    "db:clear": "node scripts/clear-neon.js",
     "test": "node test/api-test.js"
   },
   "engines": {

@@ -82,6 +82,9 @@ async function migrate() {
         id SERIAL PRIMARY KEY,
         promoter_code TEXT UNIQUE NOT NULL,
         name TEXT,
+        phone_number TEXT,
+        aadhaar_number TEXT,
+        address TEXT,
         access_token TEXT UNIQUE,
         is_active INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL
@@ -97,6 +100,8 @@ async function migrate() {
         subtotal NUMERIC NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL
       );
+
+      CREATE SEQUENCE IF NOT EXISTS order_id_seq START WITH 1;
     `);
     console.log('   ✓ Tables confirmed.\n');
 
@@ -146,14 +151,17 @@ async function migrate() {
     let promotersMigrated = 0;
     for (const pr of promoters) {
       await client.query(`
-        INSERT INTO promoters (id, promoter_code, name, access_token, is_active, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO promoters (id, promoter_code, name, phone_number, aadhaar_number, address, access_token, is_active, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (promoter_code) DO UPDATE SET
           name = EXCLUDED.name,
+          phone_number = EXCLUDED.phone_number,
+          aadhaar_number = EXCLUDED.aadhaar_number,
+          address = EXCLUDED.address,
           access_token = COALESCE(promoters.access_token, EXCLUDED.access_token),
           is_active = EXCLUDED.is_active;
       `, [
-        pr.id, pr.promoter_code, pr.name, pr.access_token,
+        pr.id, pr.promoter_code, pr.name, pr.phone_number || '', pr.aadhaar_number || '', pr.address || '', pr.access_token,
         pr.is_active !== undefined ? pr.is_active : 1,
         pr.created_at || new Date().toISOString()
       ]);

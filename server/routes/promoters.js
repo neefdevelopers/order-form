@@ -81,6 +81,9 @@ router.post('/admin/promoters', requireAdminAuth, async (req, res) => {
   try {
     const promoterCode = (req.body.promoter_code || '').trim();
     const name = (req.body.name || '').trim();
+    const phoneNumber = (req.body.phone_number || '').trim();
+    const aadhaarNumber = (req.body.aadhaar_number || '').trim();
+    const address = (req.body.address || '').trim();
     const isActive = req.body.is_active !== undefined ? (req.body.is_active === 0 || req.body.is_active === false || req.body.is_active === '0' ? 0 : 1) : 1;
 
     if (!promoterCode) {
@@ -96,9 +99,9 @@ router.post('/admin/promoters', requireAdminAuth, async (req, res) => {
     const now = new Date().toISOString();
     const accessToken = crypto.randomBytes(16).toString('hex');
     const result = await db.run(`
-      INSERT INTO promoters (promoter_code, name, access_token, is_active, created_at)
-      VALUES (?, ?, ?, ?, ?)
-    `, [promoterCode, name, accessToken, isActive, now]);
+      INSERT INTO promoters (promoter_code, name, phone_number, aadhaar_number, address, access_token, is_active, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [promoterCode, name, phoneNumber, aadhaarNumber, address, accessToken, isActive, now]);
 
     const newPromoter = await db.get('SELECT * FROM promoters WHERE id = ?', [result.lastInsertRowid]);
 
@@ -127,6 +130,9 @@ router.put('/admin/promoters/:id', requireAdminAuth, async (req, res) => {
 
     const promoterCode = req.body.promoter_code !== undefined ? req.body.promoter_code.trim() : existing.promoter_code;
     const name = req.body.name !== undefined ? req.body.name.trim() : existing.name;
+    const phoneNumber = req.body.phone_number !== undefined ? req.body.phone_number.trim() : (existing.phone_number || '');
+    const aadhaarNumber = req.body.aadhaar_number !== undefined ? req.body.aadhaar_number.trim() : (existing.aadhaar_number || '');
+    const address = req.body.address !== undefined ? req.body.address.trim() : (existing.address || '');
 
     if (!promoterCode) {
       return res.status(400).json({ error: 'Promoter ID code cannot be empty' });
@@ -147,9 +153,9 @@ router.put('/admin/promoters/:id', requireAdminAuth, async (req, res) => {
 
     await db.run(`
       UPDATE promoters
-      SET promoter_code = ?, name = ?, is_active = ?
+      SET promoter_code = ?, name = ?, phone_number = ?, aadhaar_number = ?, address = ?, is_active = ?
       WHERE id = ?
-    `, [promoterCode, name, isActive, id]);
+    `, [promoterCode, name, phoneNumber, aadhaarNumber, address, isActive, id]);
 
     const updated = await db.get('SELECT * FROM promoters WHERE id = ?', [id]);
 
@@ -225,7 +231,7 @@ const handlePromoterDashboard = async (req, res) => {
       return res.status(400).json({ error: 'Access token is required' });
     }
 
-    const promoter = await db.get('SELECT id, promoter_code, name, is_active, created_at FROM promoters WHERE access_token = ?', [token]);
+    const promoter = await db.get('SELECT id, promoter_code, name, phone_number, aadhaar_number, address, is_active, created_at FROM promoters WHERE access_token = ?', [token]);
 
     if (!promoter) {
       return res.status(404).json({ error: 'Invalid or expired promoter access link.' });
@@ -235,7 +241,7 @@ const handlePromoterDashboard = async (req, res) => {
       return res.status(403).json({ error: 'This promoter account is currently inactive. Please contact your administrator.' });
     }
 
-    // Fetch only this promoter's orders
+    // Fetch only this promoter's orders with full customer and order details
     const rawOrders = await db.all(`
       SELECT 
         id,
@@ -245,6 +251,19 @@ const handlePromoterDashboard = async (req, res) => {
         product_price,
         quantity,
         total_amount,
+        items_amount,
+        shipping_amount,
+        payment_method,
+        payment_screenshot_url,
+        transaction_id,
+        payment_status,
+        customer_name,
+        phone_number,
+        complete_address,
+        pincode,
+        post_office,
+        city,
+        state,
         items_json,
         created_at
       FROM orders 
@@ -284,9 +303,26 @@ const handlePromoterDashboard = async (req, res) => {
 
       return {
         id: order.id,
+        promoter_id: order.promoter_id,
+        customer_name: order.customer_name,
+        phone_number: order.phone_number,
+        complete_address: order.complete_address,
+        pincode: order.pincode,
+        post_office: order.post_office,
+        city: order.city,
+        state: order.state,
+        payment_method: order.payment_method,
+        payment_screenshot_url: order.payment_screenshot_url,
+        transaction_id: order.transaction_id,
+        payment_status: order.payment_status,
+        items_amount: Number(order.items_amount) || 0,
+        shipping_amount: Number(order.shipping_amount) || 0,
         created_at: order.created_at,
         total_amount: orderTotal,
         total_quantity: orderItemCount,
+        product_name: order.product_name,
+        product_price: Number(order.product_price) || 0,
+        quantity: order.quantity || orderItemCount,
         items: items.map(it => ({
           product_id: it.product_id,
           product_name: it.product_name,
@@ -302,6 +338,9 @@ const handlePromoterDashboard = async (req, res) => {
         id: promoter.id,
         promoter_code: promoter.promoter_code,
         name: promoter.name,
+        phone_number: promoter.phone_number,
+        aadhaar_number: promoter.aadhaar_number,
+        address: promoter.address,
         is_active: promoter.is_active
       },
       stats: {

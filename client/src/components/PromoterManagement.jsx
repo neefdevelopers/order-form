@@ -21,7 +21,12 @@ import {
   FileSpreadsheet,
   Copy,
   Share2,
-  Link2
+  Link2,
+  Phone,
+  MapPin,
+  IdCard,
+  User,
+  Calendar
 } from 'lucide-react';
 import PromoterOrdersView from './PromoterOrdersView';
 
@@ -40,9 +45,15 @@ export default function PromoterManagement({ token }) {
   // Form fields
   const [promoterCode, setPromoterCode] = useState('');
   const [promoterName, setPromoterName] = useState('');
+  const [promoterPhone, setPromoterPhone] = useState('');
+  const [promoterAadhaar, setPromoterAadhaar] = useState('');
+  const [promoterAddress, setPromoterAddress] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Full Details Modal state
+  const [viewingPromoterDetails, setViewingPromoterDetails] = useState(null);
 
   // Delete modal state
   const [deletingPromoter, setDeletingPromoter] = useState(null);
@@ -136,6 +147,9 @@ export default function PromoterManagement({ token }) {
     setEditingPromoter(null);
     setPromoterCode('');
     setPromoterName('');
+    setPromoterPhone('');
+    setPromoterAadhaar('');
+    setPromoterAddress('');
     setIsActive(true);
     setFormError('');
     setIsModalOpen(true);
@@ -145,6 +159,9 @@ export default function PromoterManagement({ token }) {
     setEditingPromoter(promoter);
     setPromoterCode(promoter.promoter_code);
     setPromoterName(promoter.name || '');
+    setPromoterPhone(promoter.phone_number || '');
+    setPromoterAadhaar(promoter.aadhaar_number || '');
+    setPromoterAddress(promoter.address || '');
     setIsActive(promoter.is_active === 1);
     setFormError('');
     setIsModalOpen(true);
@@ -170,6 +187,9 @@ export default function PromoterManagement({ token }) {
       const payload = {
         promoter_code: promoterCode.trim(),
         name: promoterName.trim(),
+        phone_number: promoterPhone.trim(),
+        aadhaar_number: promoterAadhaar.trim(),
+        address: promoterAddress.trim(),
         is_active: isActive ? 1 : 0
       };
 
@@ -202,6 +222,14 @@ export default function PromoterManagement({ token }) {
       const wasNew = !editingPromoter;
       const createdProm = data.promoter;
 
+      // If this promoter was being viewed in details modal, update viewing state
+      if (viewingPromoterDetails && data.promoter && viewingPromoterDetails.id === data.promoter.id) {
+        setViewingPromoterDetails(prev => ({
+          ...prev,
+          ...data.promoter
+        }));
+      }
+
       closeModal();
       await fetchPromoters();
 
@@ -218,6 +246,7 @@ export default function PromoterManagement({ token }) {
 
   const handleToggleActive = async (promoter) => {
     try {
+      const newActive = promoter.is_active === 1 ? 0 : 1;
       const res = await fetch(apiUrl(`/api/admin/promoters/${promoter.id}`), {
         method: 'PUT',
         headers: { 
@@ -227,11 +256,17 @@ export default function PromoterManagement({ token }) {
         body: JSON.stringify({
           promoter_code: promoter.promoter_code,
           name: promoter.name,
-          is_active: promoter.is_active === 1 ? 0 : 1
+          phone_number: promoter.phone_number,
+          aadhaar_number: promoter.aadhaar_number,
+          address: promoter.address,
+          is_active: newActive
         })
       });
 
       if (!res.ok) throw new Error('Failed to update promoter status');
+      if (viewingPromoterDetails && viewingPromoterDetails.id === promoter.id) {
+        setViewingPromoterDetails(prev => ({ ...prev, is_active: newActive }));
+      }
       fetchPromoters();
     } catch (err) {
       console.error(err);
@@ -264,7 +299,10 @@ export default function PromoterManagement({ token }) {
     const q = searchQuery.toLowerCase();
     return (
       p.promoter_code.toLowerCase().includes(q) ||
-      (p.name && p.name.toLowerCase().includes(q))
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.phone_number && p.phone_number.toLowerCase().includes(q)) ||
+      (p.aadhaar_number && p.aadhaar_number.toLowerCase().includes(q)) ||
+      (p.address && p.address.toLowerCase().includes(q))
     );
   });
 
@@ -334,7 +372,7 @@ export default function PromoterManagement({ token }) {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by Promoter Code or Name..."
+          placeholder="Search by Promoter Code, Name, Phone, Aadhaar..."
           className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition shadow-xs"
         />
         {searchQuery && (
@@ -403,21 +441,31 @@ export default function PromoterManagement({ token }) {
 
                     return (
                       <tr key={p.id} className="hover:bg-[#d8dec2]/15 transition group">
-                        {/* Clickable Promoter Code */}
+                        {/* Clickable Promoter Code -> Opens Full Details */}
                         <td className="py-3.5 px-4 font-mono font-bold whitespace-nowrap">
                           <button
                             type="button"
-                            onClick={() => setSelectedPromoterForOrders(p)}
-                            title={`Click to view order details for ${p.promoter_code}`}
+                            onClick={() => setViewingPromoterDetails(p)}
+                            title={`Click to view full details for ${p.promoter_code}`}
                             className="text-[#7f8f55] hover:text-[#5c6a38] hover:underline inline-flex items-center gap-1.5 transition text-left"
                           >
                             <span>{p.promoter_code}</span>
-                            <ExternalLink className="w-3 h-3 text-[#7f8f55] opacity-70" />
+                            <span className="text-[10px] font-sans font-medium px-1.5 py-0.5 rounded bg-[#d8dec2]/40 text-[#374011]/80 group-hover:bg-[#d8dec2]">Details</span>
                           </button>
                         </td>
 
-                        <td className="py-3.5 px-4 font-medium text-[#374011] whitespace-nowrap">
-                          {p.name || <span className="text-[#374011]/40 italic">No name provided</span>}
+                        <td 
+                          onClick={() => setViewingPromoterDetails(p)}
+                          className="py-3.5 px-4 font-medium text-[#374011] whitespace-nowrap cursor-pointer hover:text-[#7f8f55] transition"
+                          title="Click to view full details"
+                        >
+                          <div>{p.name || <span className="text-[#374011]/40 italic">No name provided</span>}</div>
+                          {p.phone_number && (
+                            <div className="text-[11px] text-[#374011]/60 font-mono flex items-center gap-1 mt-0.5">
+                              <Phone className="w-2.5 h-2.5 text-[#7f8f55]" />
+                              <span>{p.phone_number}</span>
+                            </div>
+                          )}
                         </td>
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
@@ -492,10 +540,21 @@ export default function PromoterManagement({ token }) {
                           {formatDate(p.created_at)}
                         </td>
 
-                        {/* Actions: View Orders, Export, Toggle, Edit, Delete */}
+                        {/* Actions: View Details, View Orders, Export, Toggle, Edit, Delete */}
                         <td className="py-3.5 px-4 text-center whitespace-nowrap">
                           <div className="inline-flex items-center gap-1.5">
-                            {/* 1. Go to Promoter Orders */}
+                            {/* 1. View Full Details Modal */}
+                            <button
+                              type="button"
+                              onClick={() => setViewingPromoterDetails(p)}
+                              title={`View full details for ${p.promoter_code}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[#374011] bg-[#f4f6ee] hover:bg-[#d8dec2] border border-[#d8dec2] transition text-[11px] font-semibold"
+                            >
+                              <User className="w-3.5 h-3.5 text-[#7f8f55]" />
+                              <span>Details</span>
+                            </button>
+
+                            {/* 2. Go to Promoter Orders */}
                             <button
                               type="button"
                               onClick={() => setSelectedPromoterForOrders(p)}
@@ -503,10 +562,10 @@ export default function PromoterManagement({ token }) {
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[#374011] bg-[#d8dec2]/50 hover:bg-[#d8dec2] border border-[#d8dec2] transition text-[11px] font-semibold"
                             >
                               <ListOrdered className="w-3.5 h-3.5 text-[#7f8f55]" />
-                              <span>View Orders</span>
+                              <span>Orders</span>
                             </button>
 
-                            {/* 2. Direct Export Excel for this Promoter */}
+                            {/* 3. Direct Export Excel for this Promoter */}
                             <button
                               type="button"
                               onClick={() => handleExportPromoter(p.promoter_code)}
@@ -522,7 +581,7 @@ export default function PromoterManagement({ token }) {
                               <span>Export</span>
                             </button>
 
-                            {/* 3. Quick Toggle Active */}
+                            {/* 4. Quick Toggle Active */}
                             <button
                               type="button"
                               onClick={() => handleToggleActive(p)}
@@ -536,7 +595,7 @@ export default function PromoterManagement({ token }) {
                               {p.is_active === 1 ? <EyeOff className="w-3.5 h-3.5 text-[#374011]/60" /> : <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />}
                             </button>
 
-                            {/* 4. Edit */}
+                            {/* 5. Edit */}
                             <button
                               type="button"
                               onClick={() => openEditModal(p)}
@@ -546,7 +605,7 @@ export default function PromoterManagement({ token }) {
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
 
-                            {/* 5. Delete */}
+                            {/* 6. Delete */}
                             <button
                               type="button"
                               onClick={() => setDeletingPromoter(p)}
@@ -577,19 +636,25 @@ export default function PromoterManagement({ token }) {
                   key={p.id}
                   className="bg-white rounded-2xl border border-[#d8dec2] p-4 shadow-xs space-y-3"
                 >
-                  <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d8dec2]/60">
+                  <div 
+                    onClick={() => setViewingPromoterDetails(p)}
+                    className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d8dec2]/60 cursor-pointer hover:opacity-90 transition"
+                    title="Tap to view full details"
+                  >
                     <div>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPromoterForOrders(p)}
-                        className="font-mono text-sm font-bold text-[#7f8f55] hover:underline flex items-center gap-1"
-                      >
+                      <div className="font-mono text-sm font-bold text-[#7f8f55] flex items-center gap-1.5">
                         <span>{p.promoter_code}</span>
-                        <ExternalLink className="w-3 h-3 text-[#7f8f55]" />
-                      </button>
+                        <span className="text-[10px] font-sans font-medium px-1.5 py-0.5 rounded bg-[#d8dec2]/50 text-[#374011]">Details</span>
+                      </div>
                       <p className="text-xs font-semibold text-[#374011] mt-0.5">
                         {p.name || <span className="text-[#374011]/40 italic">No name</span>}
                       </p>
+                      {p.phone_number && (
+                        <p className="text-[11px] text-[#374011]/70 font-mono flex items-center gap-1 mt-0.5">
+                          <Phone className="w-2.5 h-2.5 text-[#7f8f55]" />
+                          <span>{p.phone_number}</span>
+                        </p>
+                      )}
                     </div>
 
                     <span
@@ -659,14 +724,23 @@ export default function PromoterManagement({ token }) {
                   </div>
 
                   {/* Mobile Action Buttons */}
-                  <div className="pt-2 border-t border-[#d8dec2]/60 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 flex-1">
+                  <div className="pt-2 border-t border-[#d8dec2]/60 flex items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => setViewingPromoterDetails(p)}
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-xl text-[#374011] bg-[#f4f6ee] hover:bg-[#d8dec2] border border-[#d8dec2] text-[11px] font-semibold transition"
+                      >
+                        <User className="w-3 h-3 text-[#7f8f55]" />
+                        <span>Details</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => setSelectedPromoterForOrders(p)}
-                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl text-[#374011] bg-[#d8dec2]/50 hover:bg-[#d8dec2] border border-[#d8dec2] text-xs font-semibold transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-xl text-[#374011] bg-[#d8dec2]/50 hover:bg-[#d8dec2] border border-[#d8dec2] text-[11px] font-semibold transition"
                       >
-                        <ListOrdered className="w-3.5 h-3.5 text-[#7f8f55]" />
+                        <ListOrdered className="w-3 h-3 text-[#7f8f55]" />
                         <span>Orders</span>
                       </button>
 
@@ -674,13 +748,13 @@ export default function PromoterManagement({ token }) {
                         type="button"
                         onClick={() => handleExportPromoter(p.promoter_code)}
                         disabled={exportingCode === p.promoter_code || orderCount === 0}
-                        className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl border text-xs font-semibold transition ${
+                        className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-xl border text-[11px] font-semibold transition ${
                           orderCount > 0
                             ? 'text-white bg-[#7f8f55] border-[#7f8f55]'
                             : 'text-[#374011]/40 bg-[#f4f6ee] border-[#d8dec2] opacity-50 cursor-not-allowed'
                         }`}
                       >
-                        <Download className="w-3.5 h-3.5" />
+                        <Download className="w-3 h-3" />
                         <span>Export</span>
                       </button>
                     </div>
@@ -779,6 +853,76 @@ export default function PromoterManagement({ token }) {
                   placeholder="e.g. John Doe / City Agency"
                   className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
                 />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label 
+                  htmlFor="promoter-phone-input"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
+                >
+                  Phone Number (Optional)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    id="promoter-phone-input"
+                    type="tel"
+                    value={promoterPhone}
+                    onChange={(e) => setPromoterPhone(e.target.value)}
+                    placeholder="e.g. +91 98765 43210"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dec2] text-sm text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+                  />
+                </div>
+              </div>
+
+              {/* Aadhaar Number */}
+              <div>
+                <label 
+                  htmlFor="promoter-aadhaar-input"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
+                >
+                  Aadhaar Number (Optional)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
+                    <IdCard className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    id="promoter-aadhaar-input"
+                    type="text"
+                    value={promoterAadhaar}
+                    onChange={(e) => setPromoterAadhaar(e.target.value)}
+                    placeholder="e.g. 1234 5678 9012"
+                    maxLength={16}
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dec2] text-sm font-mono text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+                  />
+                </div>
+                <p className="text-[11px] text-[#374011]/60 mt-1">
+                  12-digit Indian Aadhaar identification number for promoter records.
+                </p>
+              </div>
+
+              {/* Address */}
+              <div>
+                <label 
+                  htmlFor="promoter-address-input"
+                  className="block text-xs font-semibold text-[#374011] mb-1"
+                >
+                  Promoter Address (Optional)
+                </label>
+                <div className="relative">
+                  <textarea
+                    id="promoter-address-input"
+                    rows={3}
+                    value={promoterAddress}
+                    onChange={(e) => setPromoterAddress(e.target.value)}
+                    placeholder="Full address (Door No., Street, Area, City/District, State, PIN)..."
+                    className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition resize-none"
+                  />
+                </div>
               </div>
 
               {/* Active Toggle Checkbox */}
@@ -993,6 +1137,293 @@ export default function PromoterManagement({ token }) {
                 className="mt-3 w-full py-2 rounded-xl text-xs font-medium text-[#374011]/60 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
               >
                 Close & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PROMOTER FULL DETAILS MODAL                              */}
+      {/* ======================================================== */}
+      {viewingPromoterDetails && (
+        <div className="fixed inset-0 z-50 bg-[#374011]/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-xl border border-[#d8dec2] w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="px-5 sm:px-6 py-4 border-b border-[#d8dec2] flex items-center justify-between bg-[#d8dec2]/25 flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#7f8f55]/15 text-[#7f8f55] flex items-center justify-center">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#374011]">
+                    Promoter Full Details
+                  </h3>
+                  <p className="text-[11px] text-[#374011]/60">
+                    Profile, identification & performance overview
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingPromoterDetails(null)}
+                className="p-1.5 rounded-lg text-[#374011]/60 hover:text-[#374011] hover:bg-[#d8dec2]/40 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto">
+              {/* Profile Overview Card */}
+              <div className="p-4 rounded-xl bg-[#f4f6ee] border border-[#d8dec2] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#7f8f55] text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs">
+                    {(viewingPromoterDetails.name ? viewingPromoterDetails.name.charAt(0) : viewingPromoterDetails.promoter_code.charAt(0)).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-[#374011]">
+                      {viewingPromoterDetails.name || <span className="italic text-[#374011]/60">Unnamed Promoter</span>}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-mono text-xs font-bold text-[#7f8f55] bg-white px-2 py-0.5 rounded-md border border-[#d8dec2]">
+                        {viewingPromoterDetails.promoter_code}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                          viewingPromoterDetails.is_active === 1
+                            ? 'bg-[#d8dec2]/70 text-[#374011] border-[#a9b48a]'
+                            : 'bg-white text-[#374011]/60 border-[#d8dec2]'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${viewingPromoterDetails.is_active === 1 ? 'bg-[#7f8f55]' : 'bg-[#374011]/40'}`} />
+                        {viewingPromoterDetails.is_active === 1 ? 'Active (Authorized)' : 'Inactive (Blocked)'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const p = viewingPromoterDetails;
+                    setViewingPromoterDetails(null);
+                    openEditModal(p);
+                  }}
+                  className="self-stretch sm:self-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#d8dec2] bg-white text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition shadow-xs"
+                >
+                  <Edit2 className="w-3.5 h-3.5 text-[#7f8f55]" />
+                  <span>Edit Info</span>
+                </button>
+              </div>
+
+              {/* Information Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Phone Number */}
+                <div className="p-3.5 rounded-xl border border-[#d8dec2] bg-white space-y-1">
+                  <div className="flex items-center justify-between text-xs text-[#374011]/60">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Phone className="w-3.5 h-3.5 text-[#7f8f55]" />
+                      <span>Phone Number</span>
+                    </span>
+                    {viewingPromoterDetails.phone_number && (
+                      <span className="text-[10px] font-semibold text-[#7f8f55]">Contact</span>
+                    )}
+                  </div>
+                  <div className="text-sm font-semibold text-[#374011] pt-0.5">
+                    {viewingPromoterDetails.phone_number ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <a 
+                          href={`tel:${viewingPromoterDetails.phone_number}`}
+                          className="hover:underline hover:text-[#7f8f55] font-mono text-xs sm:text-sm"
+                        >
+                          {viewingPromoterDetails.phone_number}
+                        </a>
+                        <div className="flex items-center gap-1">
+                          <a
+                            href={`https://api.whatsapp.com/send?phone=${viewingPromoterDetails.phone_number.replace(/\D/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Chat on WhatsApp"
+                            className="p-1 rounded-md text-[#7f8f55] hover:bg-[#d8dec2]/30 transition"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[#374011]/40 italic font-normal">Not provided</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Aadhaar Number */}
+                <div className="p-3.5 rounded-xl border border-[#d8dec2] bg-white space-y-1">
+                  <div className="flex items-center justify-between text-xs text-[#374011]/60">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <IdCard className="w-3.5 h-3.5 text-[#7f8f55]" />
+                      <span>Aadhaar Number</span>
+                    </span>
+                    {viewingPromoterDetails.aadhaar_number && (
+                      <span className="text-[10px] font-semibold text-[#7f8f55]">Identity</span>
+                    )}
+                  </div>
+                  <div className="text-sm font-semibold text-[#374011] pt-0.5">
+                    {viewingPromoterDetails.aadhaar_number ? (
+                      <span className="font-mono tracking-wider text-xs sm:text-sm">{viewingPromoterDetails.aadhaar_number}</span>
+                    ) : (
+                      <span className="text-xs text-[#374011]/40 italic font-normal">Not provided</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Complete Address - Span 2 Columns */}
+                <div className="sm:col-span-2 p-3.5 rounded-xl border border-[#d8dec2] bg-white space-y-1">
+                  <div className="flex items-center justify-between text-xs text-[#374011]/60">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <MapPin className="w-3.5 h-3.5 text-[#7f8f55]" />
+                      <span>Complete Address</span>
+                    </span>
+                  </div>
+                  <div className="text-xs font-medium text-[#374011] pt-0.5 whitespace-pre-wrap leading-relaxed">
+                    {viewingPromoterDetails.address ? (
+                      viewingPromoterDetails.address
+                    ) : (
+                      <span className="text-[#374011]/40 italic font-normal">No address recorded</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Orders Placed Stats */}
+                <div className="p-3.5 rounded-xl border border-[#d8dec2] bg-white space-y-1">
+                  <div className="text-xs text-[#374011]/60 flex items-center gap-1.5 font-medium">
+                    <ShoppingCart className="w-3.5 h-3.5 text-[#7f8f55]" />
+                    <span>Orders Placed</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-0.5">
+                    <span className="text-lg font-bold text-[#374011]">
+                      {viewingPromoterDetails.order_count || 0}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const p = viewingPromoterDetails;
+                        setViewingPromoterDetails(null);
+                        setSelectedPromoterForOrders(p);
+                      }}
+                      className="text-xs text-[#7f8f55] hover:underline font-semibold inline-flex items-center gap-1"
+                    >
+                      <span>View Orders</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Date Added */}
+                <div className="p-3.5 rounded-xl border border-[#d8dec2] bg-white space-y-1">
+                  <div className="text-xs text-[#374011]/60 flex items-center gap-1.5 font-medium">
+                    <Calendar className="w-3.5 h-3.5 text-[#7f8f55]" />
+                    <span>Date Registered</span>
+                  </div>
+                  <div className="text-xs sm:text-sm font-semibold text-[#374011] pt-0.5">
+                    {formatDate(viewingPromoterDetails.created_at)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Promoter Unique Shareable Dashboard Link */}
+              {viewingPromoterDetails.access_token && (
+                <div className="p-3.5 bg-[#d8dec2]/35 border border-[#a9b48a]/60 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#374011] flex items-center gap-1.5">
+                      <Link2 className="w-3.5 h-3.5 text-[#7f8f55]" />
+                      <span>Promoter Dashboard Link</span>
+                    </span>
+                    <span className="text-[10px] text-[#7f8f55] font-semibold">Real-time live view</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      readOnly
+                      value={getDashboardUrl(viewingPromoterDetails.access_token)}
+                      className="w-full text-xs font-mono bg-white border border-[#d8dec2] rounded-lg px-2.5 py-1.5 text-[#374011] select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCopyLink(viewingPromoterDetails)}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#7f8f55] text-white text-xs font-semibold hover:bg-[#6f7e49] flex items-center gap-1 flex-shrink-0 transition shadow-xs"
+                    >
+                      {copiedLinkId === viewingPromoterDetails.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-white" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-white" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleShareWhatsApp(viewingPromoterDetails)}
+                      title="Share on WhatsApp"
+                      className="p-1.5 rounded-lg bg-[#7f8f55] text-white hover:bg-[#6f7e49] flex-shrink-0 transition shadow-xs"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <a
+                      href={getDashboardUrl(viewingPromoterDetails.access_token)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open in new tab"
+                      className="p-1.5 rounded-lg border border-[#d8dec2] bg-white text-[#374011]/80 hover:text-[#7f8f55] hover:bg-[#d8dec2]/30 flex-shrink-0 transition shadow-xs"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="px-5 sm:px-6 py-3.5 border-t border-[#d8dec2] flex items-center justify-between gap-2 bg-white flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const p = viewingPromoterDetails;
+                    setViewingPromoterDetails(null);
+                    setSelectedPromoterForOrders(p);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#d8dec2]/50 hover:bg-[#d8dec2] text-[#374011] border border-[#d8dec2] transition shadow-xs"
+                >
+                  <ListOrdered className="w-3.5 h-3.5 text-[#7f8f55]" />
+                  <span>Orders ({viewingPromoterDetails.order_count || 0})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleExportPromoter(viewingPromoterDetails.promoter_code)}
+                  disabled={exportingCode === viewingPromoterDetails.promoter_code || Number(viewingPromoterDetails.order_count || 0) === 0}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition ${
+                    Number(viewingPromoterDetails.order_count || 0) > 0
+                      ? 'text-white bg-[#7f8f55] border-[#7f8f55] hover:bg-[#6f7e49] shadow-xs'
+                      : 'text-[#374011]/40 bg-[#f4f6ee] border-[#d8dec2] opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  <Download className={`w-3.5 h-3.5 ${exportingCode === viewingPromoterDetails.promoter_code ? 'animate-bounce' : ''}`} />
+                  <span>Export</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setViewingPromoterDetails(null)}
+                className="px-4 py-2 rounded-xl border border-[#d8dec2] text-xs font-semibold text-[#374011] hover:bg-[#d8dec2]/40 transition"
+              >
+                Close
               </button>
             </div>
           </div>

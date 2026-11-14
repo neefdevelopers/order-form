@@ -55,14 +55,13 @@ function handleOrderUpload(req, res, next) {
   }
 }
 
-// Helper to generate a unique readable Order ID: ORD-YYYYMMDD-XXXX
-function generateOrderId() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const randomSuffix = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6 chars
-  return `ORD-${year}${month}${day}-${randomSuffix}`;
+// Helper to generate a simple readable Order ID starting from ORD-0001
+async function generateOrderId() {
+  let orderId = await db.getNextOrderId();
+  while (await db.get('SELECT id FROM orders WHERE id = ?', [orderId])) {
+    orderId = await db.getNextOrderId();
+  }
+  return orderId;
 }
 
 // In-memory set or cache to prevent rapid duplicate submissions within 5 seconds
@@ -242,11 +241,8 @@ router.post('/orders', handleOrderUpload, async (req, res) => {
       }
     }
 
-    // Generate unique order ID
-    let orderId = generateOrderId();
-    while (await db.get('SELECT id FROM orders WHERE id = ?', [orderId])) {
-      orderId = generateOrderId();
-    }
+    // Generate unique order ID in simple format (ORD-1001, ORD-1002, ...)
+    const orderId = await generateOrderId();
 
     const createdAt = new Date().toISOString();
     const primaryItem = validatedItems[0];

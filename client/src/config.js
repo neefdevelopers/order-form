@@ -1,5 +1,6 @@
 // Centralized API configuration for local and separated deployments (e.g. Vercel)
 export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+export const UPI_ID = (import.meta.env.VITE_UPI_ID || 'Vyapar.174975680862@hdfcbank').trim();
 
 export function apiUrl(path) {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;

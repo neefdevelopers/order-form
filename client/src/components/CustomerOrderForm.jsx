@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { apiUrl, getImageUrl } from '../config';
+import { apiUrl, getImageUrl, UPI_ID } from '../config';
 import { 
   Package, 
   ArrowRight, 
@@ -25,6 +25,7 @@ import {
   CreditCard,
   QrCode,
   Upload,
+  ExternalLink,
   Image as ImageIcon
 } from 'lucide-react';
 
@@ -226,7 +227,7 @@ export default function CustomerOrderForm() {
   const grandTotal = totalAmount + currentShippingFee;
 
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText('vyapar.174975680862@hdfcbank');
+    navigator.clipboard.writeText(UPI_ID);
     setCopiedUpi(true);
     showToast('UPI ID copied to clipboard!');
     setTimeout(() => setCopiedUpi(false), 2500);
@@ -686,13 +687,13 @@ export default function CustomerOrderForm() {
               </div>
 
               {loadingProducts ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                   {[1, 2].map((n) => (
-                    <div key={n} className="h-64 rounded-2xl bg-white border border-[#d8dec2] p-3.5 animate-pulse space-y-3">
-                      <div className="w-full h-32 bg-[#f4f6ee] rounded-xl" />
-                      <div className="h-4 bg-[#f4f6ee] rounded w-3/4" />
-                      <div className="h-5 bg-[#f4f6ee] rounded w-1/3" />
-                      <div className="h-10 bg-[#f4f6ee] rounded" />
+                    <div key={n} className="h-56 sm:h-64 rounded-2xl bg-white border border-[#d8dec2] p-2.5 sm:p-3.5 animate-pulse space-y-2 sm:space-y-3">
+                      <div className="w-full h-28 sm:h-32 bg-[#f4f6ee] rounded-xl" />
+                      <div className="h-3 sm:h-4 bg-[#f4f6ee] rounded w-3/4" />
+                      <div className="h-4 sm:h-5 bg-[#f4f6ee] rounded w-1/3" />
+                      <div className="h-8 sm:h-10 bg-[#f4f6ee] rounded" />
                     </div>
                   ))}
                 </div>
@@ -701,7 +702,7 @@ export default function CustomerOrderForm() {
                   No active products are available right now.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                   {products.map((prod) => {
                     const existing = selectedItems.find((it) => it.product_id === prod.id);
                     const isSelected = !!existing;
@@ -709,7 +710,7 @@ export default function CustomerOrderForm() {
                     return (
                       <div 
                         key={prod.id} 
-                        className={`group relative flex flex-col justify-between h-full rounded-2xl border transition-all duration-300 p-3.5 sm:p-4 bg-white ${
+                        className={`group relative flex flex-col justify-between h-full rounded-2xl border transition-all duration-300 p-2.5 sm:p-4 bg-white ${
                           isSelected 
                             ? 'border-[#7f8f55] ring-2 ring-[#7f8f55]/30 bg-gradient-to-b from-white via-white to-[#f4f6ee]/40 shadow-sm' 
                             : 'border-[#d8dec2] hover:border-[#a9b48a] hover:shadow-lg hover:-translate-y-0.5'
@@ -717,7 +718,7 @@ export default function CustomerOrderForm() {
                       >
                         <div>
                           {/* Product Image Container */}
-                          <div className="relative w-full h-36 sm:h-40 rounded-xl bg-gradient-to-b from-[#f8f9f4] via-[#f4f6ee] to-[#ebeece]/40 border border-[#d8dec2]/60 flex items-center justify-center p-3 mb-3 overflow-hidden">
+                          <div className="relative w-full h-28 sm:h-40 rounded-xl bg-gradient-to-b from-[#f8f9f4] via-[#f4f6ee] to-[#ebeece]/40 border border-[#d8dec2]/60 flex items-center justify-center p-2 sm:p-3 mb-2 sm:mb-3 overflow-hidden">
                             <img
                               src={getImageUrl(prod.image_url)}
                               alt={prod.name}
@@ -730,9 +731,9 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Product Name */}
-                          <div className="min-h-[2.5rem] mb-1.5 flex items-start">
+                          <div className="min-h-[2.2rem] sm:min-h-[2.5rem] mb-1 sm:mb-1.5 flex items-start">
                             <h3 
-                              className="text-sm font-bold text-[#374011] leading-snug line-clamp-2" 
+                              className="text-xs sm:text-sm font-bold text-[#374011] leading-snug line-clamp-2" 
                               title={prod.name}
                             >
                               {prod.name}
@@ -740,60 +741,62 @@ export default function CustomerOrderForm() {
                           </div>
 
                           {/* Price in INR & Delivery Badge */}
-                          <div className="flex flex-wrap items-baseline justify-between gap-1.5 mb-3">
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="text-lg sm:text-xl font-black text-[#374011] font-mono tracking-tight">
+                          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-2.5 sm:mb-3">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-base sm:text-xl font-black text-[#374011] font-mono tracking-tight">
                                 {formatINR(prod.price)}
                               </span>
-                              <span className="text-xs text-[#374011]/60 font-semibold">/ unit</span>
+                              <span className="text-[10px] sm:text-xs text-[#374011]/60 font-semibold">/unit</span>
                             </div>
 
                             {prod.shipping_type === 'free' ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#7f8f55]/15 text-[#374011] border border-[#7f8f55]/30">
-                                <Truck className="w-3 h-3 text-[#7f8f55]" />
+                              <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#7f8f55]/15 text-[#374011] border border-[#7f8f55]/30 w-fit">
+                                <Truck className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#7f8f55]" />
                                 <span>Free Delivery</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#f4f6ee] text-[#374011]/70 border border-[#d8dec2]" title="Prepaid: +₹40 | COD: +₹60">
-                                <Truck className="w-3 h-3 text-[#7f8f55]" />
-                                <span>Prepaid +₹40 | COD +₹60</span>
+                              <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-medium bg-[#f4f6ee] text-[#374011]/70 border border-[#d8dec2] w-fit" title="Prepaid: +₹40 | COD: +₹60">
+                                <Truck className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#7f8f55]" />
+                                <span className="inline sm:hidden">+Delivery</span>
+                                <span className="hidden sm:inline">Prepaid +₹40 | COD +₹60</span>
                               </span>
                             )}
                           </div>
                         </div>
 
                         {/* Action Slot & Subtotal */}
-                        <div className="pt-3 border-t border-[#d8dec2]/70 mt-auto">
+                        <div className="pt-2 sm:pt-3 border-t border-[#d8dec2]/70 mt-auto">
                           {isSelected ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2">
                               {/* Subtotal calculation for each selected product */}
-                              <div className="flex items-center justify-between text-xs px-0.5 text-[#374011]">
+                              <div className="flex items-center justify-between text-[11px] sm:text-xs px-0.5 text-[#374011]">
                                 <span className="font-semibold text-[#374011]/70">Subtotal:</span>
-                                <span className="font-mono font-bold text-sm text-[#7f8f55]">
+                                <span className="font-mono font-bold text-xs sm:text-sm text-[#7f8f55]">
                                   {formatINR(prod.price * existing.quantity)}
                                 </span>
                               </div>
 
                               {/* Stepper with plus and minus buttons */}
-                              <div className="w-full h-10 flex items-center justify-between border border-[#7f8f55]/40 rounded-xl overflow-hidden bg-[#d8dec2]/30 shadow-2xs">
+                              <div className="w-full h-8 sm:h-10 flex items-center justify-between border border-[#7f8f55]/40 rounded-xl overflow-hidden bg-[#d8dec2]/30 shadow-2xs">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity - 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
+                                  className="w-7 sm:w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Decrease quantity"
                                 >
-                                  <Minus className="w-4 h-4 stroke-[2.5]" />
+                                  <Minus className="w-3 h-3 sm:w-4 sm:h-4 stroke-[2.5]" />
                                 </button>
-                                <span className="flex-1 text-center font-bold font-mono text-xs sm:text-sm text-[#374011]">
-                                  {existing.quantity} in order
+                                <span className="flex-1 text-center font-bold font-mono text-[11px] sm:text-sm text-[#374011]">
+                                  <span className="inline sm:hidden">{existing.quantity}</span>
+                                  <span className="hidden sm:inline">{existing.quantity} in order</span>
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateQuantity(prod.id, existing.quantity + 1)}
-                                  className="w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
+                                  className="w-7 sm:w-10 h-full flex items-center justify-center bg-[#d8dec2]/70 hover:bg-[#d8dec2] text-[#374011] transition active:scale-90"
                                   title="Increase quantity"
                                 >
-                                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 stroke-[2.5]" />
                                 </button>
                               </div>
                             </div>
@@ -801,10 +804,13 @@ export default function CustomerOrderForm() {
                             <button
                               type="button"
                               onClick={() => handleAddItem(prod.id)}
-                              className="w-full h-10 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition shadow-xs hover:shadow active:scale-[0.98]"
+                              className="w-full h-8 sm:h-10 rounded-xl bg-[#7f8f55] hover:bg-[#6d7d45] active:bg-[#5c6a38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1 transition shadow-xs hover:shadow active:scale-[0.98]"
                             >
-                              <Plus className="w-4 h-4 stroke-[2.5]" />
-                              <span>Add to Order</span>
+                              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                              <span>
+                                <span className="inline sm:hidden">Add</span>
+                                <span className="hidden sm:inline">Add to Order</span>
+                              </span>
                             </button>
                           )}
                         </div>
@@ -1241,8 +1247,8 @@ export default function CustomerOrderForm() {
                     <div className="max-w-sm mx-auto bg-white border border-[#d8dec2] rounded-xl p-2 flex items-center justify-between shadow-2xs">
                       <div className="text-left px-2 min-w-0">
                         <span className="text-[9px] uppercase font-bold text-[#374011]/50 block">UPI ID</span>
-                        <span className="font-mono text-xs sm:text-sm font-bold text-[#374011] truncate block">
-                          vyapar.174975680862@hdfcbank
+                        <span className="font-mono text-xs sm:text-sm font-bold text-[#374011] truncate block select-all">
+                          {UPI_ID}
                         </span>
                       </div>
                       <button
@@ -1263,6 +1269,17 @@ export default function CustomerOrderForm() {
                           </>
                         )}
                       </button>
+                    </div>
+
+                    {/* Direct UPI Intent Link for Mobile Devices */}
+                    <div className="max-w-sm mx-auto sm:hidden">
+                      <a
+                        href={`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=Dhaara%20Wellness&am=${grandTotal}&cu=INR`}
+                        className="w-full py-2.5 px-3 rounded-xl bg-[#7f8f55] hover:bg-[#6f7e49] text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition shadow-xs active:scale-95"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Pay {formatINR(grandTotal)} via UPI App</span>
+                      </a>
                     </div>
 
                     {/* Payment Screenshot Upload Section */}

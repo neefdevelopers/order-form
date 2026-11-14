@@ -13,8 +13,13 @@ import {
   ExternalLink, 
   ArrowRight, 
   Calendar, 
-  Leaf 
+  Leaf,
+  User,
+  Eye,
+  Phone,
+  MapPin
 } from 'lucide-react';
+import OrderDetailsModal from './OrderDetailsModal';
 
 export default function PromoterDashboard({ token, onNavigateHome }) {
   const [data, setData] = useState(null);
@@ -23,6 +28,7 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     if (token) {
@@ -143,15 +149,18 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
 
   const { promoter, stats, orders = [] } = data;
 
-  // Filter orders by search term (Order ID or Product Name)
+  // Filter orders by search term (Order ID, Customer Name, Phone, or Product Name)
   const filteredOrders = orders.filter((order) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const idMatch = order.id && order.id.toLowerCase().includes(q);
+    const customerMatch = (order.customer_name && order.customer_name.toLowerCase().includes(q)) ||
+                          (order.phone_number && order.phone_number.toLowerCase().includes(q)) ||
+                          (order.city && order.city.toLowerCase().includes(q));
     const itemMatch = Array.isArray(order.items) && order.items.some(
       (it) => it.product_name && it.product_name.toLowerCase().includes(q)
     );
-    return idMatch || itemMatch;
+    return idMatch || customerMatch || itemMatch;
   });
 
   return (
@@ -331,7 +340,7 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by Order ID or Product..."
+                  placeholder="Search by Order ID, Customer, Product..."
                   className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition shadow-2xs"
                 />
                 {searchQuery && (
@@ -385,9 +394,11 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                     <thead>
                       <tr className="bg-[#d8dec2]/40 border-b border-[#d8dec2] text-[#374011] font-semibold uppercase tracking-wider text-[11px]">
                         <th className="py-3.5 px-4">Order ID</th>
-                        <th className="py-3.5 px-4">Order Date</th>
+                        <th className="py-3.5 px-4">Date</th>
+                        <th className="py-3.5 px-4">Customer Name</th>
                         <th className="py-3.5 px-4">Products & Quantities</th>
                         <th className="py-3.5 px-4 text-right">Total Amount</th>
+                        <th className="py-3.5 px-4 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#d8dec2]/40">
@@ -395,10 +406,17 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                         const items = Array.isArray(order.items) ? order.items : [];
                         return (
                           <tr key={order.id} className="hover:bg-[#d8dec2]/15 transition group">
-                            {/* Order ID */}
+                            {/* Order ID - Clickable to open full details */}
                             <td className="py-4 px-4 font-mono font-bold text-[#374011] whitespace-nowrap">
                               <div className="flex items-center gap-1.5">
-                                <span className="text-[#7f8f55] font-semibold">{order.id}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedOrder(order)}
+                                  title="Click to view all order details"
+                                  className="text-[#7f8f55] hover:text-[#5c6a38] hover:underline font-semibold text-left inline-flex items-center gap-1"
+                                >
+                                  <span>{order.id}</span>
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(order.id, order.id)}
@@ -419,6 +437,30 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                               <div className="flex items-center gap-1.5">
                                 <Calendar className="w-3.5 h-3.5 text-[#7f8f55]" />
                                 <span>{formatDate(order.created_at)}</span>
+                              </div>
+                            </td>
+
+                            {/* Customer Name */}
+                            <td 
+                              onClick={() => setSelectedOrder(order)}
+                              className="py-4 px-4 font-medium text-[#374011] whitespace-nowrap cursor-pointer hover:text-[#7f8f55] transition"
+                              title="Click to view all order details"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-[#d8dec2]/50 text-[#7f8f55] flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                  {(order.customer_name ? order.customer_name.charAt(0) : 'C').toUpperCase()}
+                                </div>
+                                <div>
+                                  <span className="font-semibold block text-xs">
+                                    {order.customer_name || <span className="italic text-[#374011]/40">Customer</span>}
+                                  </span>
+                                  {order.phone_number && (
+                                    <span className="text-[11px] text-[#374011]/60 font-mono flex items-center gap-1">
+                                      <Phone className="w-2.5 h-2.5 text-[#7f8f55]" />
+                                      <span>{order.phone_number}</span>
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </td>
 
@@ -452,6 +494,19 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                                 {formatINR(order.total_amount)}
                               </span>
                             </td>
+
+                            {/* Action: Popup Details */}
+                            <td className="py-4 px-4 text-center whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedOrder(order)}
+                                title="Click to view all order details"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[#374011] bg-[#f4f6ee] hover:bg-[#d8dec2] border border-[#d8dec2] transition text-xs font-semibold shadow-2xs"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />
+                                <span>Details</span>
+                              </button>
+                            </td>
                           </tr>
                         );
                       })}
@@ -469,32 +524,45 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                       key={order.id}
                       className="bg-white rounded-2xl border border-[#d8dec2] p-4 shadow-xs space-y-3"
                     >
-                      {/* Card Header: Order ID & Date */}
-                      <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d8dec2]/60">
+                      {/* Card Header: Order ID, Customer Name & Date */}
+                      <div 
+                        onClick={() => setSelectedOrder(order)}
+                        className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#d8dec2]/60 cursor-pointer hover:opacity-90 transition"
+                        title="Tap to view full order details"
+                      >
                         <div>
                           <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#7f8f55]">
                             <span>{order.id}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy(order.id, order.id)}
-                              className="p-1 rounded text-[#374011]/50 hover:text-[#374011]"
-                            >
-                              {copiedId === order.id ? (
-                                <Check className="w-3 h-3 text-[#7f8f55]" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </button>
+                            <span className="text-[10px] font-sans font-medium px-1.5 py-0.5 rounded bg-[#d8dec2]/50 text-[#374011]">Details</span>
                           </div>
-                          <p className="text-[11px] text-[#374011]/60 mt-0.5 flex items-center gap-1">
+
+                          {/* Customer Name */}
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#7f8f55] flex-shrink-0" />
+                            <span className="text-xs font-bold text-[#374011]">
+                              {order.customer_name || 'Customer'}
+                            </span>
+                          </div>
+
+                          {order.phone_number && (
+                            <p className="text-[11px] text-[#374011]/60 font-mono flex items-center gap-1 mt-0.5">
+                              <Phone className="w-2.5 h-2.5 text-[#7f8f55]" />
+                              <span>{order.phone_number}</span>
+                            </p>
+                          )}
+
+                          <p className="text-[11px] text-[#374011]/60 mt-1 flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-[#7f8f55]" />
                             <span>{formatDate(order.created_at)}</span>
                           </p>
                         </div>
 
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end">
                           <span className="text-sm font-extrabold text-[#374011] font-mono">
                             {formatINR(order.total_amount)}
+                          </span>
+                          <span className="text-[10px] text-[#374011]/60 uppercase font-semibold mt-1">
+                            {order.payment_method === 'prepaid' ? 'Prepaid' : 'COD'}
                           </span>
                         </div>
                       </div>
@@ -523,6 +591,18 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
                           </div>
                         ))}
                       </div>
+
+                      {/* View Full Details Button */}
+                      <div className="pt-2 border-t border-[#d8dec2]/60">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrder(order)}
+                          className="w-full py-2 px-3 rounded-xl border border-[#d8dec2] bg-[#f4f6ee] hover:bg-[#d8dec2] text-xs font-semibold text-[#374011] flex items-center justify-center gap-1.5 transition shadow-2xs"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#7f8f55]" />
+                          <span>View Full Order Details</span>
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -541,6 +621,14 @@ export default function PromoterDashboard({ token, onNavigateHome }) {
           </span>
         </div>
       </footer>
+
+      {/* Order Details Modal Popup */}
+      {selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </div>
   );
 }

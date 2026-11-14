@@ -155,6 +155,10 @@ async function runPromoterDashboardTests() {
   assert.strictEqual(fetchedOrder1.items[0].quantity, 2);
   assert.strictEqual(fetchedOrder1.items[1].product_name, prod2.name);
   assert.strictEqual(fetchedOrder1.items[1].quantity, 3);
+  assert.strictEqual(fetchedOrder1.customer_name, 'Rahul Sharma', 'Customer name must be returned in promoter order history');
+  assert.strictEqual(fetchedOrder1.phone_number, '+91 98765 43210', 'Customer phone must be returned in promoter order history');
+  assert.ok(fetchedOrder1.complete_address, 'Complete address must be returned in promoter order history');
+  console.log('   ✓ Customer details verified in promoter order history (Rahul Sharma, +91 98765 43210)');
   console.log('   ✓ Metrics verified:');
   console.log(`     - Total Orders: ${dashData2.stats.total_orders}`);
   console.log(`     - Total Products Sold: ${dashData2.stats.total_products_sold}`);

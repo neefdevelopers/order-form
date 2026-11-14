@@ -83,6 +83,9 @@ async function initPostgres() {
       id SERIAL PRIMARY KEY,
       promoter_code TEXT UNIQUE NOT NULL,
       name TEXT,
+      phone_number TEXT,
+      aadhaar_number TEXT,
+      address TEXT,
       access_token TEXT UNIQUE,
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL
@@ -100,6 +103,8 @@ async function initPostgres() {
       subtotal NUMERIC NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     );
+
+    CREATE SEQUENCE IF NOT EXISTS order_id_seq START WITH 1;
   `);
 
   // Ensure all columns exist for migration compatibility
@@ -122,6 +127,9 @@ async function initPostgres() {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS post_office TEXT;
 
     ALTER TABLE promoters ADD COLUMN IF NOT EXISTS access_token TEXT;
+    ALTER TABLE promoters ADD COLUMN IF NOT EXISTS phone_number TEXT;
+    ALTER TABLE promoters ADD COLUMN IF NOT EXISTS aadhaar_number TEXT;
+    ALTER TABLE promoters ADD COLUMN IF NOT EXISTS address TEXT;
   `);
 
   // Backfill existing promoters missing access_token with secure random tokens
@@ -148,26 +156,21 @@ async function initPostgres() {
     console.log('[DB] Seeded Neon PostgreSQL with default Dhaara Herbal Hair Oil products.');
   }
 
-  // Seed default promoters if empty
-  const promoterCountRes = await pool.query('SELECT COUNT(*) as count FROM promoters');
-  const promoterCount = parseInt(promoterCountRes.rows[0].count, 10);
-  if (promoterCount === 0) {
-    const now = new Date().toISOString();
-    await pool.query(`
-      INSERT INTO promoters (promoter_code, name, access_token, is_active, created_at)
-      VALUES 
-        ('PR-1001', 'North Zone Promoter', $1, 1, $4),
-        ('PR-1002', 'South Zone Promoter', $2, 1, $4),
-        ('PROM-9981', 'Field Sales Representative', $3, 1, $4)
-      ON CONFLICT (promoter_code) DO NOTHING;
-    `, [
-      crypto.randomBytes(16).toString('hex'),
-      crypto.randomBytes(16).toString('hex'),
-      crypto.randomBytes(16).toString('hex'),
-      now
-    ]);
-    console.log('[DB] Seeded Neon PostgreSQL with default authorized promoter IDs.');
-  }
+  // Ensure default demo promoters exist without overwriting user promoters
+  const now = new Date().toISOString();
+  await pool.query(`
+    INSERT INTO promoters (promoter_code, name, access_token, is_active, created_at)
+    VALUES 
+      ('PR-1001', 'North Zone Promoter', $1, 1, $4),
+      ('PR-1002', 'South Zone Promoter', $2, 1, $4),
+      ('PROM-9981', 'Field Sales Representative', $3, 1, $4)
+    ON CONFLICT (promoter_code) DO NOTHING;
+  `, [
+    crypto.randomBytes(16).toString('hex'),
+    crypto.randomBytes(16).toString('hex'),
+    crypto.randomBytes(16).toString('hex'),
+    now
+  ]);
 }
 
 async function initSqlite() {
@@ -214,6 +217,9 @@ async function initSqlite() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       promoter_code TEXT UNIQUE NOT NULL COLLATE NOCASE,
       name TEXT,
+      phone_number TEXT,
+      aadhaar_number TEXT,
+      address TEXT,
       access_token TEXT UNIQUE,
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL
@@ -229,6 +235,11 @@ async function initSqlite() {
       subtotal REAL NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL,
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS order_seq (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL
     );
   `);
 
@@ -284,6 +295,15 @@ async function initSqlite() {
   const promoterCols = sqliteDb.prepare('PRAGMA table_info(promoters)').all();
   if (!promoterCols.some(c => c.name === 'access_token')) {
     sqliteDb.exec('ALTER TABLE promoters ADD COLUMN access_token TEXT;');
+  }
+  if (!promoterCols.some(c => c.name === 'phone_number')) {
+    sqliteDb.exec('ALTER TABLE promoters ADD COLUMN phone_number TEXT;');
+  }
+  if (!promoterCols.some(c => c.name === 'aadhaar_number')) {
+    sqliteDb.exec('ALTER TABLE promoters ADD COLUMN aadhaar_number TEXT;');
+  }
+  if (!promoterCols.some(c => c.name === 'address')) {
+    sqliteDb.exec('ALTER TABLE promoters ADD COLUMN address TEXT;');
   }
   sqliteDb.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_promoters_access_token ON promoters(access_token);');
 
@@ -432,6 +452,20 @@ function prepare(sql) {
   };
 }
 
+async function getNextOrderId() {
+  await init();
+  if (isPostgres) {
+    const res = await pool.query("SELECT nextval('order_id_seq') AS num");
+    const num = parseInt(res.rows[0].num, 10);
+    return `ORD-${String(num).padStart(4, '0')}`;
+  } else {
+    const now = new Date().toISOString();
+    const res = sqliteDb.prepare("INSERT INTO order_seq (created_at) VALUES (?)").run(now);
+    const num = Number(res.lastInsertRowid);
+    return `ORD-${String(num).padStart(4, '0')}`;
+  }
+}
+
 module.exports = {
   isPostgres,
   dbPath,
@@ -443,5 +477,6 @@ module.exports = {
   all,
   run,
   exec,
-  prepare
+  prepare,
+  getNextOrderId
 };
