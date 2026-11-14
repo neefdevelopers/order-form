@@ -4,7 +4,7 @@ data/*.db
 data/*.db-wal
 data/*.db-shm
 !data/.gitkeep
-uploads/products/prod_*
+uploads/products/prod_sampler_*
 uploads/payments/*
 !uploads/payments/.gitkeep
 .env
