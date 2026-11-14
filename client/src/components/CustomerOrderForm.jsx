@@ -724,8 +724,13 @@ export default function CustomerOrderForm() {
                               alt={prod.name}
                               className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                               onError={(e) => {
+                                if (!e.target.dataset.triedLocal && prod.image_url) {
+                                  e.target.dataset.triedLocal = 'true';
+                                  e.target.src = prod.image_url.startsWith('/') ? prod.image_url : `/${prod.image_url}`;
+                                  return;
+                                }
                                 e.target.onerror = null;
-                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%237f8f55" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                                e.target.src = '/uploads/products/dhaara-oil-100ml.svg';
                               }}
                             />
                           </div>
@@ -1637,8 +1642,13 @@ export default function CustomerOrderForm() {
                             alt={it.name}
                             className="w-full h-full object-contain"
                             onError={(e) => {
+                              if (!e.target.dataset.triedLocal && it.image_url) {
+                                e.target.dataset.triedLocal = 'true';
+                                e.target.src = it.image_url.startsWith('/') ? it.image_url : `/${it.image_url}`;
+                                return;
+                              }
                               e.target.onerror = null;
-                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%237f8f55"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+                              e.target.src = '/uploads/products/dhaara-oil-100ml.svg';
                             }}
                           />
                         </div>

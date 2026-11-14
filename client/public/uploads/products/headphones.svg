@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" rx="20" fill="#EEF2F6"/>
+  <circle cx="200" cy="200" r="140" fill="#E2E8F0"/>
+  <path d="M120 220V190C120 145.817 155.817 110 200 110C244.183 110 280 145.817 280 190V220" stroke="#1E293B" stroke-width="18" stroke-linecap="round"/>
+  <rect x="100" y="200" width="40" height="70" rx="20" fill="#3B82F6"/>
+  <rect x="260" y="200" width="40" height="70" rx="20" fill="#3B82F6"/>
+  <rect x="115" y="215" width="10" height="40" rx="5" fill="#DBEAFE"/>
+  <rect x="275" y="215" width="10" height="40" rx="5" fill="#DBEAFE"/>
+  <text x="200" y="320" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#475569">Premium Headphones</text>
+</svg>

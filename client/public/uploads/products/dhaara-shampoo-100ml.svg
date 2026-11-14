@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="shampooGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b8c798"/>
+      <stop offset="45%" stop-color="#8c9e62"/>
+      <stop offset="100%" stop-color="#46541e"/>
+    </linearGradient>
+    <linearGradient id="pumpGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#556228"/>
+      <stop offset="50%" stop-color="#7a8b4b"/>
+      <stop offset="100%" stop-color="#3d471b"/>
+    </linearGradient>
+    <filter id="softShadowShampoo" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="5" stdDeviation="4" flood-color="#374011" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="105" r="75" fill="#f4f6ee" />
+  <circle cx="100" cy="105" r="62" fill="#d8dec2" opacity="0.6" />
+
+  <g filter="url(#softShadowShampoo)">
+    <!-- Pump Dispenser -->
+    <path d="M96,22 L118,22 C122,22 124,25 120,28 L104,28 L104,38 L96,38 Z" fill="url(#pumpGrad)" />
+    <!-- Pump Collar -->
+    <rect x="90" y="38" width="20" height="12" rx="2" fill="#556228" />
+    <!-- Bottle Shoulders -->
+    <path d="M92,50 L108,50 L118,68 L82,68 Z" fill="#7a8b4b" opacity="0.8" />
+    <!-- Bottle Body -->
+    <rect x="72" y="68" width="56" height="94" rx="14" fill="#ffffff" stroke="#7a8b4b" stroke-width="2" />
+    <rect x="75" y="78" width="50" height="80" rx="10" fill="url(#shampooGrad)" opacity="0.85" />
+
+    <!-- Label -->
+    <rect x="77" y="90" width="46" height="52" rx="4" fill="#ffffff" stroke="#d8dec2" stroke-width="1.5" />
+    <!-- Bubble / Herbal motifs -->
+    <circle cx="100" cy="99" r="6" fill="#8c9e62" opacity="0.8" />
+    <circle cx="106" cy="96" r="3" fill="#a9b48a" />
+    <text x="100" y="116" font-family="-apple-system, sans-serif" font-size="6.5" font-weight="900" fill="#374011" text-anchor="middle">DHAARA</text>
+    <text x="100" y="125" font-family="-apple-system, sans-serif" font-size="4.8" font-weight="700" fill="#7a8b4b" text-anchor="middle">HERBAL SHAMPOO</text>
+    <text x="100" y="134" font-family="-apple-system, sans-serif" font-size="4.2" font-weight="600" fill="#374011" text-anchor="middle">100 ML</text>
+  </g>
+</svg>

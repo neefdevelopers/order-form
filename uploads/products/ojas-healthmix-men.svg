@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="jarGradMen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a5d30"/>
+      <stop offset="50%" stop-color="#2d381c"/>
+      <stop offset="100%" stop-color="#1b2310"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8c9e62"/>
+      <stop offset="50%" stop-color="#a9b48a"/>
+      <stop offset="100%" stop-color="#6d7d45"/>
+    </linearGradient>
+    <filter id="softShadowJar" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="5" stdDeviation="4" flood-color="#374011" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="105" r="75" fill="#f4f6ee" />
+  <circle cx="100" cy="105" r="62" fill="#d8dec2" opacity="0.6" />
+
+  <g filter="url(#softShadowJar)">
+    <!-- Lid -->
+    <rect x="68" y="38" width="64" height="18" rx="5" fill="url(#lidGrad)" stroke="#374011" stroke-width="1.5" />
+    <line x1="72" y1="46" x2="128" y2="46" stroke="#ffffff" stroke-width="1" opacity="0.6" />
+
+    <!-- Jar Neck -->
+    <rect x="74" y="56" width="52" height="10" fill="#374011" />
+
+    <!-- Jar Body -->
+    <rect x="60" y="66" width="80" height="96" rx="16" fill="url(#jarGradMen)" stroke="#7f8f55" stroke-width="2" />
+
+    <!-- Jar Label -->
+    <rect x="64" y="80" width="72" height="64" rx="6" fill="#ffffff" stroke="#d8dec2" stroke-width="1.5" />
+    
+    <!-- Sun / Vitality Emblem -->
+    <circle cx="100" cy="94" r="8" fill="#d4af37" />
+    <path d="M100,82 L100,85 M100,103 L100,106 M88,94 L91,94 M109,94 L112,94" stroke="#d4af37" stroke-width="2" stroke-linecap="round" />
+
+    <text x="100" y="112" font-family="-apple-system, sans-serif" font-size="7.5" font-weight="900" fill="#374011" text-anchor="middle" letter-spacing="0.5">OJAS</text>
+    <text x="100" y="122" font-family="-apple-system, sans-serif" font-size="5" font-weight="700" fill="#7f8f55" text-anchor="middle">HEALTH MIX</text>
+    <text x="100" y="132" font-family="-apple-system, sans-serif" font-size="4.8" font-weight="800" fill="#2d381c" text-anchor="middle">MEN'S VITALITY</text>
+  </g>
+</svg>

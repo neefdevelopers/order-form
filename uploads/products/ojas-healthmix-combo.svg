@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="jarMenC" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a5d30"/>
+      <stop offset="50%" stop-color="#2d381c"/>
+      <stop offset="100%" stop-color="#1b2310"/>
+    </linearGradient>
+    <linearGradient id="jarWomenC" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5a4238"/>
+      <stop offset="50%" stop-color="#3d2c25"/>
+      <stop offset="100%" stop-color="#241a16"/>
+    </linearGradient>
+    <filter id="softShadowJC" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="5" stdDeviation="4" flood-color="#374011" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="105" r="80" fill="#f4f6ee" />
+  <circle cx="100" cy="105" r="66" fill="#d8dec2" opacity="0.6" />
+
+  <!-- Left: Men's Jar -->
+  <g filter="url(#softShadowJC)" transform="translate(-20, 6) scale(0.85)">
+    <rect x="68" y="38" width="64" height="18" rx="5" fill="#8c9e62" stroke="#374011" stroke-width="1.5" />
+    <rect x="60" y="66" width="80" height="96" rx="16" fill="url(#jarMenC)" stroke="#7f8f55" stroke-width="2" />
+    <rect x="64" y="80" width="72" height="64" rx="6" fill="#ffffff" stroke="#d8dec2" />
+    <text x="100" y="105" font-family="-apple-system, sans-serif" font-size="7.5" font-weight="900" fill="#374011" text-anchor="middle">OJAS</text>
+    <text x="100" y="117" font-family="-apple-system, sans-serif" font-size="5" font-weight="700" fill="#7f8f55" text-anchor="middle">MEN</text>
+  </g>
+
+  <!-- Right: Women's Jar -->
+  <g filter="url(#softShadowJC)" transform="translate(36, 6) scale(0.85)">
+    <rect x="68" y="38" width="64" height="18" rx="5" fill="#d49b82" stroke="#8c5844" stroke-width="1.5" />
+    <rect x="60" y="66" width="80" height="96" rx="16" fill="url(#jarWomenC)" stroke="#b87d64" stroke-width="2" />
+    <rect x="64" y="80" width="72" height="64" rx="6" fill="#ffffff" stroke="#d8dec2" />
+    <text x="100" y="105" font-family="-apple-system, sans-serif" font-size="7.5" font-weight="900" fill="#374011" text-anchor="middle">OJAS</text>
+    <text x="100" y="117" font-family="-apple-system, sans-serif" font-size="5" font-weight="700" fill="#b87d64" text-anchor="middle">WOMEN</text>
+  </g>
+
+  <!-- Combo Badge -->
+  <g filter="url(#softShadowJC)">
+    <rect x="48" y="148" width="104" height="20" rx="10" fill="#374011" stroke="#ffffff" stroke-width="2" />
+    <text x="100" y="161" font-family="-apple-system, sans-serif" font-size="7" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">OJAS DUO COMBO</text>
+  </g>
+</svg>
