@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiUrl, getImageUrl } from '../config';
 import { 
   Download, 
+  Search,
   RefreshCw, 
   AlertCircle, 
   Calendar, 
@@ -33,8 +34,9 @@ export default function OrderManagement({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filtration state (strictly by Promoter ID)
+  // Filtration state (Promoter ID filter + Search Bar)
   const [promoterIdFilter, setPromoterIdFilter] = useState(initialPromoterFilter || '');
+  const [searchQuery, setSearchQuery] = useState('');
   const [registeredPromoters, setRegisteredPromoters] = useState([]);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -98,20 +100,39 @@ export default function OrderManagement({
     ].filter(Boolean))
   ).sort();
 
-  // Filter strictly by Promoter ID
+  // Filter by Promoter ID and Search Query
   const filteredOrders = orders.filter((o) => {
+    // 1. Filter by Promoter ID
     if (promoterIdFilter.trim()) {
       if (!o.promoter_id || o.promoter_id.toLowerCase() !== promoterIdFilter.trim().toLowerCase()) {
         return false;
       }
     }
+
+    // 2. Search query (matches order id, customer name, promoter id, product name, phone, post office, city, state)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matches = (
+        (o.id && o.id.toLowerCase().includes(q)) ||
+        (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
+        (o.promoter_id && o.promoter_id.toLowerCase().includes(q)) ||
+        (o.product_name && o.product_name.toLowerCase().includes(q)) ||
+        (o.phone_number && o.phone_number.toLowerCase().includes(q)) ||
+        (o.post_office && o.post_office.toLowerCase().includes(q)) ||
+        (o.city && o.city.toLowerCase().includes(q)) ||
+        (o.state && o.state.toLowerCase().includes(q))
+      );
+      if (!matches) return false;
+    }
+
     return true;
   });
 
-  const isFiltered = Boolean(promoterIdFilter.trim());
+  const isFiltered = Boolean(promoterIdFilter.trim() || searchQuery.trim());
 
   const clearAllFilters = () => {
     setPromoterIdFilter('');
+    setSearchQuery('');
     if (onClearInitialPromoter) onClearInitialPromoter();
   };
 
@@ -331,14 +352,15 @@ export default function OrderManagement({
       )}
 
       {/* ======================================================== */}
-      {/* PROMOTER ID FILTRATION CONTROLS                         */}
+      {/* FILTRATION: PROMOTER ID & SEARCH BAR                    */}
       {/* ======================================================== */}
-      <div className="bg-white p-4 rounded-2xl border border-[#d8dec2] shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div className="w-full sm:max-w-md">
+      <div className="bg-white p-4 rounded-2xl border border-[#d8dec2] shadow-xs space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* 1. Filter by Promoter ID */}
+          <div>
             <label 
               htmlFor="filter-promoter-select"
-              className="block text-[11px] font-semibold uppercase tracking-wider text-[#374011]/80 mb-1.5"
+              className="block text-[11px] font-semibold uppercase tracking-wider text-[#374011]/80 mb-1"
             >
               Filter by Promoter ID
             </label>
@@ -347,7 +369,7 @@ export default function OrderManagement({
                 id="filter-promoter-select"
                 value={promoterIdFilter}
                 onChange={(e) => setPromoterIdFilter(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#d8dec2] text-xs font-mono text-[#374011] bg-white focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+                className="w-full px-3 py-2 rounded-xl border border-[#d8dec2] text-xs font-mono text-[#374011] bg-white focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
               >
                 <option value="">All Promoter IDs</option>
                 {distinctPromoters.map((pid) => {
@@ -362,22 +384,70 @@ export default function OrderManagement({
             </div>
           </div>
 
-          {isFiltered && (
-            <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
-              <span className="text-xs text-[#374011]/80">
+          {/* 2. Search Bar */}
+          <div>
+            <label 
+              htmlFor="orders-search-input"
+              className="block text-[11px] font-semibold uppercase tracking-wider text-[#374011]/80 mb-1"
+            >
+              Search Orders
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
+                <Search className="w-3.5 h-3.5" />
+              </div>
+              <input
+                id="orders-search-input"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by customer, phone, order ID, product, city..."
+                className="w-full pl-8 pr-8 py-2 rounded-xl border border-[#d8dec2] text-xs text-[#374011] bg-white placeholder-[#374011]/40 focus:outline-none focus:ring-2 focus:ring-[#7f8f55]/20 focus:border-[#7f8f55] transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#374011]/40 hover:text-[#374011] transition cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Active Filters Summary & Reset */}
+        {isFiltered && (
+          <div className="pt-2 border-t border-[#d8dec2]/50 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-[#374011]">
+              <Filter className="w-3.5 h-3.5 text-[#7f8f55]" />
+              <span>
                 Showing <strong>{filteredOrders.length}</strong> of {orders.length} orders
               </span>
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Reset Filter</span>
-              </button>
+              {promoterIdFilter && (
+                <span className="px-2 py-0.5 rounded-full bg-[#d8dec2]/50 text-[#374011] border border-[#a9b48a] font-mono text-[11px]">
+                  Promoter: {promoterIdFilter}
+                </span>
+              )}
+              {searchQuery && (
+                <span className="px-2 py-0.5 rounded-full bg-[#d8dec2]/40 text-[#374011] border border-[#d8dec2] text-[11px]">
+                  Search: "{searchQuery}"
+                </span>
+              )}
             </div>
-          )}
-        </div>
+
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Reset Filters</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ======================================================== */}
@@ -512,11 +582,11 @@ export default function OrderManagement({
             <Package className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-semibold text-[#374011]">
-            {isFiltered ? 'No orders match the selected Promoter ID' : 'No orders submitted yet'}
+            {isFiltered ? 'No orders match your filter or search criteria' : 'No orders submitted yet'}
           </h3>
           <p className="text-xs text-[#374011]/70 mt-1 max-w-sm mx-auto">
             {isFiltered
-              ? `No orders found for promoter "${promoterIdFilter}".`
+              ? 'Try modifying your Promoter ID selection or search terms.'
               : 'Customer submissions will automatically appear here.'}
           </p>
           {isFiltered && (
