@@ -92,6 +92,9 @@ async function runPromoterTests() {
     body: JSON.stringify({
       promoter_code: newCode,
       name: 'Automated Test Promoter',
+      phone_number: '+91 98765 43210',
+      aadhaar_number: '1234 5678 9012',
+      address: '123 Test Street, Bengaluru, Karnataka - 560001',
       is_active: 1
     })
   });

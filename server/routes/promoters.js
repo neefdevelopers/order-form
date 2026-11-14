@@ -89,6 +89,18 @@ router.post('/admin/promoters', requireAdminAuth, async (req, res) => {
     if (!promoterCode) {
       return res.status(400).json({ error: 'Promoter ID code is required (e.g. PR-1001)' });
     }
+    if (!name) {
+      return res.status(400).json({ error: 'Promoter name is required' });
+    }
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+    if (!aadhaarNumber) {
+      return res.status(400).json({ error: 'Aadhaar number is required' });
+    }
+    if (!address) {
+      return res.status(400).json({ error: 'Promoter address is required' });
+    }
 
     // Check duplicate
     const existing = await db.get('SELECT id FROM promoters WHERE LOWER(promoter_code) = LOWER(?)', [promoterCode]);
@@ -134,8 +146,20 @@ router.put('/admin/promoters/:id', requireAdminAuth, async (req, res) => {
     const aadhaarNumber = req.body.aadhaar_number !== undefined ? req.body.aadhaar_number.trim() : (existing.aadhaar_number || '');
     const address = req.body.address !== undefined ? req.body.address.trim() : (existing.address || '');
 
-    if (!promoterCode) {
+    if (req.body.promoter_code !== undefined && !promoterCode) {
       return res.status(400).json({ error: 'Promoter ID code cannot be empty' });
+    }
+    if (req.body.name !== undefined && !name) {
+      return res.status(400).json({ error: 'Promoter name cannot be empty' });
+    }
+    if (req.body.phone_number !== undefined && !phoneNumber) {
+      return res.status(400).json({ error: 'Phone number cannot be empty' });
+    }
+    if (req.body.aadhaar_number !== undefined && !aadhaarNumber) {
+      return res.status(400).json({ error: 'Aadhaar number cannot be empty' });
+    }
+    if (req.body.address !== undefined && !address) {
+      return res.status(400).json({ error: 'Promoter address cannot be empty' });
     }
 
     // If changing code, ensure no collision

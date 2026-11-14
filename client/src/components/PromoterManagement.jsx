@@ -179,6 +179,22 @@ export default function PromoterManagement({ token }) {
       setFormError('Promoter ID code is required');
       return;
     }
+    if (!promoterName.trim()) {
+      setFormError('Promoter name is required');
+      return;
+    }
+    if (!promoterPhone.trim()) {
+      setFormError('Phone number is required');
+      return;
+    }
+    if (!promoterAadhaar.trim()) {
+      setFormError('Aadhaar number is required');
+      return;
+    }
+    if (!promoterAddress.trim()) {
+      setFormError('Promoter address is required');
+      return;
+    }
 
     setSaving(true);
     setFormError('');
@@ -254,11 +270,6 @@ export default function PromoterManagement({ token }) {
           Authorization: `Bearer ${token}` 
         },
         body: JSON.stringify({
-          promoter_code: promoter.promoter_code,
-          name: promoter.name,
-          phone_number: promoter.phone_number,
-          aadhaar_number: promoter.aadhaar_number,
-          address: promoter.address,
           is_active: newActive
         })
       });
@@ -827,6 +838,7 @@ export default function PromoterManagement({ token }) {
                 <input
                   id="promoter-code-input"
                   type="text"
+                  required
                   value={promoterCode}
                   onChange={(e) => setPromoterCode(e.target.value.toUpperCase())}
                   placeholder="e.g. PR-1005"
@@ -843,11 +855,12 @@ export default function PromoterManagement({ token }) {
                   htmlFor="promoter-name-input"
                   className="block text-xs font-semibold text-[#374011] mb-1"
                 >
-                  Promoter Name / Label (Optional)
+                  Promoter Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="promoter-name-input"
                   type="text"
+                  required
                   value={promoterName}
                   onChange={(e) => setPromoterName(e.target.value)}
                   placeholder="e.g. John Doe / City Agency"
@@ -861,7 +874,7 @@ export default function PromoterManagement({ token }) {
                   htmlFor="promoter-phone-input"
                   className="block text-xs font-semibold text-[#374011] mb-1"
                 >
-                  Phone Number (Optional)
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
@@ -870,6 +883,7 @@ export default function PromoterManagement({ token }) {
                   <input
                     id="promoter-phone-input"
                     type="tel"
+                    required
                     value={promoterPhone}
                     onChange={(e) => setPromoterPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
@@ -884,7 +898,7 @@ export default function PromoterManagement({ token }) {
                   htmlFor="promoter-aadhaar-input"
                   className="block text-xs font-semibold text-[#374011] mb-1"
                 >
-                  Aadhaar Number (Optional)
+                  Aadhaar Number <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#7f8f55]">
@@ -893,6 +907,7 @@ export default function PromoterManagement({ token }) {
                   <input
                     id="promoter-aadhaar-input"
                     type="text"
+                    required
                     value={promoterAadhaar}
                     onChange={(e) => setPromoterAadhaar(e.target.value)}
                     placeholder="e.g. 1234 5678 9012"
@@ -911,12 +926,13 @@ export default function PromoterManagement({ token }) {
                   htmlFor="promoter-address-input"
                   className="block text-xs font-semibold text-[#374011] mb-1"
                 >
-                  Promoter Address (Optional)
+                  Promoter Address <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <textarea
                     id="promoter-address-input"
                     rows={3}
+                    required
                     value={promoterAddress}
                     onChange={(e) => setPromoterAddress(e.target.value)}
                     placeholder="Full address (Door No., Street, Area, City/District, State, PIN)..."

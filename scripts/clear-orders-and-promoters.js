@@ -88,3 +88,4 @@ clearOrdersAndPromoters().catch(err => {
   console.error('\nError clearing orders and promoters:', err);
   process.exit(1);
 });
+

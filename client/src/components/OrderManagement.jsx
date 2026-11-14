@@ -241,6 +241,13 @@ export default function OrderManagement({
     (o) => (o.payment_method || '').toLowerCase() === 'prepaid'
   ).length;
 
+  const totalAmountGenerated = filteredOrders.reduce((sum, o) => {
+    const val = o.total_amount !== undefined && o.total_amount !== null
+      ? Number(o.total_amount)
+      : (Number(o.product_price) || 0) * (Number(o.quantity) || 1);
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
+
   return (
     <div className="space-y-5">
       {/* Top action toolbar */}
@@ -435,10 +442,10 @@ export default function OrderManagement({
       </div>
 
       {/* ======================================================== */}
-      {/* 5-METRIC DYNAMIC SUMMARY STATS CARDS                    */}
+      {/* 6-METRIC DYNAMIC SUMMARY STATS CARDS                    */}
       {/* Dynamically re-calculated based on filteredOrders       */}
       {/* ======================================================== */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* 1. Total Customers */}
         <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
           <div>
@@ -526,6 +533,24 @@ export default function OrderManagement({
           </div>
           <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-100/80 text-emerald-800">
             <CreditCard className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* 6. Total Amount Generated */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#d8dec2] shadow-xs flex items-center justify-between transition hover:border-[#a9b48a]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#374011]/70">
+              Total Amount
+            </p>
+            <p className="text-xl sm:text-2xl font-black text-[#374011] mt-1 font-mono">
+              {loading ? '—' : formatINR(totalAmountGenerated)}
+            </p>
+            <p className="text-[10px] text-[#374011]/50 mt-0.5">
+              {isFiltered ? 'Filtered revenue' : 'Total revenue'}
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#7f8f55]/15 text-[#374011]">
+            <IndianRupee className="w-5 h-5 stroke-[2.2]" />
           </div>
         </div>
       </div>
