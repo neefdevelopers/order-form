@@ -10,6 +10,7 @@
     "server": "node server/index.js",
     "migrate:neon": "node scripts/migrate-to-neon.js",
     "db:clear": "node scripts/clear-neon.js",
+    "db:clear:orders": "node scripts/clear-orders-and-promoters.js",
     "test": "node test/api-test.js"
   },
   "engines": {
